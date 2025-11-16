@@ -4,6 +4,7 @@ module com.example.proyecto_final_prograiii {
 
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
+    requires java.sql;
 
     opens com.example.proyecto_final_prograiii to javafx.fxml;
     exports com.example.proyecto_final_prograiii;
