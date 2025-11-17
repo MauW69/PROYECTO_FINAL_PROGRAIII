@@ -1,0 +1,1 @@
+una clase para cada tabla que exista en la base de datos, para asi poder manjear mejor el apartado del DAO
