@@ -1,0 +1,34 @@
+.root
+{
+ -fx-background-color: #c6c6c6;
+}
+
+.button
+{
+ -fx-width: 120px;
+ -fx-weight: 40px;
+ -fx-border-radius: 5px;
+ -fx-border-color: blue;
+ -fx-background-color: white;
+ -fx-background-radius: 5px;
+}
+.rectangle
+{
+ -fx-fill: red;
+ -fx-arc-width: 15px;
+ -fx-arc-height: 15px;
+}
+.label
+{
+ -fx-font-size: 15pt;
+ -fx-font-weight: bold;
+ -fx-text-fill: white;
+ -fx-alingment: center;
+}
+#lblInicioSesion
+{
+ -fx-font-size: 20pt;
+ -fx-font-weight: bold;
+ -fx-text-fill: white;
+ -fx-alingment: center;
+}
