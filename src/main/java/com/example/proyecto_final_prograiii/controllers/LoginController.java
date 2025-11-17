@@ -2,10 +2,8 @@ package com.example.proyecto_final_prograiii.controllers;
 
 import com.example.proyecto_final_prograiii.config.ConexionDB;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.event.ActionEvent;
-
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,13 +11,49 @@ import java.sql.SQLException;
 public class LoginController {
 
     @FXML
+    private Button btnIngresar;
+
+    @FXML
+    private Button btnModoInvitado;
+
+    @FXML
     private Button btnProbarConexion;
 
+    @FXML
+    private Hyperlink lblCrearCliente;
+
+    @FXML
+    private PasswordField txtClave;
+
+    @FXML
+    private TextField txtUsuario;
 
 
+    //inicializador
     public void initialize(){
     }
 
+    //evento de botones y label
+    @FXML
+    void CrearCliente(ActionEvent event) {
+
+    }
+
+    @FXML
+    void Ingresar(ActionEvent event) {
+
+    }
+
+    @FXML
+    void ModoInvitado(ActionEvent event) {
+
+    }
+
+
+
+
+
+    //testeo de la base de datos
     @FXML
     void ProbarConexion(ActionEvent event) {
         try (Connection conn = ConexionDB.getConnection()) {

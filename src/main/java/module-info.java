@@ -9,7 +9,7 @@ module com.example.proyecto_final_prograiii {
     opens com.example.proyecto_final_prograiii to javafx.fxml;
     exports com.example.proyecto_final_prograiii;
     exports com.example.proyecto_final_prograiii.controllers;
-    //exports com.example.proyecto_final_prograiii.models;
+    exports com.example.proyecto_final_prograiii.models;
 
     opens com.example.proyecto_final_prograiii.controllers to javafx.fxml;
 }
