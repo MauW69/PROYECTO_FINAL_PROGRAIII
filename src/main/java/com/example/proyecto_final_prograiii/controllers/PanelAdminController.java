@@ -8,4 +8,6 @@ public class PanelAdminController {
     @FXML
     private Label lblBienvenida;
 
+
+
 }

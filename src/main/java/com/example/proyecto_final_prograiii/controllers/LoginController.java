@@ -4,6 +4,7 @@ import com.example.proyecto_final_prograiii.DAO.UsuarioDAO;
 import com.example.proyecto_final_prograiii.config.ConexionDB;
 import com.example.proyecto_final_prograiii.models.Usuario;
 import com.example.proyecto_final_prograiii.utils.ClaveUtil;
+import com.example.proyecto_final_prograiii.utils.Sesion;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -90,6 +91,8 @@ public class LoginController {
         // =====================
         // discriminacion por rol
         // =====================
+        //se guarda la sesion
+        Sesion.iniciarSesion(usuario);
         switch (usuario.getRolId()) {
             case 1:
                 abrirVista("paneladmin-view.fxml", "Panel Administrador");
