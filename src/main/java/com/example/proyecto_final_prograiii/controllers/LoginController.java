@@ -149,12 +149,12 @@ public class LoginController {
         try (Connection conn = ConexionDB.getConnection()) {
             if (conn != null) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Éxito");
+                alert.setTitle("EXTIO");
                 alert.setContentText("Conexión exitosa a la base de datos");
                 alert.showAndWait();
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
+                alert.setTitle("ERROR");
                 alert.setContentText("Conexión nula, algo salió mal");
                 alert.showAndWait();
             }

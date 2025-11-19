@@ -1,11 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.proyecto_final_prograiii.controllers.PanelClienteController">
+
+    <children>
+
+        <!-- TITULO / BIENVENIDA -->
+        <Label fx:id="lblBienvenida"
+               layoutX="20.0" layoutY="14.0"
+               text="Bienvenido/a — Vehículos disponibles"
+               style="-fx-font-size:18.0px; -fx-font-weight:bold;" />
+
+        <!-- SCROLLER GENERAL -->
+        <ScrollPane layoutX="10.0" layoutY="50.0"
+                    prefWidth="880.0" prefHeight="540.0"
+                    AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0"
+                    AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="10.0">
+
+            <content>
+
+                <!-- CONTENEDOR DE LAS 5 CARDS -->
+                <HBox fx:id="cardsContainer" spacing="20.0" style="-fx-padding:20.0;">
+
+                    <!-- CARD 1 -->
+                    <VBox fx:id="card1" prefWidth="240.0" spacing="10.0"
+                          style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
+
+                        <!-- ESPACIO PARA IMAGEN -->
+                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
+
+                        <Label fx:id="lblCarro1Title"
+                               text="Modelo — Placa"
+                               style="-fx-font-weight:bold; -fx-font-size:15.0px;" />
+
+                        <Label fx:id="lblCarro1Info"
+                               text="Información"
+                               wrapText="true" style="-fx-font-size:12.0px;" />
+
+                    </VBox>
 
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelClienteController">
-   <children>
-      <Label fx:id="lblBienvenida" layoutX="131.0" layoutY="69.0" text="Bienvenida" />
-   </children>
+                    <!-- CARD 2 -->
+                    <VBox fx:id="card2" prefWidth="240.0" spacing="10.0"
+                          style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
+
+                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
+
+                        <Label fx:id="lblCarro2Title"
+                               text="Modelo — Placa"
+                               style="-fx-font-weight:bold; -fx-font-size:15.0px;" />
+
+                        <Label fx:id="lblCarro2Info"
+                               text="Información"
+                               wrapText="true" style="-fx-font-size:12.0px;" />
+
+                    </VBox>
+
+
+                    <!-- CARD 3 -->
+                    <VBox fx:id="card3" prefWidth="240.0" spacing="10.0"
+                          style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
+
+                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
+
+                        <Label fx:id="lblCarro3Title"
+                               text="Modelo — Placa"
+                               style="-fx-font-weight:bold; -fx-font-size:15.0px;" />
+
+                        <Label fx:id="lblCarro3Info"
+                               text="Información"
+                               wrapText="true" style="-fx-font-size:12.0px;" />
+
+                    </VBox>
+
+
+                    <!-- CARD 4 -->
+                    <VBox fx:id="card4" prefWidth="240.0" spacing="10.0"
+                          style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
+
+                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
+
+                        <Label fx:id="lblCarro4Title"
+                               text="Modelo — Placa"
+                               style="-fx-font-weight:bold; -fx-font-size:15.0px;" />
+
+                        <Label fx:id="lblCarro4Info"
+                               text="Información"
+                               wrapText="true" style="-fx-font-size:12.0px;" />
+
+                    </VBox>
+
+
+                    <!-- CARD 5 -->
+                    <VBox fx:id="card5" prefWidth="240.0" spacing="10.0"
+                          style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
+
+                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
+
+                        <Label fx:id="lblCarro5Title"
+                               text="Modelo — Placa"
+                               style="-fx-font-weight:bold; -fx-font-size:15.0px;" />
+
+                        <Label fx:id="lblCarro5Info"
+                               text="Información"
+                               wrapText="true" style="-fx-font-size:12.0px;" />
+
+                    </VBox>
+
+
+                </HBox>
+            </content>
+
+        </ScrollPane>
+    </children>
+
 </AnchorPane>
