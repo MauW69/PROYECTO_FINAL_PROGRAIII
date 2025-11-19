@@ -2,21 +2,12 @@ package com.example.proyecto_final_prograiii.DAO;
 
 import com.example.proyecto_final_prograiii.config.ConexionDB;
 import com.example.proyecto_final_prograiii.models.Usuario;
-import javafx.scene.control.Alert;
 
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsuarioDAO {
-    public static void alerta(String titulo, String mensaje){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(titulo);
-        alert.setContentText(mensaje);
-        alert.show();
-    }
 
     private Connection conexion;
 
@@ -24,18 +15,139 @@ public class UsuarioDAO {
         conexion = ConexionDB.getConnection();
     }
 
-    // Crear usuario
-    public boolean crear(Usuario usuario) {
+    //mapeo de usuario
+    private Usuario mapUsuario(ResultSet resultSet) throws SQLException {
+        Usuario u = new Usuario();
+        u.setId(resultSet.getInt("id"));
+        u.setNombreUsuario(resultSet.getString("nombre_usuario"));
+        u.setClaveHash(resultSet.getString("clave_hash"));
+        u.setRolId(resultSet.getInt("rol_id"));
+        Timestamp timestamp = resultSet.getTimestamp("fecha_creacion");
+        u.setFechaCreacion(timestamp != null ? timestamp.toLocalDateTime() : null);
+        return u;
+    }
+
+
+    // Crear usuario(para admin y para cliente)
+    public int crearUsuario(Usuario usuario) {
         String sql = "INSERT INTO usuarios (nombre_usuario, clave_hash, rol_id) VALUES (?, ?, ?)";
-        try(PreparedStatement preparedStatement = conexion.prepareStatement(sql)){
+        try(PreparedStatement preparedStatement = conexion.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)){
             preparedStatement.setString(1, usuario.getNombreUsuario());
             preparedStatement.setString(2, usuario.getClaveHash());
             preparedStatement.setInt(3, usuario.getRolId());
-            return preparedStatement.executeUpdate() > 0;
+            int filas = preparedStatement.executeUpdate();
+            if (filas>0){
+                ResultSet resultSet = preparedStatement.getGeneratedKeys();
+                if (resultSet.next()){
+                    return resultSet.getInt(1);//id generado por postgres
+                }
+            }
         } catch (SQLException e) {
-            alerta("Error", "Error al Crear Usuario : "+e);
+            System.err.println("Error al crear usuario: " + e.getMessage());
+        }
+        return -1;//si falla
+    }
+
+    //validar para que solo se permitan nombre de usuarios diferentes
+    public boolean existeNombreUsuario(String nombreUsuario) {
+        String sql = "SELECT id FROM usuarios WHERE nombre_usuario = ? LIMIT 1";
+
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+            preparedStatement.setString(1, nombreUsuario);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next();  // true si existe, false si no
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar nombre_usuario: " + e.getMessage());
+            return true;
+        }
+    }
+
+
+    //obtener por id
+    public Usuario obtenerPorIdUsuario(int id){
+        String sql = "SELECT * FROM usuarios WHERE id = ?";
+        Usuario usuario = null;
+        try(PreparedStatement preparedStatement = conexion.prepareStatement(sql)){
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                usuario = mapUsuario(resultSet);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener usuario: " + e.getMessage());
+        }
+        return usuario;
+    }
+
+    //listar todos los usuarios
+    public List<Usuario> obtenerTodosUsuarios() {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "SELECT * FROM usuarios";
+
+        try (Statement statement = conexion.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                lista.add(mapUsuario(resultSet));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar usuarios: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    //actualizar usuario
+    public boolean actualizarUsuario(Usuario usuario) {
+        String sql = "UPDATE usuarios SET nombre_usuario = ?, clave_hash = ?, rol_id = ? WHERE id = ?";
+
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+            preparedStatement.setString(1, usuario.getNombreUsuario());
+            preparedStatement.setString(2, usuario.getClaveHash());
+            preparedStatement.setInt(3, usuario.getRolId());
+            preparedStatement.setInt(4, usuario.getId());
+
+            return preparedStatement.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar el usuario: " + e.getMessage());
             return false;
         }
     }
+
+    // Eliminar usuario
+    public boolean eliminarUsuario(int id) {
+        String sql = "DELETE FROM usuarios WHERE id = ?";
+
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
+            return preparedStatement.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    // Buscar usuario por nombre (para login)
+    public Usuario obtenerPorNombreUsuario(String nombre) {
+        String sql = "SELECT * FROM usuarios WHERE nombre_usuario = ?";
+        Usuario usuario = null;
+
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+            preparedStatement.setString(1, nombre);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                usuario = mapUsuario(resultSet);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error, usuario no encontrado: " + e.getMessage());
+        }
+
+        return usuario;
+    }
+
 
 }
