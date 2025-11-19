@@ -112,6 +112,21 @@ public class LoginController {
 
     @FXML
     void ModoInvitado(ActionEvent event) {
+        btnModoInvitado.getScene().getWindow().hide();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/panelcliente-view.fxml"));
+        try {
+            Parent root = fxmlLoader.load();
+            Scene scene = new Scene(root);
+            // Obtener la ventana actual desde el botón btnModoInvitado
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.setTitle("RENTA CAR");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         //este abrira el panel de clientes, mas no podra realizar interacciones y en caso de querer interactural manadara hacia la vista de
         //crear usuario vista "crearusuariocliente-view.fxml" controller "CrearUsuarioClienteController.Java"(la vista de crear usuario solo creara usuarios de tipo cliente)
     }
