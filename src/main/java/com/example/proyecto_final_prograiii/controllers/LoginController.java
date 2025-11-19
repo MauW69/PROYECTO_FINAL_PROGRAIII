@@ -48,18 +48,7 @@ public class LoginController {
     //evento de botones y label
     @FXML
     void CrearCliente(ActionEvent event) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/crearusuariocliente-view.fxml"));
-        try {
-            Parent parent = loader.load();
-            Scene scene = new Scene(parent);
-            Stage stage = new Stage();
-            stage.setTitle("Crear usuario cliente");
-            stage.setScene(scene);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
-        } catch (IOException e) {
-            alerta("Error", "Error al abrir el formulario", Alert.AlertType.ERROR);
-        }
+        abrirVista("crearusuariocliente-view.fxml", "Crear Cuenta de Cliente","login.css");
 
     }
 
@@ -95,15 +84,15 @@ public class LoginController {
         Sesion.iniciarSesion(usuario);
         switch (usuario.getRolId()) {
             case 1:
-                abrirVista("paneladmin-view.fxml", "Panel Administrador");
+                abrirVista("paneladmin-view.fxml", "Panel Administrador","login.css");
                 break;
 
             case 2:
-                abrirVista("panelempleado-view.fxml", "Panel de Empleado");
+                abrirVista("panelempleado-view.fxml", "Panel de Empleado","login.css");
                 break;
 
             case 3:
-                abrirVista("panelcliente-view.fxml", "Panel de Clientes");
+                abrirVista("panel-cliente-view.fxml", "Panel de Clientes","login.css");
                 break;
 
             default:
@@ -115,36 +104,23 @@ public class LoginController {
 
     @FXML
     void ModoInvitado(ActionEvent event) {
-        btnModoInvitado.getScene().getWindow().hide();
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/panelcliente-view.fxml"));
-        try {
-            Parent root = fxmlLoader.load();
-            Scene scene = new Scene(root);
-            // Obtener la ventana actual desde el botón btnModoInvitado
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.setTitle("RENTA CAR");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        //este abrira el panel de clientes, mas no podra realizar interacciones y en caso de querer interactural manadara hacia la vista de
-        //crear usuario vista "crearusuariocliente-view.fxml" controller "CrearUsuarioClienteController.Java"(la vista de crear usuario solo creara usuarios de tipo cliente)
+       abrirVista("panel-cliente-view.fxml", "Panel de Clientes - Modo Invitado","login.css");
     }
 
     //metodo para abrir vistas
-    private void abrirVista(String fxml, String titulo) {
+    private void abrirVista(String fxml, String titulo,String css) {
+        btnModoInvitado.getScene().getWindow().hide();
+        btnIngresar.getScene().getWindow().hide();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/" + fxml));
-            Scene scene = new Scene(loader.load());
-            //falta implementar css
-            Stage stage = (Stage) btnIngresar.getScene().getWindow();
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/"+css).toExternalForm());
+            Stage stage = new Stage();
             stage.setTitle(titulo);
             stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
-
         } catch (Exception e) {
             alerta("Error al cargar vista", e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
