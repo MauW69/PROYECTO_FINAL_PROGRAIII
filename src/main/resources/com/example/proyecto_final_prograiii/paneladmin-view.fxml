@@ -1,11 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelAdminController">
+<AnchorPane prefHeight="585.0" prefWidth="1082.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelAdminController">
    <children>
-      <Label fx:id="lblBienvenida" layoutX="153.0" layoutY="55.0" text="Bienvenida" />
+      <Label fx:id="lblBienvenida" layoutX="38.0" layoutY="14.0" text="Bienvenida" />
+      <TabPane layoutX="38.0" layoutY="61.0" prefHeight="462.0" prefWidth="899.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Empleados">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="tblEmpleados" layoutX="321.0" layoutY="33.0" prefHeight="366.0" prefWidth="552.0">
+                          <columns>
+                            <TableColumn fx:id="colIdEmpleado" prefWidth="75.0" text="id" />
+                            <TableColumn fx:id="colNombreUsuarioEmpleado" prefWidth="120.00003051757812" text="Nombre de usuario" />
+                              <TableColumn fx:id="colRolEmpleado" minWidth="5.60003662109375" prefWidth="52.800048828125" text="Rol" />
+                              <TableColumn fx:id="colFCreacionEmpleado" prefWidth="110.39996337890625" text="Fecha de Creacion" />
+                              <TableColumn fx:id="colLeerEmpleado" minWidth="1.5999755859375" prefWidth="90.4000244140625" text="Leer" />
+                              <TableColumn fx:id="colElimianrEmpleado" prefWidth="101.5999755859375" text="Eliminar" />
+                          </columns>
+                        </TableView>
+                        <Accordion layoutX="14.0" layoutY="50.0" />
+                        <Label layoutX="490.0" layoutY="14.0" text="Label" />
+                        <Label layoutX="17.0" layoutY="50.0" text="Nombre de Usuario" />
+                        <Label layoutX="83.0" layoutY="96.0" text="Clave" />
+                        <Label layoutX="27.0" layoutY="152.0" text="Confirmar Clave" />
+                        <PasswordField fx:id="txtClaveEmpleado" layoutX="126.0" layoutY="92.0" />
+                        <PasswordField fx:id="txtClaveEmpleadoConfimacion" layoutX="126.0" layoutY="148.0" />
+                        <TextField fx:id="txtNombreEmpleado" layoutX="126.0" layoutY="46.0" />
+                        <Button fx:id="btnCrearEmpleado" layoutX="191.0" layoutY="203.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="77.0" text="Crear" />
+                        <Button fx:id="btnEditarEmpleado" layoutX="83.0" layoutY="203.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="77.0" text="Editar" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="Clientes">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="434.0" prefWidth="885.0">
+                     <children>
+                        <Label layoutX="11.0" layoutY="284.0" text="Nombre de Usuario" />
+                        <Label layoutX="59.0" layoutY="34.0" text="Nombre" />
+                        <Label layoutX="59.0" layoutY="75.0" text="Apellido" />
+                        <Label layoutX="66.0" layoutY="115.0" text="Correol" />
+                        <Label layoutX="81.0" layoutY="154.0" text="Edad" />
+                        <Label layoutX="62.0" layoutY="196.0" text="Telefono" />
+                        <Label layoutX="61.0" layoutY="237.0" text="Direccion" />
+                        <TextField layoutX="128.0" layoutY="30.0" />
+                        <TextField layoutX="128.0" layoutY="71.0" />
+                        <TextField layoutX="128.0" layoutY="111.0" />
+                        <TextField layoutX="128.0" layoutY="233.0" />
+                        <Spinner layoutX="128.0" layoutY="150.0" />
+                        <TextField layoutX="128.0" layoutY="192.0" />
+                        <TextField layoutX="128.0" layoutY="280.0" />
+                        <Button layoutX="160.0" layoutY="329.0" mnemonicParsing="false" text="Editar" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+            <Tab text="Estadisticas">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
    </children>
 </AnchorPane>

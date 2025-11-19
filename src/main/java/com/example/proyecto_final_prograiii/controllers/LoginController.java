@@ -151,6 +151,20 @@ public class LoginController {
         }
     }
 
+    public static void alerta(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setContentText(mensaje);
+        alert.show();
+    }
+
+
+
+
+
+
+
+
 
 
     //testeo de la base de datos (se ignora solo es de prueba)
@@ -174,10 +188,5 @@ public class LoginController {
     }
 
 
-    public static void alerta(String titulo, String mensaje, Alert.AlertType tipo) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setContentText(mensaje);
-        alert.show();
-    }
+
 }
