@@ -14,18 +14,18 @@
       <TextField fx:id="txtNombre" layoutX="241.0" layoutY="82.0" />
       <Label layoutX="122.0" layoutY="118.0" text="Apellido" />
       <TextField fx:id="txtApellido" layoutX="241.0" layoutY="114.0" />
+       <Spinner fx:id="spEdad" layoutX="242.0" layoutY="146.0" />
       <Label layoutX="118.0" layoutY="150.0" text="Edad" />
       <Label layoutX="119.0" layoutY="188.0" text="Telefono" />
-      <TextField fx:id="txtTelefono" layoutX="241.0" layoutY="184.0" />
+       <TextField fx:id="txtTelefono" layoutX="241.0" layoutY="184.0" />
+       <TextField fx:id="txtCorreo" layoutX="241.0" layoutY="217.0" />
       <Label layoutX="119.0" layoutY="254.0" text="Direccion" />
       <TextField fx:id="txtDireccion" layoutX="241.0" layoutY="250.0" />
       <Label layoutX="119.0" layoutY="221.0" text="Correo electronico" />
-      <TextField fx:id="txtCorreo" layoutX="241.0" layoutY="217.0" />
       <Label layoutX="144.0" layoutY="354.0" text="Clave" />
       <Label layoutX="119.0" layoutY="312.0" text="Nombre de usuario" />
       <TextField fx:id="txtNombreUsuario" layoutX="241.0" layoutY="308.0" />
       <PasswordField fx:id="txtClave" layoutX="239.0" layoutY="350.0" />
-      <Spinner fx:id="spEdad" layoutX="242.0" layoutY="146.0" />
       <Button fx:id="btnRegistrarCliente" layoutX="272.0" layoutY="415.0" mnemonicParsing="false" onAction="#RegistrarCliente" text="Registrarse" />
    </children>
 </AnchorPane>

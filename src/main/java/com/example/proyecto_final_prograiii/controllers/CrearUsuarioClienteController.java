@@ -7,7 +7,14 @@ import com.example.proyecto_final_prograiii.models.Usuario;
 import com.example.proyecto_final_prograiii.utils.ClaveUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class CrearUsuarioClienteController {
 
@@ -60,9 +67,9 @@ public class CrearUsuarioClienteController {
             return;
         }
 
-        //validacion de correo
-        if (!correo.contains("@") || !correo.contains(".")) {
-            alerta("Correo invalido", "El correo electronico no es valido.", Alert.AlertType.WARNING);
+        //VALIDACION CORREO ELECTRONICO
+        if (correo == null || !correo.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
+            alerta("Correo inválido", "El correo electrónico no es válido.", Alert.AlertType.WARNING);
             return;
         }
         //validacion de edad (mayores de edad)
@@ -111,7 +118,20 @@ public class CrearUsuarioClienteController {
         }
 
         alerta("Exito", "Usuario y cliente creados exitosamente", Alert.AlertType.INFORMATION);
-        LimpiarCampos();
+        btnRegistrarCliente.getScene().getWindow().hide();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/login-view.fxml"));
+        try {
+            Parent root = fxmlLoader.load();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setTitle("INICIO DE SESION");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 
@@ -119,17 +139,7 @@ public class CrearUsuarioClienteController {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
         alert.setContentText(mensaje);
-        alert.show();
-    }
-    public void LimpiarCampos(){
-        txtNombreUsuario.clear();
-        txtCorreo.clear();
-        txtClave.clear();
-        txtNombre.clear();
-        txtApellido.clear();
-        spEdad.getValueFactory().setValue(1);
-        txtTelefono.clear();
-        txtDireccion.clear();
+        alert.showAndWait();
     }
 
 }
