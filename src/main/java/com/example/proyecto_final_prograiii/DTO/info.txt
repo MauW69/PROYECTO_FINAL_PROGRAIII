@@ -1,0 +1,3 @@
+los DTO solo serviran para mostrar tablas compompustas, por ejemplo el cliente tiene sus campos personales
+pero tambien tiene su nombre de usuario que se encuentra en la tabla "usuarios" asi que para mostralo por ejemplo
+en un tableView se crea esta clase con la estructura de dicha tableView, solo para lectura

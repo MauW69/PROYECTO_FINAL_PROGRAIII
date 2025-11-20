@@ -1,5 +1,6 @@
 package com.example.proyecto_final_prograiii.DAO;
 
+import com.example.proyecto_final_prograiii.DTO.ClienteDTO;
 import com.example.proyecto_final_prograiii.config.ConexionDB;
 import com.example.proyecto_final_prograiii.models.Cliente;
 
@@ -106,35 +107,149 @@ public class ClienteDAO {
         return cliente;
     }
 
-    // -------------------- UPDATE --------------------
-    public boolean actualizarCliente(Cliente cliente) {
-        String sql = "UPDATE clientes SET nombre = ?, apellido = ?, email = ?, telefono = ?, direccion = ?, edad = ? WHERE id = ?";
+    //lectura para cargar la informacion de los clientes
+    public List<ClienteDTO> obtenerClientesConUsuario() {
+        List<ClienteDTO> lista = new ArrayList<>();
+
+        String sql = """
+        SELECT 
+            u.nombre_usuario,
+            c.id,
+            c.usuario_id,
+            c.nombre,
+            c.apellido,
+            c.edad,
+            c.telefono,
+            c.email,
+            c.direccion
+        FROM clientes c
+        INNER JOIN usuarios u ON u.id = c.usuario_id
+    """;
 
         try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
-            preparedStatement.setString(1, cliente.getNombre());
-            preparedStatement.setString(2, cliente.getApellido());
-            preparedStatement.setString(3, cliente.getEmail());
-            preparedStatement.setString(4, cliente.getTelefono());
-            preparedStatement.setString(5, cliente.getDireccion());
-            preparedStatement.setInt(6, cliente.getEdad());
-            preparedStatement.setInt(7, cliente.getId());
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-            return preparedStatement.executeUpdate() > 0;
+            while (resultSet.next()) {
+                ClienteDTO dto = new ClienteDTO();
+                dto.setNombreUsuario(resultSet.getString("nombre_usuario"));
+                dto.setId(resultSet.getInt("id"));
+                dto.setUsuarioId(resultSet.getInt("usuario_id"));
+                dto.setNombre(resultSet.getString("nombre"));
+                dto.setApellido(resultSet.getString("apellido"));
+                dto.setEdad(resultSet.getInt("edad"));
+                dto.setTelefono(resultSet.getString("telefono"));
+                dto.setEmail(resultSet.getString("email"));
+                dto.setDireccion(resultSet.getString("direccion"));
+
+                //campo proveniente de Usuario
+                lista.add(dto);
+            }
+
         } catch (SQLException e) {
-            System.err.println("Error al actualizar cliente: " + e.getMessage());
+            System.err.println("Error al obtener clientes con usuario: " + e.getMessage());
+        }
+        return lista;
+    }
+
+
+
+
+    // -------------------- UPDATE --------------------
+    public String validarCamposUnicos(String email, String nombreUsuario, int clienteId) {
+
+        //validar email en clientes
+        String sqlEmail = "SELECT 1 FROM clientes WHERE email = ? AND id <> ?";
+        try (PreparedStatement st = conexion.prepareStatement(sqlEmail)) {
+            st.setString(1, email);
+            st.setInt(2, clienteId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return "El correo ya está en uso por otro cliente.";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Error verificando correo.";
+        }
+
+        // validar nombre_usuario en usuarios
+        String sqlUsuario = """
+            SELECT 1 
+            FROM usuarios u
+            INNER JOIN clientes c ON c.usuario_id = u.id
+            WHERE u.nombre_usuario = ? AND c.id <> ?
+    """;
+
+        try (PreparedStatement st = conexion.prepareStatement(sqlUsuario)) {
+            st.setString(1, nombreUsuario);
+            st.setInt(2, clienteId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return "El nombre de usuario ya está en uso por otro cliente.";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Error verificando nombre de usuario.";
+        }
+
+        return null; // OK
+    }
+
+    public boolean actualizarClienteYUsuario(int clienteId, String nombre, String apellido, int edad, String telefono, String email, String direccion, String nombreUsuario) {
+
+        String sqlCliente = """
+        UPDATE clientes
+        SET nombre = ?, apellido = ?, edad = ?, telefono = ?, email = ?, direccion = ?
+        WHERE id = ?
+    """;
+
+        String sqlUsuario = """
+        UPDATE usuarios
+        SET nombre_usuario = ?
+        WHERE id = (SELECT usuario_id FROM clientes WHERE id = ?)
+    """;
+
+        try {
+
+            //actualizar cliente
+            try (PreparedStatement preparedStatement = conexion.prepareStatement(sqlCliente)) {
+                preparedStatement.setString(1, nombre);
+                preparedStatement.setString(2, apellido);
+                preparedStatement.setInt(3, edad);
+                preparedStatement.setString(4, telefono);
+                preparedStatement.setString(5, email);
+                preparedStatement.setString(6, direccion);
+                preparedStatement.setInt(7, clienteId);
+                preparedStatement.executeUpdate();
+            }
+
+            //actualizar usuario
+            try (PreparedStatement preparedStatement = conexion.prepareStatement(sqlUsuario)) {
+                preparedStatement.setString(1, nombreUsuario);
+                preparedStatement.setInt(2, clienteId);
+                preparedStatement.executeUpdate();
+            }
+
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
+
 
     // -------------------- DELETE --------------------
-    public boolean eliminarCliente(int id) {
-        String sql = "DELETE FROM clientes WHERE id = ?";
 
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
-            preparedStatement.setInt(1, id);
-            return preparedStatement.executeUpdate() > 0;
+    public boolean eliminarCliente(int idUsuario) {
+        String sql = "DELETE FROM usuarios WHERE id = ?";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
+
+
 }

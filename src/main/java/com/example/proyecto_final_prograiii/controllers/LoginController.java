@@ -43,6 +43,10 @@ public class LoginController {
 
     //inicializador
     public void initialize(){
+        //clave para prueba despues de borra
+        String contraPrueba = "111111";
+        String clave = ClaveUtil.hashClave(contraPrueba);
+        System.out.println(clave);
     }
 
     //evento de botones y label
@@ -115,7 +119,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/" + fxml));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/"+css).toExternalForm());
+            //scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/"+css).toExternalForm());
             Stage stage = new Stage();
             stage.setTitle(titulo);
             stage.setScene(scene);
@@ -133,9 +137,6 @@ public class LoginController {
         alert.setContentText(mensaje);
         alert.show();
     }
-
-
-
 
 
 
