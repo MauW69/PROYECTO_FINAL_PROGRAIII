@@ -99,6 +99,10 @@ public class CrearUsuarioClienteController {
             alerta("Telefono", "El numero de telefono tiene que ser 8 digitos", Alert.AlertType.INFORMATION);
             return;
         }
+        if (clave.length() < 8) {
+            alerta("Error", "La contraseña debe tener al menos 8 caracteres", Alert.AlertType.WARNING);
+            return;
+        }
 
 
         //UNA VEZ PASADA LAS VALIDACIONES

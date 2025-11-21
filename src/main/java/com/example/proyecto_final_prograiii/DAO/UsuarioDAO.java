@@ -47,6 +47,20 @@ public class UsuarioDAO {
         }
         return -1; // si falla
     }
+    //crear usuario para empleados
+    public boolean crearEmpleado(String nombreUsuario, String claveHash) {
+        String sql = "INSERT INTO usuarios (nombre_usuario, clave_hash, rol_id) VALUES (?, ?, 2)";
+
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+            preparedStatement.setString(1, nombreUsuario);
+            preparedStatement.setString(2, claveHash);
+            return preparedStatement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     // -------------------- READ --------------------
     // Buscar usuario por nombre (para login)
@@ -67,54 +81,76 @@ public class UsuarioDAO {
         return usuario;
     }
 
-    // Obtener usuario por id
-    public Usuario obtenerPorIdUsuario(int id) {
-        String sql = "SELECT * FROM usuarios WHERE id = ?";
-        Usuario usuario = null;
+    // Listar todos los usuarios tipo empleado
+    public List<Usuario> obtenerEmpleados() {
+        List<Usuario> empleados = new ArrayList<>();
+        String sql = "SELECT id, nombre_usuario, rol_id, fecha_creacion FROM usuarios WHERE rol_id = 2";
         try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
-            preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                usuario = mapUsuario(resultSet);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener usuario: " + e.getMessage());
-        }
-        return usuario;
-    }
-
-    // Listar todos los usuarios
-    public List<Usuario> obtenerTodosUsuarios() {
-        List<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT * FROM usuarios";
-
-        try (Statement statement = conexion.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
-                lista.add(mapUsuario(resultSet));
+                empleados.add(new Usuario(
+                        resultSet.getInt("id"),
+                        resultSet.getString("nombre_usuario"),
+                        resultSet.getInt("rol_id"),
+                        resultSet.getTimestamp("fecha_creacion").toLocalDateTime()
+                ));
             }
         } catch (SQLException e) {
-            System.err.println("Error al listar usuarios: " + e.getMessage());
+            e.printStackTrace();
         }
-        return lista;
+        return empleados;
     }
 
     // -------------------- UPDATE --------------------
-    // Actualizar usuario
-    public boolean actualizarUsuario(Usuario usuario) {
-        String sql = "UPDATE usuarios SET nombre_usuario = ?, clave_hash = ?, rol_id = ? WHERE id = ?";
+    //permite que un usuario tipo emplado permita almacenar el mismo nombre de usuario
+    public String validarNombreUsuarioUnico(String nombreUsuario, int usuarioId) {
+        String sql = "SELECT id FROM usuarios WHERE nombre_usuario = ? AND id <> ?";
 
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
-            preparedStatement.setString(1, usuario.getNombreUsuario());
-            preparedStatement.setString(2, usuario.getClaveHash());
-            preparedStatement.setInt(3, usuario.getRolId());
-            preparedStatement.setInt(4, usuario.getId());
-            return preparedStatement.executeUpdate() > 0;
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, nombreUsuario);
+            ps.setInt(2, usuarioId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return "El nombre de usuario ya esta en uso";
+            }
         } catch (SQLException e) {
-            System.err.println("Error al actualizar el usuario: " + e.getMessage());
+            e.printStackTrace();
+            return "Error al validar nombre de usuario";
+        }
+
+        return null;
+    }
+    public boolean actualizarEmpleado(int id, String nombreUsuario, String claveHash) {
+        String error = validarNombreUsuarioUnico(nombreUsuario, id);
+        if (error != null) {
+            System.out.println(error);
+            return false;
+        }
+        try {
+            if (claveHash == null || claveHash.isEmpty()) {
+                String sql = "UPDATE usuarios SET nombre_usuario = ? WHERE id = ? AND rol_id = 2";
+                try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+                    preparedStatement.setString(1, nombreUsuario);
+                    preparedStatement.setInt(2, id);
+                    return preparedStatement.executeUpdate() > 0;
+                }
+            } else {
+                String sql = "UPDATE usuarios SET nombre_usuario = ?, clave_hash = ? WHERE id = ? AND rol_id = 2";
+                try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+                    preparedStatement.setString(1, nombreUsuario);
+                    preparedStatement.setString(2, claveHash);
+                    preparedStatement.setInt(3, id);
+                    return preparedStatement.executeUpdate() > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
+
+
 
     // -------------------- DELETE --------------------
     // Eliminar usuario

@@ -1,10 +1,13 @@
 package com.example.proyecto_final_prograiii.controllers;
 
 import com.example.proyecto_final_prograiii.DAO.ClienteDAO;
+import com.example.proyecto_final_prograiii.DAO.UsuarioDAO;
 import com.example.proyecto_final_prograiii.DTO.ClienteDTO;
 import com.example.proyecto_final_prograiii.models.Cliente;
 import com.example.proyecto_final_prograiii.models.Usuario;
+import com.example.proyecto_final_prograiii.utils.ClaveUtil;
 import com.example.proyecto_final_prograiii.utils.Sesion;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -28,30 +31,11 @@ public class PanelAdminController {
     @FXML
     private Button btnEditarEmpleado;
 
-
-
-
-
     @FXML
-    private TableColumn<Usuario, Void> colElimianrEmpleado;
+    private Label lblBienvenida;
 
 
-    @FXML
-    private TableColumn<Usuario, String> colFCreacionEmpleado;
 
-    @FXML
-    private TableColumn<Usuario, Integer> colIdEmpleado;
-
-
-    @FXML
-    private TableColumn<Usuario, Void> colLeerEmpleado;
-
-
-    @FXML
-    private TableColumn<Usuario, Usuario> colNombreUsuarioEmpleado;
-
-    @FXML
-    private TableColumn<Usuario, String> colRolEmpleado;
 
 
     //-------- TABLA CLIENTE INSTANCIAS ----
@@ -75,22 +59,29 @@ public class PanelAdminController {
     private TableColumn<ClienteDTO, Void> colLeerCliente;
     @FXML
     private TableColumn<ClienteDTO, Void> colEliminarCliente;
+    private final ObservableList<ClienteDTO> listaClientes = FXCollections.observableArrayList();
 
-
-
-
-
+    //-------- TABLA EMPLEADOS INSTANCIAS ----
     @FXML
-    private Label lblBienvenida;
-
+    private TableView<Usuario> tblEmpleados;
+    @FXML
+    private TableColumn<Usuario, Void> colElimianrEmpleado;
+    @FXML
+    private TableColumn<Usuario, String> colFCreacionEmpleado;
+    @FXML
+    private TableColumn<Usuario, Integer> colIdEmpleado;
+    @FXML
+    private TableColumn<Usuario, Void> colLeerEmpleado;
+    @FXML
+    private TableColumn<Usuario, Usuario> colNombreUsuarioEmpleado;
+    @FXML
+    private TableColumn<Usuario, String> colRolEmpleado;
+    private final ObservableList<Usuario> listaEmpleados = FXCollections.observableArrayList();
 
 
     @FXML
     private Spinner<Integer> spEdadCliente;
 
-
-    @FXML
-    private TableView<Usuario> tblEmpleados;
 
     @FXML
     private TextField txtApellidoCliente;
@@ -119,8 +110,34 @@ public class PanelAdminController {
     @FXML
     private TextField txtTelefonoCliente;
 
-    private final ObservableList<ClienteDTO> listaClientes = FXCollections.observableArrayList();
 
+
+    private void InicialzarEdades(){
+        spEdadCliente.setValueFactory(new  SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 0));
+        spEdadCliente.setEditable(true);//SOLO permitir numeros
+        TextFormatter<Integer> formatter = new TextFormatter<>(
+                spEdadCliente.getValueFactory().getConverter(),
+                spEdadCliente.getValue(),
+                change -> {
+                    String nuevoTexto = change.getControlNewText();
+                    if (nuevoTexto.matches("\\d*")) {
+                        return change; // permitir solo numeros
+                    }
+                    return null; // bloquear letras y simbolos
+                }
+        );
+
+        spEdadCliente.getEditor().setTextFormatter(formatter);
+
+// sincronizar spinner <-> editor
+        formatter.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null) {
+                spEdadCliente.getValueFactory().setValue(newValue);
+            }
+        });
+
+
+    }
 
 
     public void initialize(){
@@ -225,45 +242,92 @@ public class PanelAdminController {
 
     //--------------------------------------------------------------------------------------------------------
     //configuracion para la tabla de empleados--------------------------------------------------------
-    private void InicializarTablaEmpleados(){
+    private void InicializarTablaEmpleados() {
 
+        // Columnas normales
+        colIdEmpleado.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colNombreUsuarioEmpleado.setCellValueFactory(new PropertyValueFactory<>("nombreUsuario"));
+        colFCreacionEmpleado.setCellValueFactory(new PropertyValueFactory<>("fechaCreacion"));
+
+        // Rol fijo en texto
+        colRolEmpleado.setCellValueFactory(cell -> new SimpleStringProperty("Empleado"));
+
+        // Boton Leer
+        LeerEmpleado();
+
+        // Boton Eliminar
+        EliminarEmpleado();
+
+        // Cargar empleados
+        cargarEmpleados();
+
+        tblEmpleados.setItems(listaEmpleados);
     }
-    private void InicialzarEdades(){
-        spEdadCliente.setValueFactory(new  SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 0));
-        spEdadCliente.setEditable(true);//SOLO permitir numeros
-        TextFormatter<Integer> formatter = new TextFormatter<>(
-                spEdadCliente.getValueFactory().getConverter(),
-                spEdadCliente.getValue(),
-                change -> {
-                    String nuevoTexto = change.getControlNewText();
-                    if (nuevoTexto.matches("\\d*")) {
-                        return change; // permitir solo numeros
-                    }
-                    return null; // bloquear letras y simbolos
-                }
-        );
+    private void cargarEmpleados() {
+        UsuarioDAO dao = new UsuarioDAO();
+        List<Usuario> listaEmpleado = dao.obtenerEmpleados();
 
-        spEdadCliente.getEditor().setTextFormatter(formatter);
-
-// sincronizar spinner <-> editor
-        formatter.valueProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue != null) {
-                spEdadCliente.getValueFactory().setValue(newValue);
+        listaEmpleados.clear();
+        listaEmpleados.addAll(listaEmpleado);
+    }
+    private void LeerEmpleado() {
+        colLeerEmpleado.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button("Leer");
+            {
+                btn.setOnAction(e -> {
+                    Usuario emp = getTableView().getItems().get(getIndex());
+                    mostrarDatosEmpleado(emp);
+                });
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
             }
         });
+    }
+    private void mostrarDatosEmpleado(Usuario emp) {
+        txtNombreUsuarioEmpleado.setText(emp.getNombreUsuario());
+        txtClaveEmpleado.clear();
+        txtClaveEmpleadoConfimacion.clear();
+    }
+    private void EliminarEmpleado() {
+        colElimianrEmpleado.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button("Eliminar");
+            {
+                btn.setOnAction(e -> {
+                    Usuario emp = getTableView().getItems().get(getIndex());
+                    if (confirmarEliminarEmpleado(emp)) {
+                        eliminarEmpleado(emp.getId());
+                        listaEmpleados.remove(emp);
+                        tblEmpleados.refresh();
+                    }
+                });
+            }
 
-
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
+            }
+        });
+    }
+    private boolean confirmarEliminarEmpleado(Usuario emp) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmacion");
+        alert.setHeaderText("¿Eliminar empleado?");
+        alert.setContentText("Se eliminara el usuario empleado: " + emp.getNombreUsuario());
+        return alert.showAndWait().filter(btn -> btn == ButtonType.OK).isPresent();
+    }
+    private void eliminarEmpleado(int usuarioId) {
+        UsuarioDAO dao = new UsuarioDAO();
+        dao.eliminarUsuario(usuarioId);
     }
 
 
 
-    //metodos de los botones
 
-    //por emplear
-    public void CrearEmpleado(javafx.event.ActionEvent event) {
-    }
-
-
+    //botones para clientes
     //listo
     @FXML
     public void ActualizarCliente(ActionEvent event) {
@@ -341,12 +405,116 @@ public class PanelAdminController {
         }
     }
 
+
+    //botones para Empleados
     //por emplear
+    @FXML
+    public void CrearEmpleado(ActionEvent event) {
+
+        String nombreUsuario = txtNombreUsuarioEmpleado.getText().trim();
+        String clave = txtClaveEmpleado.getText();
+        String claveConfirmada = txtClaveEmpleadoConfimacion.getText();
+
+        // campos vacios
+        if (camposVacios(nombreUsuario, clave, claveConfirmada)) {
+            alerta("Alerta", "Complete todos los campos", Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        // validar nombre de usuario unico
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        String errorValidacion = usuarioDAO.validarNombreUsuarioUnico(nombreUsuario, -1); // -1 porque es creación
+        if (errorValidacion != null) {
+            alerta("Error", errorValidacion, Alert.AlertType.WARNING);
+            return;
+        }
+
+        // validar contraseñas
+        if (!clave.equals(claveConfirmada)) {
+            alerta("Error", "Las contraseñas no coinciden", Alert.AlertType.WARNING);
+            return;
+        }
+        if (clave.length() < 8) {
+            alerta("Error", "La contraseña debe tener al menos 8 caracteres", Alert.AlertType.WARNING);
+            return;
+        }
+
+        //Hashear contraseña
+        String claveHash = ClaveUtil.hashClave(clave);
+
+        // crear empleado en BD
+        boolean ok = usuarioDAO.crearEmpleado(nombreUsuario, claveHash);
+
+        if (ok) {
+            alerta("Exito", "Empleado creado correctamente", Alert.AlertType.INFORMATION);
+            cargarEmpleados();
+
+            // Limpiar campos del formulario
+            txtNombreUsuarioEmpleado.clear();
+            txtClaveEmpleado.clear();
+            txtClaveEmpleadoConfimacion.clear();
+        } else {
+            alerta("Error", "No se pudo crear el empleado", Alert.AlertType.ERROR);
+        }
+    }
+
     public void ActualizarEmpleado(ActionEvent event) {
+        Usuario seleccionado = tblEmpleados.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) {
+            alerta("Alerta", "Debe seleccionar un empleado", Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        int usuarioId = seleccionado.getId();
+        String nombreUsuario = txtNombreUsuarioEmpleado.getText().trim();
+        String clave = txtClaveEmpleado.getText();           // campo visible en UI (vacio por defecto)
+        String claveConfirmada = txtClaveEmpleadoConfimacion.getText();
+
+        // campo vacio
+        if (camposVacios(nombreUsuario)) {
+            alerta("Alerta", "No deje vacio el nombre de usuario", Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        // Validar nombre de usuario unico (permite mantener el mismo nombre si no se cambia)
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        String errorValidacion = usuarioDAO.validarNombreUsuarioUnico(nombreUsuario, usuarioId);
+        if (errorValidacion != null) {
+            alerta("Error", errorValidacion, Alert.AlertType.WARNING);
+            return;
+        }
+
+        // si se cambia clave se valida
+        String claveHashActualizada = null;
+        if (!clave.isEmpty() || !claveConfirmada.isEmpty()) {
+            if (!clave.equals(claveConfirmada)) {
+                alerta("Error", "Las contraseñas no coinciden", Alert.AlertType.ERROR);
+                return;
+            }
+            if (clave.length() < 8) {
+                alerta("advertencia", "La contraseña debe tener al menos 8 caracteres", Alert.AlertType.WARNING);
+                return;
+            }
+            // se hashea la nueva clave
+            claveHashActualizada = ClaveUtil.hashClave(clave);
+        }
+
+        // Ejecutar actualizacion
+        boolean ok = usuarioDAO.actualizarEmpleado(usuarioId, nombreUsuario, claveHashActualizada);
+        if (ok) {
+            alerta("Exito", "Empleado actualizado", Alert.AlertType.INFORMATION);
+            cargarEmpleados();
+            // limpiar campos
+            txtNombreUsuarioEmpleado.clear();
+            txtClaveEmpleado.clear();
+            txtClaveEmpleadoConfimacion.clear();
+        } else {
+            alerta("Error", "No se pudo actualizar el empleado", Alert.AlertType.ERROR);
+        }
     }
 
 
-
+    //metodos extra
     private void alerta(String titulo, String mensaje, Alert.AlertType tipoAlerta){
         Alert alert = new Alert(tipoAlerta);
         alert.setTitle(titulo);
