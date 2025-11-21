@@ -151,6 +151,20 @@ public class ClienteDAO {
         return lista;
     }
 
+    public boolean existeCorreo(String correo) {
+        String sql = "SELECT COUNT(*) FROM clientes WHERE email = ?";
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+            preparedStatement.setString(1, correo);
+            var rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
 
 
@@ -231,6 +245,25 @@ public class ClienteDAO {
 
             return true;
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean actualizarClavePorCorreo(String correo, String nuevaClaveHash) {
+        String sql = """
+        UPDATE usuarios
+        SET clave_hash = ?
+        FROM clientes c
+        WHERE usuarios.id = c.usuario_id
+        AND c.email = ?
+    """;
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, nuevaClaveHash);
+            ps.setString(2, correo);
+            int filasActualizadas = ps.executeUpdate();
+            return filasActualizadas > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
