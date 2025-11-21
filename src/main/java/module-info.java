@@ -7,6 +7,7 @@ module com.example.proyecto_final_prograiii {
     requires java.sql;
     requires jbcrypt;
     requires java.desktop;
+    requires jakarta.mail;
 
     opens com.example.proyecto_final_prograiii to javafx.fxml;
     exports com.example.proyecto_final_prograiii;
