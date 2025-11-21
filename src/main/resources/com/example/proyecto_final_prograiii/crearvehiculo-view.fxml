@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.proyecto_final_prograiii.controllers.CrearVehiculoController"
+      style="-fx-padding: 20;">
+
+    <Label text="Agregar Vehículo" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+
+    <GridPane hgap="10" vgap="12">
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <children>
+
+            <Label text="Tipo de Vehículo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="comboTipo" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+            <Label text="Placa:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtPlaca" promptText="Ej: 000000 O 0A000" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Modelo:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtModelo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Año:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtYear" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Color:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtColor" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <Label text="Kilometraje:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtKilometraje" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+            <Label text="Estado:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="comboEstado" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        </children>
+    </GridPane>
+
+    <HBox spacing="15" alignment="CENTER">
+        <Button fx:id="btnGuardar" text="Guardar" prefWidth="120" onAction="#guardarVehiculo"/>
+        <Button text="Cancelar" prefWidth="120" onAction="#cerrarVentana"/>
+    </HBox>
+
+</VBox>
