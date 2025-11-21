@@ -89,7 +89,7 @@ public class ClienteDAO {
         return lista;
     }
 
-    // Obtener cliente por usuario_id (opcional, útil para login de clientes)
+    // Obtener cliente por usuario_id (opcional, util para login de clientes)
     public Cliente obtenerPorUsuarioId(int usuarioId) {
         String sql = "SELECT * FROM clientes WHERE usuario_id = ?";
         Cliente cliente = null;
@@ -179,11 +179,11 @@ public class ClienteDAO {
             WHERE u.nombre_usuario = ? AND c.id <> ?
     """;
 
-        try (PreparedStatement st = conexion.prepareStatement(sqlUsuario)) {
-            st.setString(1, nombreUsuario);
-            st.setInt(2, clienteId);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(sqlUsuario)) {
+            preparedStatement.setString(1, nombreUsuario);
+            preparedStatement.setInt(2, clienteId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
                 return "El nombre de usuario ya está en uso por otro cliente.";
             }
         } catch (SQLException e) {
@@ -191,7 +191,7 @@ public class ClienteDAO {
             return "Error verificando nombre de usuario.";
         }
 
-        return null; // OK
+        return null;
     }
 
     public boolean actualizarClienteYUsuario(int clienteId, String nombre, String apellido, int edad, String telefono, String email, String direccion, String nombreUsuario) {
@@ -242,9 +242,9 @@ public class ClienteDAO {
 
     public boolean eliminarCliente(int idUsuario) {
         String sql = "DELETE FROM usuarios WHERE id = ?";
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setInt(1, idUsuario);
-            return ps.executeUpdate() > 0;
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(sql)) {
+            preparedStatement.setInt(1, idUsuario);
+            return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

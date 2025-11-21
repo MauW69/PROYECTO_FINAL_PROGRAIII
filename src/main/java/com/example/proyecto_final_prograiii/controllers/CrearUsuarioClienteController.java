@@ -8,6 +8,7 @@ import com.example.proyecto_final_prograiii.utils.ClaveUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.util.converter.IntegerStringConverter;
 
 public class CrearUsuarioClienteController {
 
@@ -40,6 +41,29 @@ public class CrearUsuarioClienteController {
 
     public void initialize(){
         spEdad.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
+        spEdad.setEditable(true);
+        // SOLO permitir números
+        TextFormatter<Integer> formatter = new TextFormatter<>(
+                spEdad.getValueFactory().getConverter(),
+                spEdad.getValue(),
+                change -> {
+                    String nuevoTexto = change.getControlNewText();
+                    if (nuevoTexto.matches("\\d*")) {
+                        return change; // permitir solo números
+                    }
+                    return null; // bloquear letras y símbolos
+                }
+        );
+
+        spEdad.getEditor().setTextFormatter(formatter);
+
+// sincronizar spinner <-> editor
+        formatter.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null) {
+                spEdad.getValueFactory().setValue(newValue);
+            }
+        });
+
     }
     @FXML
     void RegistrarCliente(ActionEvent event) {

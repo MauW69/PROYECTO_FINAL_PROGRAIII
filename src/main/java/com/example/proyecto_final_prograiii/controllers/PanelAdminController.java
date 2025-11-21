@@ -4,12 +4,14 @@ import com.example.proyecto_final_prograiii.DAO.ClienteDAO;
 import com.example.proyecto_final_prograiii.DTO.ClienteDTO;
 import com.example.proyecto_final_prograiii.models.Cliente;
 import com.example.proyecto_final_prograiii.models.Usuario;
+import com.example.proyecto_final_prograiii.utils.Sesion;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.util.List;
 
@@ -122,6 +124,7 @@ public class PanelAdminController {
 
 
     public void initialize(){
+        lblBienvenida.setText(String.format("Bienvenido : %s", Sesion.getUsuarioActual().getNombreUsuario()));
         InicializarTablaClientes();
         tblClientes.setItems(listaClientes);
 
@@ -227,6 +230,29 @@ public class PanelAdminController {
     }
     private void InicialzarEdades(){
         spEdadCliente.setValueFactory(new  SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 0));
+        spEdadCliente.setEditable(true);//SOLO permitir numeros
+        TextFormatter<Integer> formatter = new TextFormatter<>(
+                spEdadCliente.getValueFactory().getConverter(),
+                spEdadCliente.getValue(),
+                change -> {
+                    String nuevoTexto = change.getControlNewText();
+                    if (nuevoTexto.matches("\\d*")) {
+                        return change; // permitir solo numeros
+                    }
+                    return null; // bloquear letras y simbolos
+                }
+        );
+
+        spEdadCliente.getEditor().setTextFormatter(formatter);
+
+// sincronizar spinner <-> editor
+        formatter.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null) {
+                spEdadCliente.getValueFactory().setValue(newValue);
+            }
+        });
+
+
     }
 
 
@@ -260,13 +286,28 @@ public class PanelAdminController {
         int edad = spEdadCliente.getValue();
         String nombreUsuario = txtNombreUsuarioCliente.getText().trim();
 
-        // Validar vacíos
-        if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() ||
-                telefono.isEmpty() || direccion.isEmpty() || nombreUsuario.isEmpty()) {
-
-            alerta("Informacion","Debe completar todos los campos.", Alert.AlertType.INFORMATION);
+        if (camposVacios(nombre, apellido, email, telefono, direccion, nombreUsuario)) {
+            alerta("Informacion", "Debe completar todos los campos", Alert.AlertType.INFORMATION);
             return;
         }
+
+        if (!emailValido(email)) {
+            alerta("Correo inválido", "El correo electrónico no es válido.", Alert.AlertType.WARNING);
+            return;
+        }
+        //convertir la edad
+
+        //validacion de edad (mayores de edad)
+        if (edad <= 17) {
+            alerta("Edad invalida", "solo se pueden registrar mayores de edad.", Alert.AlertType.WARNING);
+            return;
+        }
+        //validacion de la cantidad de digitos del telefono
+        if(telefono.length() != 8){
+            alerta("Telefono", "El numero de telefono tiene que ser 8 digitos", Alert.AlertType.INFORMATION);
+            return;
+        }
+
 
         ClienteDAO dao = new ClienteDAO();
 
@@ -305,6 +346,7 @@ public class PanelAdminController {
     }
 
 
+
     private void alerta(String titulo, String mensaje, Alert.AlertType tipoAlerta){
         Alert alert = new Alert(tipoAlerta);
         alert.setTitle(titulo);
@@ -320,6 +362,19 @@ public class PanelAdminController {
         txtDireccionCliente.clear();
         txtNombreUsuarioCliente.clear();
         spEdadCliente.getValueFactory().setValue(0);
+    }
+
+    private boolean camposVacios(String... valores) {
+        for (String v : valores) {
+            if (v == null || v.trim().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean emailValido(String email) {
+        return email.contains("@") && email.contains(".");
     }
 
 }
