@@ -38,11 +38,18 @@ public class LoginController {
     @FXML
     private TextField txtUsuario;
 
+    @FXML
+    private Hyperlink lblRecuperarPin;
+
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
 
     //inicializador
     public void initialize(){
+        //clave para prueba despues de borra
+        String contraPrueba = "111111";
+        String clave = ClaveUtil.hashClave(contraPrueba);
+        System.out.println(clave);
     }
 
     //evento de botones y label
@@ -127,15 +134,18 @@ public class LoginController {
         }
     }
 
+    @FXML
+    void RecuperarPin(ActionEvent event) {
+            abrirVista("recuperarclave-view.fxml", "Recuperar Contraseña", "login.css");
+
+    }
+
     public static void alerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
         alert.setContentText(mensaje);
         alert.show();
     }
-
-
-
 
 
 

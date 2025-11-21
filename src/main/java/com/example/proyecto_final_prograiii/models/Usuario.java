@@ -24,10 +24,9 @@ public class Usuario {
     }
 
     //constructor general
-    public Usuario(int id, String nombreUsuario, String claveHash, int rolId, LocalDateTime fechaCreacion) {
+    public Usuario(int id, String nombreUsuario, int rolId, LocalDateTime fechaCreacion) {
         this.id = id;
         this.nombreUsuario = nombreUsuario;
-        this.claveHash = claveHash;
         this.rolId = rolId;
         this.fechaCreacion = fechaCreacion;
     }

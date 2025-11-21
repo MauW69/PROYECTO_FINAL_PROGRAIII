@@ -7,14 +7,8 @@ import com.example.proyecto_final_prograiii.models.Usuario;
 import com.example.proyecto_final_prograiii.utils.ClaveUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-
-import java.io.IOException;
+import javafx.util.converter.IntegerStringConverter;
 
 public class CrearUsuarioClienteController {
 
@@ -47,6 +41,29 @@ public class CrearUsuarioClienteController {
 
     public void initialize(){
         spEdad.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
+        spEdad.setEditable(true);
+        // SOLO permitir números
+        TextFormatter<Integer> formatter = new TextFormatter<>(
+                spEdad.getValueFactory().getConverter(),
+                spEdad.getValue(),
+                change -> {
+                    String nuevoTexto = change.getControlNewText();
+                    if (nuevoTexto.matches("\\d*")) {
+                        return change; // permitir solo números
+                    }
+                    return null; // bloquear letras y símbolos
+                }
+        );
+
+        spEdad.getEditor().setTextFormatter(formatter);
+
+// sincronizar spinner <-> editor
+        formatter.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null) {
+                spEdad.getValueFactory().setValue(newValue);
+            }
+        });
+
     }
     @FXML
     void RegistrarCliente(ActionEvent event) {
@@ -67,9 +84,9 @@ public class CrearUsuarioClienteController {
             return;
         }
 
-        //VALIDACION CORREO ELECTRONICO
-        if (correo == null || !correo.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
-            alerta("Correo inválido", "El correo electrónico no es válido.", Alert.AlertType.WARNING);
+        //validacion de correo
+        if (!correo.contains("@") || !correo.contains(".")) {
+            alerta("Correo invalido", "El correo electronico no es valido.", Alert.AlertType.WARNING);
             return;
         }
         //validacion de edad (mayores de edad)
@@ -80,6 +97,10 @@ public class CrearUsuarioClienteController {
         //validacion de la cantidad de digitos del telefono
         if(telefono.length() != 8){
             alerta("Telefono", "El numero de telefono tiene que ser 8 digitos", Alert.AlertType.INFORMATION);
+            return;
+        }
+        if (clave.length() < 8) {
+            alerta("Error", "La contraseña debe tener al menos 8 caracteres", Alert.AlertType.WARNING);
             return;
         }
 
@@ -118,20 +139,7 @@ public class CrearUsuarioClienteController {
         }
 
         alerta("Exito", "Usuario y cliente creados exitosamente", Alert.AlertType.INFORMATION);
-        btnRegistrarCliente.getScene().getWindow().hide();
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/login-view.fxml"));
-        try {
-            Parent root = fxmlLoader.load();
-            Scene scene = new Scene(root);
-            Stage stage = new Stage();
-            stage.setTitle("INICIO DE SESION");
-            stage.setScene(scene);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        LimpiarCampos();
 
     }
 
@@ -139,7 +147,17 @@ public class CrearUsuarioClienteController {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
         alert.setContentText(mensaje);
-        alert.showAndWait();
+        alert.show();
+    }
+    public void LimpiarCampos(){
+        txtNombreUsuario.clear();
+        txtCorreo.clear();
+        txtClave.clear();
+        txtNombre.clear();
+        txtApellido.clear();
+        spEdad.getValueFactory().setValue(1);
+        txtTelefono.clear();
+        txtDireccion.clear();
     }
 
 }
