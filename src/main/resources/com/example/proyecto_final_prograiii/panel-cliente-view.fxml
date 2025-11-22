@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -20,6 +21,14 @@
                layoutX="20.0" layoutY="14.0"
                text="Bienvenido/a — Vehículos disponibles"
                style="-fx-font-size:18.0px; -fx-font-weight:bold;" />
+
+        <!-- BOTÓN CERRAR SESIÓN -->
+        <Button fx:id="btnCerrarSesion"
+                layoutX="780.0" layoutY="10.0"
+                mnemonicParsing="false"
+                onAction="#cerrarSesion"
+                prefHeight="28.0" prefWidth="100.0"
+                text="Cerrar sesión" />
 
         <!-- SCROLLER GENERAL -->
         <ScrollPane layoutX="10.0" layoutY="50.0"

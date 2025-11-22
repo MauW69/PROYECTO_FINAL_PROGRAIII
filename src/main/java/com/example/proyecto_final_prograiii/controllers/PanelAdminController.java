@@ -12,15 +12,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 public class PanelAdminController {
-
-
 
     @FXML
     private Button btnCrearEmpleado;
@@ -34,9 +39,9 @@ public class PanelAdminController {
     @FXML
     private Label lblBienvenida;
 
-
-
-
+    // Botón nuevo de cerrar sesión
+    @FXML
+    private Button btnCerrarSesion;
 
     //-------- TABLA CLIENTE INSTANCIAS ----
     @FXML
@@ -111,7 +116,6 @@ public class PanelAdminController {
     private TextField txtTelefonoCliente;
 
 
-
     private void InicialzarEdades(){
         spEdadCliente.setValueFactory(new  SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 0));
         spEdadCliente.setEditable(true);//SOLO permitir numeros
@@ -129,19 +133,27 @@ public class PanelAdminController {
 
         spEdadCliente.getEditor().setTextFormatter(formatter);
 
-// sincronizar spinner <-> editor
+        // sincronizar spinner <-> editor
         formatter.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue != null) {
                 spEdadCliente.getValueFactory().setValue(newValue);
             }
         });
-
-
     }
 
 
     public void initialize(){
-        lblBienvenida.setText(String.format("Bienvenido : %s", Sesion.getUsuarioActual().getNombreUsuario()));
+        // Protección por si Sesion.getUsuarioActual() es null
+        try {
+            if (Sesion.getUsuarioActual() != null) {
+                lblBienvenida.setText(String.format("Bienvenido : %s", Sesion.getUsuarioActual().getNombreUsuario()));
+            } else {
+                lblBienvenida.setText("Bienvenido");
+            }
+        } catch (Exception ex) {
+            lblBienvenida.setText("Bienvenido");
+        }
+
         InicializarTablaClientes();
         tblClientes.setItems(listaClientes);
 
@@ -323,9 +335,6 @@ public class PanelAdminController {
         UsuarioDAO dao = new UsuarioDAO();
         dao.eliminarUsuario(usuarioId);
     }
-
-
-
 
     //botones para clientes
     //listo
@@ -513,7 +522,6 @@ public class PanelAdminController {
         }
     }
 
-
     //metodos extra
     private void alerta(String titulo, String mensaje, Alert.AlertType tipoAlerta){
         Alert alert = new Alert(tipoAlerta);
@@ -543,6 +551,80 @@ public class PanelAdminController {
 
     private boolean emailValido(String email) {
         return email.contains("@") && email.contains(".");
+    }
+
+    /**
+     * Método para cerrar sesión:
+     * - Intenta limpiar la sesión (llamando Sesion.cerrarSesion() o Sesion.setUsuarioActual(null) si existe)
+     * - Carga login-view.fxml y lo muestra en la misma Stage
+     */
+    @FXML
+    public void cerrarSesion(ActionEvent event) {
+        // Intentar limpiar la sesión de forma flexible (reflexión para no depender exactamente del nombre)
+        try {
+            try {
+                // Primero, si existe un método Sesion.cerrarSesion(), invocarlo
+                java.lang.reflect.Method mCerrar = Sesion.class.getMethod("cerrarSesion");
+                if (mCerrar != null) {
+                    mCerrar.invoke(null);
+                }
+            } catch (NoSuchMethodException ignore) {
+                // Si no existe, intentar setUsuarioActual(null) (si existe)
+                try {
+                    java.lang.reflect.Method mSet = Sesion.class.getMethod("setUsuarioActual", Object.class);
+                    if (mSet != null) {
+                        mSet.invoke(null, new Object[]{null});
+                    }
+                } catch (NoSuchMethodException ignore2) {
+                    // No hay método público para limpiar la sesión: continuamos igualmente a la pantalla de login
+                }
+            }
+        } catch (Exception ex) {
+            // No dejar que un error de limpieza de sesión impida el cierre; lo registramos en consola
+            ex.printStackTrace();
+        }
+
+        // Rutas probadas para login-view.fxml (según la estructura que mostraste)
+        String[] posiblesRutas = {
+                "/com/example/proyecto_final_prograiii/login-view.fxml",
+                "/com/example/proyecto_final_prograiii/views/login-view.fxml",
+                "/login-view.fxml",
+                "/com/example/proyecto_final_prograiii/login-view.fxml", // repetida intencionalmente por claridad
+                "login-view.fxml"
+        };
+
+        URL fxmlUrl = null;
+        String rutaEncontrada = null;
+        for (String r : posiblesRutas) {
+            fxmlUrl = getClass().getResource(r);
+            if (fxmlUrl != null) {
+                rutaEncontrada = r;
+                System.out.println("login-view.fxml encontrado en: " + r + " -> " + fxmlUrl);
+                break;
+            }
+        }
+
+        if (fxmlUrl == null) {
+            String msg = "No se pudo encontrar login-view.fxml en las rutas probadas.\nRutas probadas:\n";
+            for (String r : posiblesRutas) msg += "  - " + r + "\n";
+            msg += "\nColoca login-view.fxml dentro de src/main/resources/com/example/proyecto_final_prograiii/ o ajusta la ruta en el código.";
+            alerta("Error al cerrar sesión", msg, Alert.AlertType.ERROR);
+            System.err.println(msg);
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Login");
+            stage.show();
+        } catch (IOException e) {
+            alerta("Error", "No se pudo volver a la pantalla de login: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
 }

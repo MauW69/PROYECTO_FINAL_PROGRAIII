@@ -47,7 +47,7 @@ public class LoginController {
     //inicializador
     public void initialize(){
         //clave para prueba despues de borra
-        String contraPrueba = "111111";
+        String contraPrueba = "12345";
         String clave = ClaveUtil.hashClave(contraPrueba);
         System.out.println(clave);
     }

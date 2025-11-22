@@ -6,14 +6,23 @@ import com.example.proyecto_final_prograiii.models.Usuario;
 import com.example.proyecto_final_prograiii.models.Vehiculo;
 import com.example.proyecto_final_prograiii.utils.Sesion;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,11 +32,18 @@ public class PanelClienteController {
 
     @FXML private Label lblBienvenida;
     @FXML private HBox cardsContainer; // fx:id en tu FXML
+    @FXML private Button btnCerrarSesion;
 
     private VehiculosDAO vehiculosDAO;
 
     public void initialize() {
-        Usuario usuario = Sesion.getUsuarioActual();
+        Usuario usuario = null;
+        try {
+            usuario = Sesion.getUsuarioActual();
+        } catch (Exception ex) {
+            // Si Sesion falla, seguimos pero sin usuario
+            usuario = null;
+        }
 
         if (usuario != null) {
             lblBienvenida.setText("Bienvenido, " + usuario.getNombreUsuario());
@@ -35,10 +51,12 @@ public class PanelClienteController {
             cargarTarjetasDinamicas();
         } else {
             lblBienvenida.setText("Debe iniciar sesión para poder ver los vehículos");
-            cardsContainer.getChildren().clear();
-            Label msg = new Label("Inicia sesión para ver los vehículos disponibles.");
-            msg.setStyle("-fx-font-size:14px; -fx-text-fill:#333333;");
-            cardsContainer.getChildren().add(msg);
+            if (cardsContainer != null) {
+                cardsContainer.getChildren().clear();
+                Label msg = new Label("Inicia sesión para ver los vehículos disponibles.");
+                msg.setStyle("-fx-font-size:14px; -fx-text-fill:#333333;");
+                cardsContainer.getChildren().add(msg);
+            }
         }
     }
 
@@ -72,61 +90,61 @@ public class PanelClienteController {
     }
 
     private VBox crearCardParaVehiculo(Vehiculo v) {
-        VBox card = new VBox(10);
+        VBox card = new VBox(8);
         card.setPadding(new Insets(12));
         card.setPrefWidth(260);
-        card.setMinHeight(220); // importante: fuerza altura mínima para que el texto quede visible
+        card.setMinHeight(220);
         card.setStyle("-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0;");
 
-        // placeholder de imagen (Region)
+        // --- Imagen placeholder (solo diseño) ---
         Region imgSpace = new Region();
         imgSpace.setPrefHeight(120);
         imgSpace.setStyle("-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;");
         card.getChildren().add(imgSpace);
 
-        // Título: modelo — placa
+        // --- TÍTULO: modelo — placa (destacado) ---
         String modelo = safe(v.getModelo(), "Modelo N/A");
         String placa  = safe(v.getPlaca(), "Placa N/A");
         Label title = new Label(modelo + " — " + placa);
         title.setStyle("-fx-font-weight:bold; -fx-font-size:15px; -fx-text-fill:#222222;");
         card.getChildren().add(title);
 
-        // Obtener tipo y precio
-        String tipo = obtenerNombreTipo(v.getTipoVehiculoId());
-        BigDecimal precio = obtenerPrecioPorDiaDeVehiculo(v.getId());
+        // --- INFO CORTA: lo esencial que verás en el panel ---
+        String tipo = obtenerNombreTipo(v.getTipoVehiculoId());           // consulta a tipos_vehiculo
+        BigDecimal precio = obtenerPrecioPorDiaDeVehiculo(v.getId());    // si existe precio en la DB
         String precioTxt = (precio != null) ? String.format("$%.2f", precio) : "N/A";
-
         String yearText = (v.getYear() == 0) ? "N/A" : String.valueOf(v.getYear());
         String colorText = (v.getColor() == null || v.getColor().isBlank()) ? "N/A" : v.getColor();
-        String kmText = (v.getKilometraje() == 0) ? "N/A" : String.valueOf(v.getKilometraje());
-        String estadoText = (v.getEstado() == null || v.getEstado().isBlank()) ? "N/A" : v.getEstado();
 
-        // Info label — configurado para ser visible y con wrap
+        // Mostramos solo 3-4 líneas para que el panel se vea limpio
         Label info = new Label(
                 "Tipo: " + tipo + "\n" +
-                        "Año: " + yearText + "\n" +
-                        "Color: " + colorText + "\n" +
-                        "Kilometraje: " + kmText + " km\n" +
-                        "Estado: " + estadoText + "\n" +
+                        "Año: " + yearText + "   Color: " + colorText + "\n" +
                         "Precio/día: " + precioTxt
         );
         info.setWrapText(true);
         info.setStyle("-fx-font-size:12px; -fx-text-fill:#333333;");
-        info.setPrefHeight(70);   // asegura espacio visible
+        info.setPrefHeight(60);
         info.setMinHeight(Region.USE_PREF_SIZE);
         card.getChildren().add(info);
 
-        // Botones
-        HBox acciones = new HBox(8);
-        Button btnVer = new Button("Ver");
-        Button btnRentar = new Button("Rentar");
-        btnVer.setOnAction(e -> System.out.println("[ACTION] Ver vehículo id=" + v.getId()));
-        btnRentar.setOnAction(e -> System.out.println("[ACTION] Rentar vehículo id=" + v.getId()));
-        acciones.getChildren().addAll(btnVer, btnRentar);
+        // ------------------------------
+        // BOTONES: SOLO "VER" en el panel
+        // ------------------------------
+        javafx.scene.layout.HBox acciones = new javafx.scene.layout.HBox(8);
+        javafx.scene.control.Button btnVer = new javafx.scene.control.Button("Ver");
+
+        // ACCIÓN: abrir la vista detalle (usa tu FXML y controlador de detalle)
+        btnVer.setOnAction(e -> abrirDetalleVehiculo(v.getId()));
+
+        acciones.getChildren().add(btnVer);
         card.getChildren().add(acciones);
 
         return card;
     }
+
+
+
 
     // helpers
     private String safe(String s, String def) { return (s == null || s.isBlank()) ? def : s; }
@@ -159,5 +177,115 @@ public class PanelClienteController {
             System.err.println("[DEBUG] Error obtenerPrecio: " + ex.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Abre la vista de detalle (modal) para el vehículo con el id indicado.
+     * Asegúrate de tener `vehiculos-detalle-view.fxml` en resources y el controller VehiculosDetallerController.
+     */
+    private void abrirDetalleVehiculo(int id) {
+        try {
+            // <<< ruta EXACTA según tu carpeta resources y el nombre del archivo en la captura >>>
+            URL url = getClass().getResource("/com/example/proyecto_final_prograiii/vehiculos-detalles-view.fxml");
+            if (url == null) {
+                System.err.println("No se encontró /com/example/proyecto_final_prograiii/vehiculos-detalles-view.fxml");
+                alerta("Error", "No se encontró la vista de detalle del vehículo (vehiculos-detalles-view.fxml).", Alert.AlertType.ERROR);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+
+            // obtener el controlador y pasar el id para que cargue los datos
+            com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController ctrl =
+                    loader.getController();
+            ctrl.cargarVehiculo(id);
+
+            Stage stage = new Stage();
+            stage.setTitle("Detalle del vehículo");
+            stage.setScene(new Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.initOwner(cardsContainer.getScene().getWindow());
+            stage.showAndWait();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            alerta("Error", "No se pudo abrir la ventana de detalle: " + ex.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+
+    /**
+     * Cerrar sesión (similar al panel admin):
+     * - intenta limpiar Sesion por reflexión (cerrarSesion o setUsuarioActual(null))
+     * - busca login-view.fxml en rutas probables y lo carga
+     */
+    @FXML
+    public void cerrarSesion(ActionEvent event) {
+        // 1) Limpiar Sesion usando reflexión si es posible
+        try {
+            try {
+                java.lang.reflect.Method mCerrar = Sesion.class.getMethod("cerrarSesion");
+                if (mCerrar != null) mCerrar.invoke(null);
+            } catch (NoSuchMethodException ignore) {
+                try {
+                    java.lang.reflect.Method mSet = Sesion.class.getMethod("setUsuarioActual", Object.class);
+                    if (mSet != null) mSet.invoke(null, new Object[]{null});
+                } catch (NoSuchMethodException ignore2) {
+                    // no existe método público para limpiar la sesión
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        // 2) probar rutas posibles para login-view.fxml (según tu estructura resources)
+        String[] posiblesRutas = {
+                "/com/example/proyecto_final_prograiii/login-view.fxml",
+                "/com/example/proyecto_final_prograiii/views/login-view.fxml",
+                "/login-view.fxml",
+                "/login-view.fxml", // duplicada por si acaso
+                "login-view.fxml"
+        };
+
+        URL fxmlUrl = null;
+        String rutaEncontrada = null;
+        for (String r : posiblesRutas) {
+            fxmlUrl = getClass().getResource(r);
+            if (fxmlUrl != null) {
+                rutaEncontrada = r;
+                System.out.println("login-view.fxml encontrado en: " + r + " -> " + fxmlUrl);
+                break;
+            }
+        }
+
+        if (fxmlUrl == null) {
+            String msg = "No se pudo encontrar login-view.fxml en las rutas probadas.\nRutas probadas:\n";
+            for (String r : posiblesRutas) msg += "  - " + r + "\n";
+            msg += "\nColoca login-view.fxml dentro de src/main/resources/com/example/proyecto_final_prograiii/ o ajusta la ruta en el código.";
+            alerta("Error al cerrar sesión", msg, Alert.AlertType.ERROR);
+            System.err.println(msg);
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Login");
+            stage.show();
+        } catch (IOException e) {
+            alerta("Error", "No se pudo volver a la pantalla de login: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    // alerta helper (reutilizable)
+    private void alerta(String titulo, String mensaje, Alert.AlertType tipoAlerta){
+        Alert alert = new Alert(tipoAlerta);
+        alert.setTitle(titulo);
+        alert.setContentText(mensaje);
+        alert.show();
     }
 }
