@@ -15,34 +15,40 @@ public class VehiculosDAO {
         conexion = ConexionDB.getConnection();
     }
 
-    // Mapeo de ResultSet a Vehiculo (sigue tus nombres: tipoVehiculoId)
+    // -------------------- MAPEO --------------------
     private Vehiculo mapVehiculo(ResultSet rs) throws SQLException {
         Vehiculo v = new Vehiculo();
 
         v.setId(rs.getInt("id"));
-        // en BD es tipo_id, en tu modelo es tipoVehiculoId
         v.setTipoVehiculoId(rs.getInt("tipo_id"));
         v.setPlaca(rs.getString("placa"));
         v.setModelo(rs.getString("modelo"));
-        v.setYear(rs.getInt("year")); // si en DB es NULL, getInt devuelve 0 (coincide con tu modelo primitivo)
+        v.setYear(rs.getInt("year"));
         v.setColor(rs.getString("color"));
-        v.setKilometraje(rs.getInt("kilometraje")); // idem
+        v.setKilometraje(rs.getInt("kilometraje"));
         v.setEstado(rs.getString("estado"));
 
         Timestamp ts = rs.getTimestamp("fecha_creacion");
         v.setFechaCreacion(ts != null ? ts.toLocalDateTime() : null);
+
+        // NUEVO: obtener precio_por_dia
+        v.setPrecioPorDia(rs.getBigDecimal("precio_por_dia"));
 
         return v;
     }
 
     // -------------------- CREATE --------------------
     public boolean crearVehiculo(Vehiculo v) {
-        // No incluimos precio_por_dia ni imagen_ruta (tu modelo no los tiene).
-        String sql = "INSERT INTO vehiculos (tipo_id, placa, modelo, year, color, kilometraje, estado) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO vehiculos (tipo_id, placa, modelo, year, color, kilometraje, estado, precio_por_dia) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            if (v.getTipoVehiculoId() != 0) ps.setInt(1, v.getTipoVehiculoId()); else ps.setNull(1, Types.INTEGER);
+            if (v.getTipoVehiculoId() != 0)
+                ps.setInt(1, v.getTipoVehiculoId());
+            else
+                ps.setNull(1, Types.INTEGER);
+
             ps.setString(2, v.getPlaca());
             ps.setString(3, v.getModelo());
             ps.setInt(4, v.getYear());
@@ -50,7 +56,11 @@ public class VehiculosDAO {
             ps.setInt(6, v.getKilometraje());
             ps.setString(7, v.getEstado());
 
+            // NUEVO: precio_por_dia
+            ps.setBigDecimal(8, v.getPrecioPorDia());
+
             return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             System.err.println("Error al crear vehículo: " + e.getMessage());
             return false;
@@ -87,7 +97,6 @@ public class VehiculosDAO {
         return lista;
     }
 
-    // listar primeros N vehículos (útil para mostrar tarjetas)
     public List<Vehiculo> listarVehiculos(int limit) {
         List<Vehiculo> lista = new ArrayList<>();
         String sql = "SELECT * FROM vehiculos ORDER BY id LIMIT ?";
@@ -97,26 +106,37 @@ public class VehiculosDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) lista.add(mapVehiculo(rs));
         } catch (SQLException e) {
-            System.err.println("Error al listar vehículos limitados: " + e.getMessage());
+            System.err.println("Error al listar vehículos: " + e.getMessage());
         }
         return lista;
     }
 
     // -------------------- UPDATE --------------------
     public boolean actualizarVehiculo(Vehiculo v) {
-        String sql = "UPDATE vehiculos SET tipo_id = ?, placa = ?, modelo = ?, year = ?, color = ?, kilometraje = ?, estado = ? WHERE id = ?";
+        String sql = "UPDATE vehiculos SET tipo_id = ?, placa = ?, modelo = ?, year = ?, color = ?, kilometraje = ?, estado = ?, precio_por_dia = ? " +
+                "WHERE id = ?";
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            if (v.getTipoVehiculoId() != 0) ps.setInt(1, v.getTipoVehiculoId()); else ps.setNull(1, Types.INTEGER);
+
+            if (v.getTipoVehiculoId() != 0)
+                ps.setInt(1, v.getTipoVehiculoId());
+            else
+                ps.setNull(1, Types.INTEGER);
+
             ps.setString(2, v.getPlaca());
             ps.setString(3, v.getModelo());
             ps.setInt(4, v.getYear());
             ps.setString(5, v.getColor());
             ps.setInt(6, v.getKilometraje());
             ps.setString(7, v.getEstado());
-            ps.setInt(8, v.getId());
+
+            // NUEVO: actualizar precio
+            ps.setBigDecimal(8, v.getPrecioPorDia());
+
+            ps.setInt(9, v.getId());
 
             return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             System.err.println("Error al actualizar vehículo: " + e.getMessage());
             return false;

@@ -1,50 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="15" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.proyecto_final_prograiii.controllers.CrearVehiculoController"
-      style="-fx-padding: 20;">
+<AnchorPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.proyecto_final_prograiii.controllers.CrearVehiculoController"
+            prefWidth="520" prefHeight="420">
 
-    <Label text="Agregar Vehículo" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+    <children>
+        <VBox spacing="10.0" AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0"
+              AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="10.0"
+              style="-fx-padding:10;">
+            <Label text="Agregar / Editar Vehiculo" style="-fx-font-size:16px; -fx-font-weight:bold;"/>
 
-    <GridPane hgap="10" vgap="12">
-        <columnConstraints>
-            <ColumnConstraints halignment="RIGHT"/>
-            <ColumnConstraints hgrow="ALWAYS"/>
-        </columnConstraints>
+            <GridPane hgap="10" vgap="8">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="30"/>
+                    <ColumnConstraints percentWidth="70"/>
+                </columnConstraints>
 
-        <children>
+                <!-- filas y controles -->
+                <Label text="Tipo ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfTipoId" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-            <Label text="Tipo de Vehículo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <ComboBox fx:id="comboTipo" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                <Label text="Modelo:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfModelo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-            <Label text="Placa:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-            <TextField fx:id="txtPlaca" promptText="Ej: 000000 O 0A000" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Placa:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfPlaca" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-            <Label text="Modelo:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-            <TextField fx:id="txtModelo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label text="Año:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfYear" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-            <Label text="Año:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-            <TextField fx:id="txtYear" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <Label text="Color:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfColor" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-            <Label text="Color:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-            <TextField fx:id="txtColor" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                <Label text="Kilometraje:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfKm" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-            <Label text="Kilometraje:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-            <TextField fx:id="txtKilometraje" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                <Label text="Precio/dia:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfPrecio" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-            <Label text="Estado:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-            <ComboBox fx:id="comboEstado" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                <Label text="Estado:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="cbEstado" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+            </GridPane>
 
-        </children>
-    </GridPane>
-
-    <HBox spacing="15" alignment="CENTER">
-        <Button fx:id="btnGuardar" text="Guardar" prefWidth="120" onAction="#guardarVehiculo"/>
-        <Button text="Cancelar" prefWidth="120" onAction="#cerrarVentana"/>
-    </HBox>
-
-</VBox>
+            <HBox spacing="8.0" style="-fx-padding:6 0 0 0;">
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnCancelar" text="Cancelar" onAction="#onCancelar"/>
+                <Button fx:id="btnAceptar" text="Aceptar" onAction="#onAceptar"/>
+            </HBox>
+        </VBox>
+    </children>
+</AnchorPane>

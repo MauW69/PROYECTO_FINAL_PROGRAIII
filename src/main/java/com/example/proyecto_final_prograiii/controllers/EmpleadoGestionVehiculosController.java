@@ -11,6 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class EmpleadoGestionVehiculosController {
     @FXML private TableColumn<Vehiculo, String> colEstado;
     @FXML private TableColumn<Vehiculo, Void> colEditar;
     @FXML private TableColumn<Vehiculo, Void> colEliminar;
+    @FXML private TableColumn<Vehiculo, BigDecimal> colPrecio; // NUEVO
 
     @FXML private Button btnRefrescar;
     @FXML private Button btnAgregar;
@@ -45,16 +47,27 @@ public class EmpleadoGestionVehiculosController {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colModelo.setCellValueFactory(new PropertyValueFactory<>("modelo"));
         colPlaca.setCellValueFactory(new PropertyValueFactory<>("placa"));
-        colTipo.setCellValueFactory(cell -> {
-            // mostramos el id tipo como texto; si tienes otra tabla, podrías obtener nombre
-            return new javafx.beans.property.SimpleStringProperty(String.valueOf(cell.getValue().getTipoVehiculoId()));
-        });
+        colTipo.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(String.valueOf(cell.getValue().getTipoVehiculoId())));
         colYear.setCellValueFactory(new PropertyValueFactory<>("year"));
         colColor.setCellValueFactory(new PropertyValueFactory<>("color"));
         colKm.setCellValueFactory(new PropertyValueFactory<>("kilometraje"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
-        // columna editar (botón)
+        // Precio: mostrar formateado
+        colPrecio.setCellValueFactory(new PropertyValueFactory<>("precioPorDia"));
+        colPrecio.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("$%.2f", item));
+                }
+            }
+        });
+
+        // columna editar (boton)
         colEditar.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Editar");
             {
@@ -70,7 +83,7 @@ public class EmpleadoGestionVehiculosController {
             }
         });
 
-        // columna eliminar (botón)
+        // columna eliminar (boton)
         colEliminar.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Eliminar");
             {
@@ -102,9 +115,7 @@ public class EmpleadoGestionVehiculosController {
 
     @FXML
     void agregarOnAction(ActionEvent event) {
-        // Abrir tu vista de crear vehiculo (reusa crearvehiculo-view.fxml)
         try {
-            // abre la vista de crear (igual que en PanelEmpleadoController.agregarOnAction)
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/crearvehiculo-view.fxml"));
             javafx.scene.Parent root = loader.load();
             javafx.scene.Scene scene = new javafx.scene.Scene(root);
@@ -117,6 +128,7 @@ public class EmpleadoGestionVehiculosController {
             cargarVehiculos();
         } catch (Exception ex) {
             ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Error al abrir formulario de crear: " + ex.getMessage()).showAndWait();
         }
     }
 
@@ -135,26 +147,21 @@ public class EmpleadoGestionVehiculosController {
         if (res.isPresent() && res.get() == ButtonType.OK) {
             boolean ok = dao.eliminarVehiculo(v.getId());
             if (ok) {
-                Alert info = new Alert(Alert.AlertType.INFORMATION, "Vehículo eliminado");
-                info.show();
+                new Alert(Alert.AlertType.INFORMATION, "Vehículo eliminado").show();
                 cargarVehiculos();
             } else {
-                Alert err = new Alert(Alert.AlertType.ERROR, "Error al eliminar vehículo");
-                err.show();
+                new Alert(Alert.AlertType.ERROR, "Error al eliminar vehículo").show();
             }
         }
     }
 
     private void abrirDialogEditar(Vehiculo v) {
-        // Dialog simple para editar los campos más importantes
         Dialog<Vehiculo> dialog = new Dialog<>();
         dialog.setTitle("Editar Vehículo id=" + v.getId());
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         // --- CAMPOS ---
-        // ID: mostramos como Label (no editable)
         Label lblId = new Label(String.valueOf(v.getId()));
-
         TextField tfModelo = new TextField(v.getModelo());
         TextField tfPlaca  = new TextField(v.getPlaca());
         TextField tfTipo   = new TextField(String.valueOf(v.getTipoVehiculoId()));
@@ -162,33 +169,28 @@ public class EmpleadoGestionVehiculosController {
         TextField tfColor  = new TextField(v.getColor());
         TextField tfKm     = new TextField(String.valueOf(v.getKilometraje()));
 
-        // Estado: COMBOBOX con opciones fijas (no editable por texto)
-        javafx.collections.ObservableList<String> opcionesEstado =
-                javafx.collections.FXCollections.observableArrayList(
-                        "mantenimiento",
-                        "disponible",
-                        "fuera de servicio"
-                );
-        javafx.scene.control.ComboBox<String> cbEstado = new javafx.scene.control.ComboBox<>(opcionesEstado);
-        cbEstado.setEditable(false);
+        // NUEVO: campo precio por dia
+        TextField tfPrecio = new TextField(v.getPrecioPorDia() != null ? v.getPrecioPorDia().toPlainString() : "");
 
-        // establecer valor actual si coincide con alguna opción, sino seleccionar la primera por defecto
+        // Estado: combo con opciones fijas
+        ObservableList<String> opcionesEstado = FXCollections.observableArrayList(
+                "mantenimiento", "disponible", "fuera de servicio"
+        );
+        ComboBox<String> cbEstado = new ComboBox<>(opcionesEstado);
+        cbEstado.setEditable(false);
         String estadoActual = v.getEstado() == null ? "" : v.getEstado().trim().toLowerCase();
         if (opcionesEstado.contains(estadoActual)) {
             cbEstado.setValue(estadoActual);
         } else {
-            // si no coincide, intenta mapear variantes comunes (por ejemplo "en mantenimiento" => "mantenimiento")
             if (estadoActual.contains("manten") ) cbEstado.setValue("mantenimiento");
             else if (estadoActual.contains("disp")) cbEstado.setValue("disponible");
             else if (estadoActual.contains("fuera") || estadoActual.contains("fuera de")) cbEstado.setValue("fuera de servicio");
             else cbEstado.setValue("disponible");
         }
 
-        // --- LAYOUT DEL DIALOG ---
         GridPane grid = new GridPane();
         grid.setHgap(8);
         grid.setVgap(8);
-
         int row = 0;
         grid.addRow(row++, new Label("ID:"), lblId);
         grid.addRow(row++, new Label("Modelo:"), tfModelo);
@@ -197,25 +199,24 @@ public class EmpleadoGestionVehiculosController {
         grid.addRow(row++, new Label("Año:"), tfYear);
         grid.addRow(row++, new Label("Color:"), tfColor);
         grid.addRow(row++, new Label("Kilometraje:"), tfKm);
+        grid.addRow(row++, new Label("Precio por dia:"), tfPrecio); // fila nueva
         grid.addRow(row++, new Label("Estado:"), cbEstado);
 
         dialog.getDialogPane().setContent(grid);
 
-        // --- RESULT CONVERTER: construir Vehiculo solo si OK ---
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
                 try {
                     Vehiculo nuevo = new Vehiculo();
-                    // ID (no editable): conservar
                     nuevo.setId(v.getId());
 
-                    // Validaciones básicas
                     String modelo = tfModelo.getText().trim();
                     String placa  = tfPlaca.getText().trim();
                     String tipoStr = tfTipo.getText().trim();
                     String yearStr = tfYear.getText().trim();
                     String color = tfColor.getText().trim();
                     String kmStr = tfKm.getText().trim();
+                    String precioStr = tfPrecio.getText().trim();
                     String estadoSel = cbEstado.getValue();
 
                     if (modelo.isEmpty() || placa.isEmpty()) {
@@ -226,54 +227,55 @@ public class EmpleadoGestionVehiculosController {
                     int year = yearStr.isEmpty() ? 0 : Integer.parseInt(yearStr);
                     int km = kmStr.isEmpty() ? 0 : Integer.parseInt(kmStr);
 
+                    BigDecimal precio = null;
+                    if (!precioStr.isEmpty()) {
+                        try {
+                            precio = new BigDecimal(precioStr);
+                            if (precio.compareTo(BigDecimal.ZERO) < 0) throw new IllegalArgumentException("El precio debe ser >= 0");
+                        } catch (NumberFormatException nfe) {
+                            throw new IllegalArgumentException("Precio invalido");
+                        }
+                    }
+
                     nuevo.setModelo(modelo);
                     nuevo.setPlaca(placa);
                     nuevo.setTipoVehiculoId(tipoId);
                     nuevo.setYear(year);
                     nuevo.setColor(color);
                     nuevo.setKilometraje(km);
-
-                    // Estado desde combo (asegurar no nulo)
+                    nuevo.setPrecioPorDia(precio);
                     nuevo.setEstado(estadoSel == null ? "disponible" : estadoSel);
 
                     return nuevo;
                 } catch (NumberFormatException nfe) {
                     nfe.printStackTrace();
-                    Alert err = new Alert(Alert.AlertType.ERROR, "Asegúrate de que Tipo, Año y Kilometraje son números válidos.");
-                    err.showAndWait();
+                    new Alert(Alert.AlertType.ERROR, "Asegurate de que Tipo, Año y Kilometraje son numeros validos.").showAndWait();
                     return null;
                 } catch (IllegalArgumentException iae) {
                     iae.printStackTrace();
-                    Alert err = new Alert(Alert.AlertType.ERROR, iae.getMessage());
-                    err.showAndWait();
+                    new Alert(Alert.AlertType.ERROR, iae.getMessage()).showAndWait();
                     return null;
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    Alert err = new Alert(Alert.AlertType.ERROR, "Error: " + ex.getMessage());
-                    err.showAndWait();
+                    new Alert(Alert.AlertType.ERROR, "Error: " + ex.getMessage()).showAndWait();
                     return null;
                 }
             }
             return null;
         });
 
-        // Mostrar dialog
         Optional<Vehiculo> res = dialog.showAndWait();
         if (res.isPresent()) {
             Vehiculo actualizado = res.get();
             if (actualizado != null) {
                 boolean ok = dao.actualizarVehiculo(actualizado);
                 if (ok) {
-                    Alert info = new Alert(Alert.AlertType.INFORMATION, "Vehículo actualizado");
-                    info.show();
+                    new Alert(Alert.AlertType.INFORMATION, "Vehiculo actualizado").show();
                     cargarVehiculos();
                 } else {
-                    Alert err = new Alert(Alert.AlertType.ERROR, "Error al actualizar vehículo");
-                    err.show();
+                    new Alert(Alert.AlertType.ERROR, "Error al actualizar vehiculo").show();
                 }
             }
         }
     }
-
-
 }

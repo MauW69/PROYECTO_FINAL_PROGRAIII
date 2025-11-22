@@ -1,6 +1,7 @@
 package com.example.proyecto_final_prograiii.models;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 public class Vehiculo {
     private int id;
@@ -12,6 +13,7 @@ public class Vehiculo {
     private int kilometraje;
     private String estado; // DISPONIBLE, RENTADO, MANTENIMIENTO
     private LocalDateTime fechaCreacion;
+    private BigDecimal precioPorDia; // nuevo campo
 
     public Vehiculo() {
 
@@ -27,6 +29,21 @@ public class Vehiculo {
         this.kilometraje = kilometraje;
         this.estado = estado;
         this.fechaCreacion = fechaCreacion;
+        this.precioPorDia = null;
+    }
+
+    // constructor con precioPorDia
+    public Vehiculo(int id, int tipoVehiculoId, String placa, String modelo, int year, String color, int kilometraje, String estado, LocalDateTime fechaCreacion, BigDecimal precioPorDia) {
+        this.id = id;
+        this.tipoVehiculoId = tipoVehiculoId;
+        this.placa = placa;
+        this.modelo = modelo;
+        this.year = year;
+        this.color = color;
+        this.kilometraje = kilometraje;
+        this.estado = estado;
+        this.fechaCreacion = fechaCreacion;
+        this.precioPorDia = precioPorDia;
     }
 
     public int getId() {
@@ -101,7 +118,15 @@ public class Vehiculo {
         this.fechaCreacion = fechaCreacion;
     }
 
-    //testeo
+    public BigDecimal getPrecioPorDia() {
+        return precioPorDia;
+    }
+
+    public void setPrecioPorDia(BigDecimal precioPorDia) {
+        this.precioPorDia = precioPorDia;
+    }
+
+    // testeo
     @Override
     public String toString() {
         return "Vehiculo{" +
@@ -114,6 +139,7 @@ public class Vehiculo {
                 ", kilometraje=" + kilometraje +
                 ", estado='" + estado + '\'' +
                 ", fechaCreacion=" + fechaCreacion +
+                ", precioPorDia=" + precioPorDia +
                 '}';
     }
 }
