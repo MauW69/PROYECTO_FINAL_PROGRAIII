@@ -13,7 +13,8 @@ public class Vehiculo {
     private int kilometraje;
     private String estado; // DISPONIBLE, RENTADO, MANTENIMIENTO
     private LocalDateTime fechaCreacion;
-    private BigDecimal precioPorDia; // nuevo campo
+    private BigDecimal precioPorDia;
+    private String imagen;
 
     public Vehiculo() {
 
@@ -142,4 +143,6 @@ public class Vehiculo {
                 ", precioPorDia=" + precioPorDia +
                 '}';
     }
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
 }

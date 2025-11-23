@@ -44,6 +44,11 @@
 
                 <Label text="Estado:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
                 <ComboBox fx:id="cbEstado" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                <Label text="Imagen:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                <HBox spacing="10" GridPane.rowIndex="8" GridPane.columnIndex="1">
+                    <Button fx:id="btnSeleccionarImagen" text="Seleccionar Imagen" onAction="#onSeleccionarImagen"/>
+                    <Label fx:id="lblImagenSeleccionada" text="(Ninguna)" />
+                </HBox>
             </GridPane>
 
             <HBox spacing="8.0" style="-fx-padding:6 0 0 0;">

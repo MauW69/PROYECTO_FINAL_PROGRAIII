@@ -33,14 +33,15 @@ public class VehiculosDAO {
 
         // NUEVO: obtener precio_por_dia
         v.setPrecioPorDia(rs.getBigDecimal("precio_por_dia"));
-
+        //Imagen de vehiculo
+        v.setImagen(rs.getString("imagen"));
         return v;
     }
 
     // -------------------- CREATE --------------------
     public boolean crearVehiculo(Vehiculo v) {
-        String sql = "INSERT INTO vehiculos (tipo_id, placa, modelo, year, color, kilometraje, estado, precio_por_dia) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO vehiculos (tipo_id, placa, modelo, year, color, kilometraje, estado, precio_por_dia, imagen) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
 
@@ -58,7 +59,8 @@ public class VehiculosDAO {
 
             // NUEVO: precio_por_dia
             ps.setBigDecimal(8, v.getPrecioPorDia());
-
+            //Imagen de vehiculo
+            ps.setString(9, v.getImagen());
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
@@ -113,7 +115,7 @@ public class VehiculosDAO {
 
     // -------------------- UPDATE --------------------
     public boolean actualizarVehiculo(Vehiculo v) {
-        String sql = "UPDATE vehiculos SET tipo_id = ?, placa = ?, modelo = ?, year = ?, color = ?, kilometraje = ?, estado = ?, precio_por_dia = ? " +
+        String sql = "UPDATE vehiculos SET tipo_id = ?, placa = ?, modelo = ?, year = ?, color = ?, kilometraje = ?, estado = ?, precio_por_dia = ?, imagen = ? " +
                 "WHERE id = ?";
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -132,8 +134,9 @@ public class VehiculosDAO {
 
             // NUEVO: actualizar precio
             ps.setBigDecimal(8, v.getPrecioPorDia());
-
-            ps.setInt(9, v.getId());
+            //Imagen de vehiculo
+            ps.setString(9, v.getImagen());
+            ps.setInt(10, v.getId());
 
             return ps.executeUpdate() > 0;
 

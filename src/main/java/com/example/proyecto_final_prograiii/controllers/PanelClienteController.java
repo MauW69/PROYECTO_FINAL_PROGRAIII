@@ -21,6 +21,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -98,10 +100,25 @@ public class PanelClienteController {
         card.setStyle("-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0;");
 
         // --- Imagen placeholder (solo diseño) ---
-        Region imgSpace = new Region();
-        imgSpace.setPrefHeight(120);
-        imgSpace.setStyle("-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;");
-        card.getChildren().add(imgSpace);
+        ImageView imageView = new ImageView();
+
+        String ruta = v.getImagen();
+        if (ruta != null && !ruta.isBlank()) {
+            try {
+                Image img = new Image("file:" + ruta, 240, 120, true, true);
+                imageView.setImage(img);
+            } catch (Exception e) {
+                System.out.println("Error cargando imagen: " + e.getMessage());
+            }
+        }
+
+// Estilos y tamaño
+        imageView.setFitWidth(240);
+        imageView.setFitHeight(120);
+        imageView.setPreserveRatio(true);
+        imageView.setStyle("-fx-background-color:#f4f4f4; -fx-border-radius:8; -fx-background-radius:8;");
+
+        card.getChildren().add(imageView);
 
         // --- TÍTULO: modelo — placa (destacado) ---
         String modelo = safe(v.getModelo(), "Modelo N/A");

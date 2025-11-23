@@ -4,10 +4,14 @@ import com.example.proyecto_final_prograiii.DAO.VehiculosDAO;
 import com.example.proyecto_final_prograiii.models.Vehiculo;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class CrearVehiculoController {
 
@@ -21,13 +25,30 @@ public class CrearVehiculoController {
     @FXML private TextField tfPrecio;
     @FXML private Button btnAceptar;
     @FXML private Button btnCancelar;
+    @FXML private Button btnSeleccionarImagen;
+    @FXML private Label lblImagenSeleccionada;
 
     private final VehiculosDAO dao = new VehiculosDAO();
+
+    private File archivoImagen;
 
     @FXML
     public void initialize() {
         cbEstado.getItems().addAll("disponible", "mantenimiento", "fuera de servicio");
         cbEstado.setValue("disponible");
+    }
+
+    @FXML
+    public void onSeleccionarImagen() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Seleccionar imagen del vehículo");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg"));
+
+        File archivo = fc.showOpenDialog(btnSeleccionarImagen.getScene().getWindow());
+        if (archivo != null) {
+            archivoImagen = archivo;
+            lblImagenSeleccionada.setText(archivo.getName());
+        }
     }
 
     @FXML
@@ -75,6 +96,31 @@ public class CrearVehiculoController {
             v.setEstado(estado == null ? "disponible" : estado);
             v.setFechaCreacion(LocalDateTime.now());
             v.setPrecioPorDia(precio);
+
+            if (archivoImagen != null) {
+                try {
+                    // Carpeta donde se guardarán las imágenes
+                    File carpeta = new File("imagenesVehiculos");
+                    if (!carpeta.exists()) carpeta.mkdirs();
+
+                    // Crear nombre único para evitar duplicados
+                    String nuevoNombre = System.currentTimeMillis() + "_" + archivoImagen.getName();
+
+                    // Destino final
+                    File destino = new File(carpeta, nuevoNombre);
+
+                    // Copiar archivo a la carpeta local
+                    Files.copy(archivoImagen.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                    // Guardar ruta ABSOLUTA para que JavaFX siempre la encuentre
+                    v.setImagen(destino.getAbsolutePath());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    alerta("No se pudo guardar la imagen");
+                    return;
+                }
+            }
 
             boolean ok = dao.crearVehiculo(v);
             if (ok) {
