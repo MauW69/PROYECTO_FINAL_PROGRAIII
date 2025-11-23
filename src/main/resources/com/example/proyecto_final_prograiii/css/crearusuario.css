@@ -1,0 +1,39 @@
+
+.root {
+    -fx-background-color: #ECECEC;
+}
+#crearlbl {
+    -fx-font-size: 20pt;
+    -fx-font-family: "Arial Black";
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-alignment: center;
+}
+.label {
+    -fx-font-size: 10pt;
+    -fx-font-family: "Arial";
+    -fx-text-fill: #333333;
+    -fx-background-color: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 3 8;
+    -fx-border-color: #D0D0D0;
+    -fx-border-radius: 6px;
+}
+#btnRegistrarCliente {
+    -fx-background-color: linear-gradient(to bottom, #6EA8FF, #447CE0);
+    -fx-text-fill: white;
+
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+#btnRegistrarCliente:hover {
+    -fx-background-color: linear-gradient(to bottom, #7FB3FF, #5189EB);
+}
+#btnRegistrarCliente:pressed {
+    -fx-background-color: linear-gradient(to bottom, #447CE0, #305BB3);
+}

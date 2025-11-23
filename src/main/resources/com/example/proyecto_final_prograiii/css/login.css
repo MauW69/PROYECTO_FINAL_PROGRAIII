@@ -5,12 +5,21 @@
 
 .button
 {
- -fx-width: 120px;
- -fx-weight: 40px;
- -fx-border-radius: 5px;
- -fx-border-color: blue;
- -fx-background-color: white;
- -fx-background-radius: 5px;
+ -fx-background-color: transparent,white;
+ -fx-border-radius:5px;
+ -fx-border-width:1.5px;
+ -fx-background-radius:5.8px;
+ -fx-border-color: #C1C1C1;
+ -fx-effect:none;
+ -fx-font-family: "Arial Black";
+ -fx-font-size: 7pt;
+}
+.button:hover
+{
+ -fx-background-color: transparent,#C4CBD2;
+ -fx-border-color: #AFC1D3;
+ -fx-cursor: hand;
+ -fx-text-fill:white;
 }
 .rectangle
 {
@@ -25,10 +34,39 @@
  -fx-text-fill: white;
  -fx-alingment: center;
 }
-#lblInicioSesion
+#lblInicio
 {
- -fx-font-size: 20pt;
+ -fx-font-size: 12pt;
  -fx-font-weight: bold;
  -fx-text-fill: white;
- -fx-alingment: center;
+ -fx-alignment: center;
+ -fx-font-family: "Arial Black";
+}
+#lblSistemas
+{
+ -fx-font-size: 15pt;
+ -fx-font-weight: bold;
+ -fx-text-fill: white;
+ -fx-font-family: "Arial Black";
+}
+#lblRentacar
+{
+ -fx-font-size: 18pt;
+ -fx-font-weight: bold;
+ -fx-text-fill: white;
+ -fx-font-family: "Arial Black";
+}
+#lblRecuperarPin
+{
+ -fx-font-size: 6pt;
+ -fx-font-weight: bold;
+ -fx-text-fill: blue;
+ -fx-alignment: center;
+ -fx-underline: true;
+ -fx-font-family: "Arial Black";
+}
+#lblRecuperarPin:hover
+{
+ -fx-cursor:hand;
+ -fx-text-fill:#0095C8;
 }

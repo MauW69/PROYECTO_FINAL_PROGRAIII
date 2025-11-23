@@ -18,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -185,7 +186,6 @@ public class PanelClienteController {
      */
     private void abrirDetalleVehiculo(int id) {
         try {
-            // <<< ruta EXACTA según tu carpeta resources y el nombre del archivo en la captura >>>
             URL url = getClass().getResource("/com/example/proyecto_final_prograiii/vehiculos-detalles-view.fxml");
             if (url == null) {
                 System.err.println("No se encontró /com/example/proyecto_final_prograiii/vehiculos-detalles-view.fxml");
@@ -237,48 +237,22 @@ public class PanelClienteController {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
-        // 2) probar rutas posibles para login-view.fxml (según tu estructura resources)
-        String[] posiblesRutas = {
-                "/com/example/proyecto_final_prograiii/login-view.fxml",
-                "/com/example/proyecto_final_prograiii/views/login-view.fxml",
-                "/login-view.fxml",
-                "/login-view.fxml", // duplicada por si acaso
-                "login-view.fxml"
-        };
-
-        URL fxmlUrl = null;
-        String rutaEncontrada = null;
-        for (String r : posiblesRutas) {
-            fxmlUrl = getClass().getResource(r);
-            if (fxmlUrl != null) {
-                rutaEncontrada = r;
-                System.out.println("login-view.fxml encontrado en: " + r + " -> " + fxmlUrl);
-                break;
-            }
-        }
-
-        if (fxmlUrl == null) {
-            String msg = "No se pudo encontrar login-view.fxml en las rutas probadas.\nRutas probadas:\n";
-            for (String r : posiblesRutas) msg += "  - " + r + "\n";
-            msg += "\nColoca login-view.fxml dentro de src/main/resources/com/example/proyecto_final_prograiii/ o ajusta la ruta en el código.";
-            alerta("Error al cerrar sesión", msg, Alert.AlertType.ERROR);
-            System.err.println(msg);
-            return;
-        }
-
+        // 2) Cargar login-view.fxml
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/login-view.fxml"));
+        btnCerrarSesion.getScene().getWindow().hide();
         try {
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Login");
+            Parent root =fxmlLoader.load();
+            Scene scene = new Scene(root, 589, 400);
+            scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/login.css").toExternalForm());
+            Stage stage = new Stage();
+            stage.setTitle("INICIO DE SESION");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         } catch (IOException e) {
-            alerta("Error", "No se pudo volver a la pantalla de login: " + e.getMessage(), Alert.AlertType.ERROR);
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
     }
 
     // alerta helper (reutilizable)

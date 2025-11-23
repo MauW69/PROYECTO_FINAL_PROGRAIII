@@ -5,12 +5,14 @@ import com.example.proyecto_final_prograiii.config.ConexionDB;
 import com.example.proyecto_final_prograiii.models.Usuario;
 import com.example.proyecto_final_prograiii.utils.ClaveUtil;
 import com.example.proyecto_final_prograiii.utils.Sesion;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -41,6 +43,11 @@ public class LoginController {
     @FXML
     private Hyperlink lblRecuperarPin;
 
+    @FXML
+    private AnchorPane root;
+    @FXML
+    private AnchorPane content;
+
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
 
@@ -50,12 +57,33 @@ public class LoginController {
         String contraPrueba = "12345";
         String clave = ClaveUtil.hashClave(contraPrueba);
         System.out.println(clave);
+        Platform.runLater(() -> {
+            double baseWidth = 589;
+            double baseHeight = 400;
+            content.scaleXProperty().bind(root.widthProperty().divide(baseWidth));
+            content.scaleYProperty().bind(root.heightProperty().divide(baseHeight));
+            content.layoutXProperty().bind(root.widthProperty().subtract(content.widthProperty().multiply(content.getScaleX())).divide(2));
+            content.layoutYProperty().bind(root.heightProperty().subtract(content.heightProperty().multiply(content.getScaleY())).divide(2));
+
+        });
     }
 
     //evento de botones y label
     @FXML
     void CrearCliente(ActionEvent event) {
-        abrirVista("crearusuariocliente-view.fxml", "Crear Cuenta de Cliente","login.css");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/crearusuariocliente-view.fxml"));
+        try {
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/crearusuario.css").toExternalForm());
+            Stage stage = new Stage();
+            stage.setTitle("CREAR CLIENTE");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

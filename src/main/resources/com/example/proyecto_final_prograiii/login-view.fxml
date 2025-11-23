@@ -5,19 +5,90 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="589.0" style="-fx-background-color: green;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.LoginController">
-   <children>
-      <Button fx:id="btnProbarConexion" layoutX="433.0" layoutY="26.0" mnemonicParsing="false" onAction="#ProbarConexion" text="Probar conexion" />
-      <Label layoutX="267.0" layoutY="31.0" text="LOGIN" />
-      <Button fx:id="btnIngresar" layoutX="259.0" layoutY="226.0" mnemonicParsing="false" onAction="#Ingresar" text="Ingresar" />
-      <Hyperlink fx:id="lblCrearCliente" layoutX="222.0" layoutY="342.0" onAction="#CrearCliente" text="No tienes cuenta? Creala aca" />
-      <Label layoutX="143.0" layoutY="110.0" text="Usuario" />
-      <Label layoutX="143.0" layoutY="165.0" text="Clave" />
-      <PasswordField fx:id="txtClave" layoutX="205.0" layoutY="157.0" prefHeight="34.0" prefWidth="168.0" />
-      <TextField fx:id="txtUsuario" layoutX="205.0" layoutY="102.0" prefHeight="34.0" prefWidth="168.0" />
-      <Button fx:id="btnModoInvitado" layoutX="228.0" layoutY="301.0" mnemonicParsing="false" onAction="#ModoInvitado" text="Continuar como invitado" />
-      <Hyperlink fx:id="lblRecuperarPin" layoutX="319.0" layoutY="200.0" onAction="#RecuperarPin" text="Hyperlink" />
-   </children>
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="589.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.LoginController">
+    <children>
+        <AnchorPane fx:id="content" prefHeight="400.0" prefWidth="589.0">
+         <Rectangle arcHeight="5.0" arcWidth="5.0" height="420.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="589.0">
+            <fill>
+               <LinearGradient endX="0.2748815165876778" endY="0.4786729857819905" startX="0.8530805687203792" startY="0.46919431279620855">
+                  <stops>
+                     <Stop>
+                        <color>
+                           <Color red="0.3391999900341034" green="0.44459429383277893" blue="0.5299999713897705" />
+                        </color>
+                     </Stop>
+                     <Stop offset="1.0">
+                        <color>
+                           <Color red="0.13358917832374573" green="0.19215095043182373" blue="0.22368420660495758" />
+                        </color>
+                     </Stop>
+                  </stops>
+               </LinearGradient>
+            </fill>
+         </Rectangle>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" height="420.0" layoutX="-16.0" strokeType="INSIDE" strokeWidth="0.0" width="200.0">
+                <stroke>
+                    <LinearGradient endX="0.5497630331753554" endY="1.0" startX="0.5308056872037915" startY="0.39336492890995245">
+                        <stops>
+                            <Stop>
+                                <color>
+                                    <Color red="0.7894737124443054" green="0.32894736528396606" blue="0.32894736528396606" />
+                                </color>
+                            </Stop>
+                            <Stop offset="1.0">
+                                <color>
+                                    <Color red="0.8026315569877625" green="0.7877680063247681" blue="0.7877680063247681" />
+                                </color>
+                            </Stop>
+                        </stops>
+                    </LinearGradient>
+                </stroke>
+                <fill>
+                    <LinearGradient endX="0.05687203791469194" endY="0.4786729857819905" startX="1.0" startY="0.47867298578199036">
+                        <stops>
+                            <Stop>
+                                <color>
+                                    <Color red="0.75" green="0.7222222089767456" blue="0.7222222089767456" />
+                                </color>
+                            </Stop>
+                            <Stop offset="1.0">
+                                <color>
+                                    <Color red="0.2357456088066101" green="0.3443896174430847" blue="0.3947368562221527" />
+                                </color>
+                            </Stop>
+                        </stops>
+                    </LinearGradient>
+                </fill>
+            </Rectangle>
+            <TextField fx:id="txtUsuario" layoutX="320.0" layoutY="126.0" prefHeight="34.0" prefWidth="168.0" />
+            <PasswordField fx:id="txtClave" layoutX="320.0" layoutY="181.0" prefHeight="34.0" prefWidth="168.0" />
+            <Label fx:id="lblInicio" layoutX="321.0" layoutY="46.0" prefHeight="17.0" prefWidth="168.0" text="INICIO DE SESION" />
+            <Button fx:id="btnIngresar" layoutX="375.0" layoutY="254.0" mnemonicParsing="false" onAction="#Ingresar" text="Ingresar" />
+            <Button fx:id="btnModoInvitado" layoutX="331.0" layoutY="304.0" mnemonicParsing="false" onAction="#ModoInvitado" text="Continuar como invitado" />
+            <Hyperlink fx:id="lblCrearCliente" layoutX="325.0" layoutY="352.0" onAction="#CrearCliente" text="No tienes cuenta? Creala aca" />
+            <Label layoutX="228.0" layoutY="135.0" text="Usuario" />
+            <Label layoutX="234.0" layoutY="191.0" text="Clave" />
+            <Hyperlink fx:id="lblRecuperarPin" layoutY="317.0" onAction="#RecuperarPin" prefHeight="23.0" prefWidth="183.0" text="¿HAS OLVIDADO TU CONTRASEÑA?">
+            <font>
+               <Font size="9.0" />
+            </font></Hyperlink>
+            <Button fx:id="btnProbarConexion" layoutX="37.0" layoutY="351.0" mnemonicParsing="false" onAction="#ProbarConexion" text="Probar conexion" />
+            <ImageView fitHeight="217.0" fitWidth="194.0" layoutY="-42.0" pickOnBounds="true">
+                <image>
+                    <Image url="@images/japanese-jdm-sport-car-illustration-isolated-best-for-automotive-tshirt-design-_isnet-general-us%20(1).png" />
+                </image>
+            </ImageView>
+            <Label fx:id="lblRentacar" layoutX="14.0" layoutY="125.0" prefHeight="23.0" prefWidth="148.0" text="RENTACAR" textOverrun="CLIP" />
+            <Label fx:id="lblSistemas" layoutX="36.0" layoutY="149.0" prefHeight="17.0" prefWidth="148.0" text="SISTEMAS" />
+        </AnchorPane>
+    </children>
 </AnchorPane>
