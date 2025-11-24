@@ -127,7 +127,7 @@ public class LoginController {
                 break;
 
             case 3:
-                abrirVista("panel-cliente-view.fxml", "Panel de Clientes","login.css");
+                abrirVista("panel-cliente-view.fxml", "Panel de Clientes","panelCliente.css");
                 break;
 
             default:
@@ -139,7 +139,7 @@ public class LoginController {
 
     @FXML
     void ModoInvitado(ActionEvent event) {
-       abrirVista("panel-cliente-view.fxml", "Panel de Clientes - Modo Invitado","login.css");
+       abrirVista("panel-cliente-view.fxml", "Panel de Clientes - Modo Invitado","panelCliente.css");
     }
 
     //metodo para abrir vistas

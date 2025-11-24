@@ -1,0 +1,74 @@
+
+#cardsContainer {
+    padding: 20px;
+    spacing: 20px;
+}
+.card {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #d9d9d9;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.15, 0, 2);
+    -fx-padding: 15;
+    -fx-spacing: 10;
+    -fx-cursor: hand;
+    -fx-min-width: 250;
+    -fx-max-width: 250;
+}
+
+.card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 12, 0.20, 0, 3);
+    -fx-translate-y: -3;
+}
+.card-image {
+    -fx-background-color: #f2f6ff;
+    -fx-padding: 5;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1d3d8f;
+}
+
+.card-info {
+    -fx-font-size: 13px;
+    -fx-text-fill: #333;
+}
+
+.btn-ver {
+    -fx-background-color: linear-gradient(to bottom, #1d4ed8, #1e40af); /* azul corp */
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-padding: 6 14;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.btn-ver:hover {
+    -fx-background-color: linear-gradient(to bottom, #2563eb, #1d4ed8);
+}
+
+.btn-ver:pressed {
+    -fx-background-color: #1e3a8a;
+}
+
+/* --- LABEL DE BIENVENIDA --- */
+#lblBienvenida {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1d3d8f;
+}
+#btnCerrarSesion
+{
+-fx-background-color: linear-gradient(to bottom, #1d4ed8, #1e40af); /* azul corp */
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-padding: 6 14;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+#btnCerrarSesion:hover {
+    -fx-background-color: linear-gradient(to bottom, #2563eb, #1d4ed8);
+}

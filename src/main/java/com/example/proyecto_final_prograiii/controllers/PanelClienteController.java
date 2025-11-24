@@ -53,13 +53,9 @@ public class PanelClienteController {
             vehiculosDAO = new VehiculosDAO();
             cargarTarjetasDinamicas();
         } else {
-            lblBienvenida.setText("Debe iniciar sesión para poder ver los vehículos");
-            if (cardsContainer != null) {
-                cardsContainer.getChildren().clear();
-                Label msg = new Label("Inicia sesión para ver los vehículos disponibles.");
-                msg.setStyle("-fx-font-size:14px; -fx-text-fill:#333333;");
-                cardsContainer.getChildren().add(msg);
-            }
+            lblBienvenida.setText("Debe iniciar sesión para poder reservar los vehículos");
+            vehiculosDAO = new VehiculosDAO();
+            cargarTarjetasDinamicas();
         }
     }
 
@@ -93,70 +89,55 @@ public class PanelClienteController {
     }
 
     private VBox crearCardParaVehiculo(Vehiculo v) {
-        VBox card = new VBox(8);
-        card.setPadding(new Insets(12));
-        card.setPrefWidth(260);
-        card.setMinHeight(220);
-        card.setStyle("-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0;");
 
-        // --- Imagen placeholder (solo diseño) ---
+        VBox card = new VBox(10);
+        card.getStyleClass().add("card");
+
         ImageView imageView = new ImageView();
+        imageView.getStyleClass().add("card-image");
 
         String ruta = v.getImagen();
         if (ruta != null && !ruta.isBlank()) {
             try {
-                Image img = new Image("file:" + ruta, 240, 120, true, true);
+                Image img = new Image("file:" + ruta, 240, 130, true, true);
                 imageView.setImage(img);
             } catch (Exception e) {
                 System.out.println("Error cargando imagen: " + e.getMessage());
             }
         }
 
-// Estilos y tamaño
         imageView.setFitWidth(240);
-        imageView.setFitHeight(120);
+        imageView.setFitHeight(130);
         imageView.setPreserveRatio(true);
-        imageView.setStyle("-fx-background-color:#f4f4f4; -fx-border-radius:8; -fx-background-radius:8;");
 
-        card.getChildren().add(imageView);
+        // Título
+        Label title = new Label(safe(v.getModelo(), "Modelo N/A") + " — " + safe(v.getPlaca(), "Placa N/A"));
+        title.getStyleClass().add("card-title");
 
-        // --- TÍTULO: modelo — placa (destacado) ---
-        String modelo = safe(v.getModelo(), "Modelo N/A");
-        String placa  = safe(v.getPlaca(), "Placa N/A");
-        Label title = new Label(modelo + " — " + placa);
-        title.setStyle("-fx-font-weight:bold; -fx-font-size:15px; -fx-text-fill:#222222;");
-        card.getChildren().add(title);
-
-        // --- INFO CORTA: lo esencial que verás en el panel ---
-        String tipo = obtenerNombreTipo(v.getTipoVehiculoId());           // consulta a tipos_vehiculo
-        BigDecimal precio = obtenerPrecioPorDiaDeVehiculo(v.getId());    // si existe precio en la DB
+        // Información
+        String tipo = obtenerNombreTipo(v.getTipoVehiculoId());
+        BigDecimal precio = obtenerPrecioPorDiaDeVehiculo(v.getId());
         String precioTxt = (precio != null) ? String.format("$%.2f", precio) : "N/A";
-        String yearText = (v.getYear() == 0) ? "N/A" : String.valueOf(v.getYear());
-        String colorText = (v.getColor() == null || v.getColor().isBlank()) ? "N/A" : v.getColor();
 
-        // Mostramos solo 3-4 líneas para que el panel se vea limpio
         Label info = new Label(
                 "Tipo: " + tipo + "\n" +
-                        "Año: " + yearText + "   Color: " + colorText + "\n" +
+                        "Año: " + (v.getYear() == 0 ? "N/A" : v.getYear()) + "\n" +
+                        "Color: " + (v.getColor() == null ? "N/A" : v.getColor()) + "\n" +
                         "Precio/día: " + precioTxt
         );
         info.setWrapText(true);
-        info.setStyle("-fx-font-size:12px; -fx-text-fill:#333333;");
-        info.setPrefHeight(60);
-        info.setMinHeight(Region.USE_PREF_SIZE);
-        card.getChildren().add(info);
+        info.getStyleClass().add("card-info");
 
-        // ------------------------------
-        // BOTONES: SOLO "VER" en el panel
-        // ------------------------------
-        javafx.scene.layout.HBox acciones = new javafx.scene.layout.HBox(8);
-        javafx.scene.control.Button btnVer = new javafx.scene.control.Button("Ver");
-
-        // ACCIÓN: abrir la vista detalle (usa tu FXML y controlador de detalle)
+        // Botón
+        Button btnVer = new Button("Ver");
+        btnVer.getStyleClass().add("btn-ver");
         btnVer.setOnAction(e -> abrirDetalleVehiculo(v.getId()));
 
-        acciones.getChildren().add(btnVer);
-        card.getChildren().add(acciones);
+        HBox acciones = new HBox(btnVer);
+        acciones.setSpacing(10);
+
+        // Agregar todo
+        card.getChildren().addAll(imageView, title, info, acciones);
 
         return card;
     }
@@ -202,6 +183,12 @@ public class PanelClienteController {
      * Asegúrate de tener `vehiculos-detalle-view.fxml` en resources y el controller VehiculosDetallerController.
      */
     private void abrirDetalleVehiculo(int id) {
+        Usuario usuario = Sesion.getUsuarioActual();
+
+        if (usuario == null) {
+            alerta("Acceso denegado", "Debe iniciar sesión para poder reservar vehículos.", Alert.AlertType.WARNING);
+            return;
+        }
         try {
             URL url = getClass().getResource("/com/example/proyecto_final_prograiii/vehiculos-detalles-view.fxml");
             if (url == null) {
