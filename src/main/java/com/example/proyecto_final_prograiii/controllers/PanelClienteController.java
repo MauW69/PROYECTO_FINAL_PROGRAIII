@@ -143,8 +143,6 @@ public class PanelClienteController {
     }
 
 
-
-
     // helpers
     private String safe(String s, String def) { return (s == null || s.isBlank()) ? def : s; }
 

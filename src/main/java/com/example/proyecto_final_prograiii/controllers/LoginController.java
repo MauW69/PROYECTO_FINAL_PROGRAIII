@@ -167,6 +167,7 @@ public class LoginController {
             abrirVista("recuperarclave-view.fxml", "Recuperar Contraseña", "login.css");
 
     }
+    //metodos auxiliares
 
     public static void alerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);

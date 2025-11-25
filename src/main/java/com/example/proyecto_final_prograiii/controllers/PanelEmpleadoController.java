@@ -17,8 +17,7 @@ import java.net.URL;
 
 public class PanelEmpleadoController {
 
-    private Sesion sesion;
-    Usuario usuario = Sesion.getUsuarioActual(); // corregido: usar Sesion estática
+
 
     @FXML
     private Button agregarBtn;
@@ -72,8 +71,9 @@ public class PanelEmpleadoController {
 
     @FXML
     public void initialize() {
-        if (usuario != null) {
-            lblBienvenida.setText("Bienvenido, " + usuario.getNombreUsuario());
+
+        if (Sesion.getUsuarioActual() != null) {
+            lblBienvenida.setText("Bienvenido, " + Sesion.getUsuarioActual().getNombreUsuario());
         } else {
             lblBienvenida.setText("Bienvenido");
         }
@@ -81,19 +81,22 @@ public class PanelEmpleadoController {
 
     @FXML
     void cerrarOnAction(ActionEvent event) {
+        //limpiar la sesion
+        Sesion.cerrarSesion();
         btnCerrarSesion.getScene().getWindow().hide();
         try {
-            URL res = getClass().getResource("/com/example/proyecto_final_prograiii/login-view.fxml");
-            FXMLLoader fxmlLoader = new FXMLLoader(res);
-            Parent root = fxmlLoader.load();
+            FXMLLoader loader = new FXMLLoader( getClass().getResource("/com/example/proyecto_final_prograiii/login-view.fxml"));
+            Parent root = loader.load();
+
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/login.css").toExternalForm());
-            Stage stage = new Stage();
-            stage.setTitle("INICIO DE SESION");
+            Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
+            stage.setTitle("INICIO DE SESIÓN");
             stage.setScene(scene);
-            stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
-        } catch (IOException e) {
+
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

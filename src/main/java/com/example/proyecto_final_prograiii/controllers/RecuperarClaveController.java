@@ -5,13 +5,19 @@ import com.example.proyecto_final_prograiii.utils.ClaveUtil;
 import com.example.proyecto_final_prograiii.utils.RecuperarClave;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 public class RecuperarClaveController {
 
+    @FXML
+    private Button btnCerrarCambioClave;
     @FXML
     private Button btnCambiarClave;
 
@@ -95,12 +101,18 @@ public class RecuperarClaveController {
             txtClaveNueva.setDisable(true);
             txtConfirmarClaveNueva.setDisable(true);
             btnCambiarClave.setDisable(true);
+            Login();//se manda de regreso al login
         } else {
             alerta("Error", "No se pudo actualizar la contraseña", Alert.AlertType.ERROR);
         }
     }
+    @FXML
+    void CerrarCambioClave(ActionEvent event) {
+        Login();
+    }
 
 
+    //metodo que manda el pin al correo
     @FXML
     void MandarPin(ActionEvent event) {
 
@@ -128,6 +140,8 @@ public class RecuperarClaveController {
             txtClaveNueva.setDisable(false);
             txtConfirmarClaveNueva.setDisable(false);
             btnCambiarClave.setDisable(false);
+
+
         } else {
             alerta("Error", "No se pudo enviar el PIN. Intente nuevamente", Alert.AlertType.ERROR);
         }
@@ -135,7 +149,7 @@ public class RecuperarClaveController {
 
     }
 
-
+    //metodos auxiliares
     private void alerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
@@ -149,6 +163,23 @@ public class RecuperarClaveController {
         txtPin.clear();
         txtClaveNueva.clear();
         txtConfirmarClaveNueva.clear();
+    }
+
+    //una vez se concrete el cambio de pin, se cerrar y se mandara al login
+    private void Login() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/login-view.fxml"));
+            Parent parent = loader.load();
+            Scene scene = new Scene(parent);
+            scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/login.css").toExternalForm());
+            Stage stage = (Stage) btnCambiarClave.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alerta("Error", "No se pudo abrir la ventana de login", Alert.AlertType.ERROR);
+        }
     }
 
 
