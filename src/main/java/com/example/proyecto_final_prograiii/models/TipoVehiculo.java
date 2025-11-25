@@ -53,11 +53,7 @@ public class TipoVehiculo {
     //para testeo
     @Override
     public String toString() {
-        return "TipoVehiculo{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", descripcion='" + descripcion + '\'' +
-                ", fechaCreacion=" + fechaCreacion +
-                '}';
+        return nombre;
     }
+
 }

@@ -21,8 +21,10 @@
                 </columnConstraints>
 
                 <!-- filas y controles -->
-                <Label text="Tipo ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <TextField fx:id="tfTipoId" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Tipo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="cbTipoVehiculo" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+
 
                 <Label text="Modelo:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                 <TextField fx:id="tfModelo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>

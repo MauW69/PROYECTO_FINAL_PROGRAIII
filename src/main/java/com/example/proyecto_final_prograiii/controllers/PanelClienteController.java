@@ -89,26 +89,87 @@ public class PanelClienteController {
     }
 
     private VBox crearCardParaVehiculo(Vehiculo v) {
-
         VBox card = new VBox(10);
         card.getStyleClass().add("card");
+        card.setPadding(new Insets(8));
 
         ImageView imageView = new ImageView();
         imageView.getStyleClass().add("card-image");
-
-        String ruta = v.getImagen();
-        if (ruta != null && !ruta.isBlank()) {
-            try {
-                Image img = new Image("file:" + ruta, 240, 130, true, true);
-                imageView.setImage(img);
-            } catch (Exception e) {
-                System.out.println("Error cargando imagen: " + e.getMessage());
-            }
-        }
-
         imageView.setFitWidth(240);
         imageView.setFitHeight(130);
         imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+
+        // DEBUG inicial
+        System.out.println("============================================");
+        System.out.println("[DEBUG] Vehículo ID: " + v.getId());
+        String ruta = v.getImagen();
+        System.out.println("[DEBUG] Ruta guardada en BD: " + ruta);
+
+        boolean imageSet = false;
+
+        // Intentar cargar imagen desde ruta absoluta guardada en BD
+        if (ruta != null && !ruta.isBlank()) {
+            try {
+                java.io.File f = new java.io.File(ruta);
+                System.out.println("[DEBUG] File.exists(): " + f.exists());
+                System.out.println("[DEBUG] File absolute path: " + f.getAbsolutePath());
+                System.out.println("[DEBUG] URI usada para cargar imagen: " + f.toURI());
+
+                Image img = new Image(f.toURI().toString(), 240, 130, true, true);
+                if (!img.isError()) {
+                    imageView.setImage(img);
+                    imageSet = true;
+                    System.out.println("[DEBUG] Imagen cargada correctamente desde BD.");
+                } else {
+                    System.out.println("[DEBUG] Error interno cargando imagen desde BD:");
+                    if (img.getException() != null) img.getException().printStackTrace();
+                }
+            } catch (Exception e) {
+                System.out.println("[DEBUG] Excepción al cargar imagen desde BD:");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("[DEBUG] Ruta vacía o null, no se intentó cargar imagen desde BD.");
+        }
+
+        // Si no hay imagen válida, intentar cargar placeholder desde resources (packaged)
+        if (!imageSet) {
+            try {
+                // 1) Intentar resource empaquetado (recomendado): coloca placeholder.png en /resources/com/example/proyecto_final_prograiii/images/
+                java.net.URL res = getClass().getResource("/com/example/proyecto_final_prograiii/images/placeholder.png");
+                if (res != null) {
+                    Image placeholder = new Image(res.toString(), 240, 130, true, true);
+                    imageView.setImage(placeholder);
+                    imageSet = true;
+                    System.out.println("[DEBUG] Placeholder cargado desde resources.");
+                } else {
+                    System.out.println("[DEBUG] Placeholder en resources NO encontrado.");
+                }
+            } catch (Exception ex) {
+                System.out.println("[DEBUG] Error cargando placeholder desde resources:");
+                ex.printStackTrace();
+            }
+        }
+
+        // 2) Si tampoco hubo resource, usar la imagen temporal que tenemos en entorno de testing
+        if (!imageSet) {
+            try {
+                String placeholderPath = "/mnt/data/532069af-85e9-44f8-9743-062628545c4e.png"; // path de prueba
+                java.io.File pf = new java.io.File(placeholderPath);
+                if (pf.exists()) {
+                    Image placeholder = new Image(pf.toURI().toString(), 240, 130, true, true);
+                    imageView.setImage(placeholder);
+                    imageSet = true;
+                    System.out.println("[DEBUG] Placeholder cargado desde: " + placeholderPath);
+                } else {
+                    System.out.println("[DEBUG] Placeholder de prueba no encontrado en: " + placeholderPath);
+                    // si quieres, puedes dejar un Region gris en su lugar (ya está el background en FXML)
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
 
         // Título
         Label title = new Label(safe(v.getModelo(), "Modelo N/A") + " — " + safe(v.getPlaca(), "Placa N/A"));
@@ -116,7 +177,7 @@ public class PanelClienteController {
 
         // Información
         String tipo = obtenerNombreTipo(v.getTipoVehiculoId());
-        BigDecimal precio = obtenerPrecioPorDiaDeVehiculo(v.getId());
+        java.math.BigDecimal precio = obtenerPrecioPorDiaDeVehiculo(v.getId());
         String precioTxt = (precio != null) ? String.format("$%.2f", precio) : "N/A";
 
         Label info = new Label(
@@ -128,7 +189,6 @@ public class PanelClienteController {
         info.setWrapText(true);
         info.getStyleClass().add("card-info");
 
-        // Botón
         Button btnVer = new Button("Ver");
         btnVer.getStyleClass().add("btn-ver");
         btnVer.setOnAction(e -> abrirDetalleVehiculo(v.getId()));
@@ -136,11 +196,12 @@ public class PanelClienteController {
         HBox acciones = new HBox(btnVer);
         acciones.setSpacing(10);
 
-        // Agregar todo
         card.getChildren().addAll(imageView, title, info, acciones);
-
+        System.out.println("============================================");
         return card;
     }
+
+
 
 
     // helpers
