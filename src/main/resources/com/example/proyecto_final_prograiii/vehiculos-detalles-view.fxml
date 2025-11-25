@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController"
-            prefHeight="420.0" prefWidth="640.0">
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="420.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController">
 
     <children>
-        <VBox spacing="12" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10" >
+        <VBox spacing="12" AnchorPane.bottomAnchor="10" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10">
             <HBox spacing="10">
-                <Label text="Detalle del Vehículo" style="-fx-font-size:18px; -fx-font-weight:bold;" />
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnCerrar" text="Cerrar" onAction="#cerrar"/>
+                <Label style="-fx-font-size:18px; -fx-font-weight:bold;" text="Detalle del Vehículo" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnCerrar" onAction="#cerrar" text="Cerrar" />
             </HBox>
 
             <HBox spacing="20">
                 <!-- placeholder imagen -->
-                <ImageView fx:id="imgCarro" fitWidth="260" fitHeight="160" preserveRatio="true"/>
+                <ImageView fx:id="imgCarro" fitHeight="160" fitWidth="260" preserveRatio="true" />
 
                 <VBox spacing="6">
                     <Label fx:id="lblModelo" text="Modelo: " />
@@ -34,9 +35,10 @@
             </HBox>
 
             <HBox spacing="8">
-                <Button fx:id="btnReservar" text="Reservar" onAction="#reservar"/>
-                <Region HBox.hgrow="ALWAYS"/>
+                <Region HBox.hgrow="ALWAYS" />
             </HBox>
+             <Button fx:id="btnReservar" onAction="#reservar" text="Reservar" />
+         <Button fx:id="btnConfirmarRenta" mnemonicParsing="false" onAction="#ConfirmarRenta" prefHeight="26.0" prefWidth="119.0" text="Confirmar Renta" />
         </VBox>
     </children>
 </AnchorPane>

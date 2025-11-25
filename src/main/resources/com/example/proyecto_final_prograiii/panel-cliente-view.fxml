@@ -19,7 +19,7 @@
         <Button fx:id="btnCerrarSesion" layoutX="720.0" layoutY="10.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="28.0" prefWidth="160.0" text="Cerrar sesión" />
 
         <!-- SCROLLER GENERAL -->
-        <ScrollPane layoutX="10.0" layoutY="50.0" prefHeight="540.0" prefWidth="880.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
+        <ScrollPane layoutX="10.0" layoutY="51.2" prefHeight="539.0" prefWidth="890.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="51.0">
 
             <content>
 

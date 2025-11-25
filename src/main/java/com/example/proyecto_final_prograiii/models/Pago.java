@@ -1,26 +1,26 @@
 package com.example.proyecto_final_prograiii.models;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class Pago {
     private int id;
     private int alquilerId;
     private BigDecimal monto;
-    private LocalDateTime fechaPago;
     private String metodo;
-    private LocalDateTime fechaCreacion;
+    private Timestamp fechaCreacion;
 
 
     public Pago() {}
 
 
 
-    public Pago(int id, int alquilerId, BigDecimal monto, LocalDateTime fechaPago, String metodo, LocalDateTime fechaCreacion ) {
+    public Pago(int id, int alquilerId, BigDecimal monto, String metodo, Timestamp fechaCreacion ) {
         this.id = id;
         this.alquilerId = alquilerId;
         this.monto = monto;
-        this.fechaPago = fechaPago;
+
         this.metodo = metodo;
         this.fechaCreacion = fechaCreacion;
     }
@@ -49,14 +49,6 @@ public class Pago {
         this.monto = monto;
     }
 
-    public LocalDateTime getFechaPago() {
-        return fechaPago;
-    }
-
-    public void setFechaPago(LocalDateTime fechaPago) {
-        this.fechaPago = fechaPago;
-    }
-
     public String getMetodo() {
         return metodo;
     }
@@ -65,22 +57,11 @@ public class Pago {
         this.metodo = metodo;
     }
 
-    public LocalDateTime getFechaCreacion() {
+    public Timestamp getFechaCreacion() {
         return fechaCreacion;
     }
 
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+    public void setFechaCreacion(Timestamp fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
-    //testeo
-    @Override
-    public String toString() {
-        return "Pago{" +
-                "id=" + id +
-                ", alquilerId=" + alquilerId +
-                ", monto=" + monto +
-                ", fechaPago=" + fechaPago +
-                '}';
-    }
-
 }

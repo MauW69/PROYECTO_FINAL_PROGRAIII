@@ -215,6 +215,9 @@ public class PanelClienteController {
         }
     }
 
+    //agregar metodo para inicializat tableview para mostrar las rentas del clientes
+
+
 
     /**
      * Cerrar sesión (similar al panel admin):

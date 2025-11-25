@@ -1,7 +1,9 @@
 package com.example.proyecto_final_prograiii.controllers;
 
+import com.example.proyecto_final_prograiii.DAO.ClienteDAO;
 import com.example.proyecto_final_prograiii.DAO.UsuarioDAO;
 import com.example.proyecto_final_prograiii.config.ConexionDB;
+import com.example.proyecto_final_prograiii.models.Cliente;
 import com.example.proyecto_final_prograiii.models.Usuario;
 import com.example.proyecto_final_prograiii.utils.ClaveUtil;
 import com.example.proyecto_final_prograiii.utils.Sesion;
@@ -19,6 +21,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class LoginController {
 
@@ -117,6 +120,18 @@ public class LoginController {
         // =====================
         //se guarda la sesion
         Sesion.iniciarSesion(usuario);
+        //Si es cliente, cargar información adicional
+        if (usuario.getRolId() == 3) { // Rol cliente
+            ClienteDAO clienteDAO = new ClienteDAO();
+            Cliente cliente = clienteDAO.obtenerPorUsuarioId(usuario.getId());
+
+            if (cliente != null) {
+                Sesion.setClienteActual(cliente);
+            } else {
+                alerta("Error", "No se encontro información del cliente asociado.", Alert.AlertType.ERROR);
+                return;
+            }
+        }
         switch (usuario.getRolId()) {
             case 1:
                 abrirVista("paneladmin-view.fxml", "Panel Administrador","login.css");
@@ -175,10 +190,6 @@ public class LoginController {
         alert.setContentText(mensaje);
         alert.show();
     }
-
-
-
-
 
 
 

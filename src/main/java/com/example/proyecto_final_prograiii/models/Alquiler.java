@@ -11,10 +11,13 @@ public class Alquiler {
     //aqui Integer para poder asignar un valor null ya que con int se tendria que inicializar en 0 y 0 no es nualidad
     private Integer empleadoInicioId;
     private Integer empleadoFinId;
+
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
+
     private BigDecimal precioDiario;
     private BigDecimal costoTotal;
+
     private String estado; // EN CURSO, FINALIZADO, CANCELADO
     private String notas;
     private LocalDateTime fechaCreacion;

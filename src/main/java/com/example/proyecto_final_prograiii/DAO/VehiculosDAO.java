@@ -113,6 +113,9 @@ public class VehiculosDAO {
         return lista;
     }
 
+
+
+
     // -------------------- UPDATE --------------------
     public boolean actualizarVehiculo(Vehiculo v) {
         String sql = "UPDATE vehiculos SET tipo_id = ?, placa = ?, modelo = ?, year = ?, color = ?, kilometraje = ?, estado = ?, precio_por_dia = ?, imagen = ? " +
