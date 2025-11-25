@@ -1,44 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 
-<AnchorPane prefHeight="420.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController">
+<AnchorPane prefHeight="355.0" prefWidth="641.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController">
 
     <children>
-        <VBox spacing="12" AnchorPane.bottomAnchor="10" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10">
-            <HBox spacing="10">
-                <Label style="-fx-font-size:18px; -fx-font-weight:bold;" text="Detalle del Vehículo" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="btnCerrar" onAction="#cerrar" text="Cerrar" />
-            </HBox>
+      <ImageView fitHeight="370.0" fitWidth="369.0" layoutX="272.0" layoutY="-6.0" opacity="0.09" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/b17bb0b8-72e9-40be-bfe6-f7a1246b26f9.jpg" />
+         </image>
+      </ImageView>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#388cda" height="370.0" layoutX="-1.0" layoutY="-6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="273.0" />
 
-            <HBox spacing="20">
-                <!-- placeholder imagen -->
-                <ImageView fx:id="imgCarro" fitHeight="160" fitWidth="260" preserveRatio="true" />
+        <!-- Título -->
+        <Label fx:id="lblDetalle" layoutX="6.0" layoutY="9.0" prefHeight="27.0" prefWidth="260.0" style="-fx-font-size:18px; -fx-font-weight:bold;" text="Detalle del Vehículo" />
 
-                <VBox spacing="6">
-                    <Label fx:id="lblModelo" text="Modelo: " />
-                    <Label fx:id="lblPlaca" text="Placa: " />
-                    <Label fx:id="lblTipo" text="Tipo: " />
-                    <Label fx:id="lblAnio" text="Año: " />
-                    <Label fx:id="lblColor" text="Color: " />
-                    <Label fx:id="lblKm" text="Kilometraje: " />
-                    <Label fx:id="lblEstado" text="Estado: " />
-                    <Label fx:id="lblFechaCreacion" text="Fecha de creación: " />
-                </VBox>
-            </HBox>
+        <!-- Botón cerrar -->
+        <Button fx:id="btnCerrar" layoutX="553.0" layoutY="10.0" onAction="#cerrar" text="Cerrar" />
 
-            <HBox spacing="8">
-                <Region HBox.hgrow="ALWAYS" />
-            </HBox>
-             <Button fx:id="btnReservar" onAction="#reservar" text="Reservar" />
-         <Button fx:id="btnConfirmarRenta" mnemonicParsing="false" onAction="#ConfirmarRenta" prefHeight="26.0" prefWidth="119.0" text="Confirmar Renta" />
-        </VBox>
+        <!-- Imagen -->
+        <ImageView fx:id="imgCarro" fitHeight="160" fitWidth="231.0" layoutX="20.0" layoutY="52.0" preserveRatio="true" />
+
+        <!-- Labels de información -->
+        <Label fx:id="lblModelo" layoutX="280.0" layoutY="60.0" text="Modelo: " />
+        <Label fx:id="lblPlaca" layoutX="280.0" layoutY="97.0" text="Placa: " />
+        <Label fx:id="lblTipo" layoutX="455.0" layoutY="60.0" text="Tipo: " />
+        <Label fx:id="lblAnio" layoutX="455.0" layoutY="97.0" text="Año: " />
+        <Label fx:id="lblColor" layoutX="280.0" layoutY="132.0" text="Color: " />
+        <Label fx:id="lblKm" layoutX="455.0" layoutY="132.0" text="Kilometraje: " />
+        <Label fx:id="lblEstado" layoutX="280.0" layoutY="172.0" text="Estado: " />
+        <Label fx:id="lblFechaCreacion" layoutX="455.0" layoutY="172.0" text="Fecha de creación:" />
+
+        <!-- Botón Reservar -->
+        <Button fx:id="btnReservar" layoutX="283.0" layoutY="268.0" onAction="#reservar" text="Reservar" />
+
+        <!-- Botón Confirmar Renta -->
+        <Button fx:id="btnConfirmarRenta" layoutX="283.0" layoutY="325.0" onAction="#ConfirmarRenta" prefWidth="130" text="Confirmar Renta" />
+      <DatePicker fx:id="fechaInicio" layoutX="20.0" layoutY="268.0" prefHeight="25.0" prefWidth="231.0" />
+      <DatePicker fx:id="fechaFin" layoutX="20.0" layoutY="325.0" prefHeight="25.0" prefWidth="231.0" />
+      <Label fx:id="inicio" layoutX="20.0" layoutY="240.0" text="INICIO RENTA" />
+      <Label fx:id="ender" layoutX="20.0" layoutY="300.0" text="FINAL RENTA" />
+
     </children>
 </AnchorPane>

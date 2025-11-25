@@ -263,10 +263,11 @@ public class PanelClienteController {
             com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController ctrl =
                     loader.getController();
             ctrl.cargarVehiculo(id);
-
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/DetalleVehiculos.css").toExternalForm());
             Stage stage = new Stage();
             stage.setTitle("Detalle del vehículo");
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             stage.initOwner(cardsContainer.getScene().getWindow());
             stage.showAndWait();

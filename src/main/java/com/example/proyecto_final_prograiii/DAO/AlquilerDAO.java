@@ -166,6 +166,45 @@ public class AlquilerDAO {
         } catch (SQLException e) { }
         return Optional.empty();
     }
+    public Alquiler obtenerSolicitudEnCursoPorVehiculo(int vehiculoId) {
+        String sql = """
+        SELECT * FROM alquileres 
+        WHERE vehiculo_id = ? 
+        AND estado = 'EN CURSO'
+        LIMIT 1
+    """;
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, vehiculoId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToAlquiler(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en obtenerSolicitudEnCursoPorVehiculo: " + e.getMessage());
+        }
+
+        return null;
+    }
+    public boolean confirmarRenta(int idAlquiler, int idEmpleado) {
+        String sql = """
+        UPDATE alquileres
+        SET estado = 'ALQUILADO',
+            empleado_inicio_id = ?
+        WHERE id = ?
+    """;
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, idEmpleado);
+            ps.setInt(2, idAlquiler);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
 
 

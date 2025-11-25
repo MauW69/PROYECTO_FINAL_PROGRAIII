@@ -161,4 +161,16 @@ public class VehiculosDAO {
             return false;
         }
     }
+    public boolean actualizarEstadoVehiculo(int vehiculoId, String nuevoEstado) {
+        String sql = "UPDATE vehiculos SET estado = ? WHERE id = ?";
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, nuevoEstado);
+            ps.setInt(2, vehiculoId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Error actualizarEstadoVehiculo: " + e.getMessage());
+            return false;
+        }
+    }
 }

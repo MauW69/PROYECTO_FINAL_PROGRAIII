@@ -11,6 +11,7 @@ import com.example.proyecto_final_prograiii.utils.Sesion;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -31,7 +32,6 @@ import java.math.BigDecimal;
  * Usa VehiculosDAO.obtenerPorIdVehiculo(int)
  */
 public class VehiculosDetallerController {
-
     @FXML private Label lblModelo;
     @FXML private Label lblPlaca;
     @FXML private Label lblTipo;
@@ -48,6 +48,8 @@ public class VehiculosDetallerController {
     //nuevo boton que solo se les mostrara a los empleados y permitira confirmar la renta del vehiculo
     @FXML
     private Button btnConfirmarRenta;
+    @FXML private   DatePicker fechaInicio;
+    @FXML private DatePicker fechaFin;
 
     private Vehiculo vehiculo;
 
@@ -182,30 +184,50 @@ public class VehiculosDetallerController {
             return;
         }
 
-        // -------------------------------------------------------
-        // Obtener cliente desde la sesion
-        // -------------------------------------------------------
         Cliente cliente = Sesion.getClienteActual();
-
         if (cliente == null) {
             alerta("Error", "Debe iniciar sesión como cliente.", Alert.AlertType.ERROR);
             return;
         }
 
-        int clienteId = cliente.getId();
+        LocalDate inicio = fechaInicio.getValue();
+        LocalDate fin = fechaFin.getValue();
+        LocalDate hoy = LocalDate.now();
+
+        // ---------------- VALIDACIONES ----------------
+
+        // 1. Fecha inicio no puede ser menor al día actual
+        if (inicio == null || inicio.isBefore(hoy)) {
+            alerta("Fecha inválida", "La fecha de inicio no puede ser menor a hoy.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // 2. Fecha fin debe ser mayor a fecha inicio
+        if (fin == null || !fin.isAfter(inicio)) {
+            alerta("Fecha inválida", "La fecha final debe ser mayor que la fecha inicial.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // 3. No permitir alquileres mayores a 30 días
+        if (inicio.plusDays(30).isBefore(fin)) {
+            alerta("Límite excedido", "No puedes rentar un vehículo por más de 30 días.", Alert.AlertType.WARNING);
+            return;
+        }
 
         // -------------------------------------------------------
-        // instanciar objeto alquiler
-        // -------------------------------------------------------
+
+        int clienteId = cliente.getId();
+
         Alquiler alquiler = new Alquiler();
         alquiler.setVehiculoId(vehiculo.getId());
         alquiler.setClienteId(clienteId);
-        alquiler.setFechaInicio(LocalDate.now());
+        alquiler.setFechaInicio(inicio);
+        alquiler.setFechaFin(fin);  // <<<< IMPORTANTE
         alquiler.setPrecioDiario(vehiculo.getPrecioPorDia());
         alquiler.setEstado("EN CURSO");
         alquiler.setNotas("Solicitud enviada desde el cliente.");
 
-        // Guardar en la BD
+        // Guardar en BD
         AlquilerDAO dao = new AlquilerDAO();
         boolean exito = dao.crearSolicitudAlquiler(alquiler);
 
@@ -220,7 +242,48 @@ public class VehiculosDetallerController {
     //metodo que confirma la renta
     @FXML
     void ConfirmarRenta(ActionEvent event) {
+        if (vehiculo == null) {
+            alerta("Error", "No hay vehículo cargado.", Alert.AlertType.ERROR);
+            return;
+        }
 
+        if (!vehiculo.getEstado().equalsIgnoreCase("DISPONIBLE")) {
+            alerta("No disponible", "El vehículo no está disponible para renta.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Usuario empleado = Sesion.getUsuarioActual();
+        if (empleado == null || empleado.getRolId() != 2) {
+            alerta("Permiso denegado", "Solo un empleado puede confirmar la renta.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        AlquilerDAO alquilerDAO = new AlquilerDAO();
+        Alquiler solicitud = alquilerDAO.obtenerSolicitudEnCursoPorVehiculo(vehiculo.getId());
+
+        if (solicitud == null) {
+            alerta("Sin solicitud", "No existe una solicitud activa para este vehículo.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        boolean ok = alquilerDAO.confirmarRenta(solicitud.getId(), empleado.getId());
+
+        if (!ok) {
+            alerta("Error", "No se pudo confirmar la renta.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // Cambiar estado vehículo
+        VehiculosDAO vdao = new VehiculosDAO();
+        vdao.actualizarEstadoVehiculo(vehiculo.getId(), "ALQUILADO");
+
+        vehiculo.setEstado("ALQUILADO");
+        lblEstado.setText("Estado: ALQUILADO");
+
+        alerta("Renta confirmada", "La renta ha sido confirmada correctamente.", Alert.AlertType.INFORMATION);
+
+        // Cerrar ventana
+        ((Stage) btnCerrar.getScene().getWindow()).close();
 
     }
 
