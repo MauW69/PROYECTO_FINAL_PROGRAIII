@@ -19,17 +19,16 @@ import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.net.URL;
 import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller para la vista de detalle de vehículo.
- * Usa VehiculosDAO.obtenerPorIdVehiculo(int)
  */
 public class VehiculosDetallerController {
     @FXML private Label lblModelo;
@@ -45,71 +44,49 @@ public class VehiculosDetallerController {
     @FXML private Button btnCerrar;
     @FXML private Button btnReservar;
 
-    //nuevo boton que solo se les mostrara a los empleados y permitira confirmar la renta del vehiculo
-    @FXML
-    private Button btnConfirmarRenta;
-    @FXML private   DatePicker fechaInicio;
+    @FXML private Button btnConfirmarRenta;
+    @FXML private DatePicker fechaInicio;
     @FXML private DatePicker fechaFin;
 
     private Vehiculo vehiculo;
+    private int vehiculoId = 0;
 
-    /**
-     * Método público: cargar vehículo por id (llamado desde PanelClienteController)
-     */
-    //este metodo solo configura la visualizacion de botones segun el rol del usuario
     private void ajustarInterfazPorRol() {
-
         Usuario usuario = Sesion.getUsuarioActual();
-
         if (usuario == null) {
-            // Por seguridad: esconder ambos
-            btnReservar.setVisible(false);
-            btnReservar.setManaged(false);
-            btnConfirmarRenta.setVisible(false);
-            btnConfirmarRenta.setManaged(false);
+            if (btnReservar != null) { btnReservar.setVisible(false); btnReservar.setManaged(false); }
+            if (btnConfirmarRenta != null) { btnConfirmarRenta.setVisible(false); btnConfirmarRenta.setManaged(false); }
             return;
         }
-
-        int rol = Sesion.getUsuarioActual().getRolId();  // 3 es"Cliente" 2 es"Empleado"
-
+        int rol = usuario.getRolId();
         switch (rol) {
-            case 3:
-                // El cliente solo reserva
-                btnConfirmarRenta.setVisible(false);
-                btnConfirmarRenta.setManaged(false);
+            case 3: // cliente
+                if (btnConfirmarRenta != null) { btnConfirmarRenta.setVisible(false); btnConfirmarRenta.setManaged(false); }
                 break;
-
-            case 2:
-                // El empleado solo cambia estado
-                btnReservar.setVisible(false);
-                btnReservar.setManaged(false);
+            case 2: // empleado
+                if (btnReservar != null) { btnReservar.setVisible(false); btnReservar.setManaged(false); }
                 break;
-
             default:
-                // Roles desconocidos → oculta ambos por seguridad
-                btnReservar.setVisible(false);
-                btnReservar.setManaged(false);
-                btnConfirmarRenta.setVisible(false);
-                btnConfirmarRenta.setManaged(false);
+                if (btnReservar != null) { btnReservar.setVisible(false); btnReservar.setManaged(false); }
+                if (btnConfirmarRenta != null) { btnConfirmarRenta.setVisible(false); btnConfirmarRenta.setManaged(false); }
         }
     }
 
     public void initialize(){
         ajustarInterfazPorRol();
-        //en caso de usarse
-        //Usuario usuario = Sesion.getUsuarioActual();
     }
+
     public void cargarVehiculo(int vehiculoId) {
         VehiculosDAO dao = new VehiculosDAO();
-        Vehiculo v = dao.obtenerPorIdVehiculo(vehiculoId); // coincide con tu DAO
-
+        Vehiculo v = dao.obtenerPorIdVehiculo(vehiculoId);
         if (v == null) {
             alerta("Vehículo no encontrado", "No se encontró el vehículo con id = " + vehiculoId, Alert.AlertType.WARNING);
             return;
         }
-
         this.vehiculo = v;
+        this.vehiculoId = vehiculoId;
         llenarDatosEnVista();
+        ajustarInterfazPorRol();
     }
 
     private void llenarDatosEnVista() {
@@ -121,38 +98,34 @@ public class VehiculosDetallerController {
         lblKm.setText("Kilometraje: " + (vehiculo.getKilometraje() == 0 ? "N/A" : vehiculo.getKilometraje() + " km"));
         lblEstado.setText("Estado: " + safe(vehiculo.getEstado(), "N/A"));
 
-        // Ocultar fecha
-        lblFechaCreacion.setVisible(false);
-        lblFechaCreacion.setManaged(false);
+        if (lblFechaCreacion != null) {
+            lblFechaCreacion.setVisible(false);
+            lblFechaCreacion.setManaged(false);
+        }
 
-        // ==========================
-        // CARGAR IMAGEN REAL
-        // ==========================
+        // Imagen
         try {
             String ruta = vehiculo.getImagen();
             if (ruta != null && !ruta.isEmpty()) {
                 File file = new File(ruta);
                 if (file.exists()) {
                     imgCarro.setImage(new Image(file.toURI().toString()));
-                    return; // evita que se coloque placeholder
+                    return;
+                } else {
+                    System.out.println("[VehiculosDetallerController] Imagen referenciada pero no encontrada: " + file.getAbsolutePath());
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error cargando imagen: " + e.getMessage());
+            System.err.println("[VehiculosDetallerController] Error cargando imagen: " + e.getMessage());
         }
 
-        // ==========================
-        // PLACEHOLDER POR DEFECTO
-        // ==========================
+        // placeholder
         try {
             URL placeholder = new URL("https://via.placeholder.com/260x160.png?text=Imagen");
             imgCarro.setImage(new Image(placeholder.toString()));
-        } catch (Exception ex) { }
+        } catch (Exception ex) { ex.printStackTrace(); }
     }
 
-
-
-    // Si deseas obtener el nombre del tipo  (tabla tipos_vehiculo)
     private String obtenerNombreTipo(int tipoId) {
         if (tipoId <= 0) return "N/A";
         String sql = "SELECT nombre FROM tipos_vehiculo WHERE id = ?";
@@ -176,119 +149,188 @@ public class VehiculosDetallerController {
         st.close();
     }
 
-    //boton para mandar solicitud de renta al empleado
-    @FXML
-    public void reservar(ActionEvent event) {
-        if (vehiculo == null) {
-            alerta("Acción inválida", "No hay vehículo cargado.", Alert.AlertType.WARNING);
-            return;
+    // Helper: comprueba si la tabla tiene la columna dada (case-insensitive)
+    private boolean hasColumn(Connection cn, String tableName, String columnName) throws SQLException {
+        // Postgres guarda en lowercase si no se usan comillas, así que consultamos en lowercase
+        DatabaseMetaData meta = cn.getMetaData();
+        try (ResultSet rs = meta.getColumns(null, null, tableName, columnName)) {
+            if (rs.next()) return true;
         }
-
-        Cliente cliente = Sesion.getClienteActual();
-        if (cliente == null) {
-            alerta("Error", "Debe iniciar sesión como cliente.", Alert.AlertType.ERROR);
-            return;
-        }
-
-        LocalDate inicio = fechaInicio.getValue();
-        LocalDate fin = fechaFin.getValue();
-        LocalDate hoy = LocalDate.now();
-
-        // ---------------- VALIDACIONES ----------------
-
-        // 1. Fecha inicio no puede ser menor al día actual
-        if (inicio == null || inicio.isBefore(hoy)) {
-            alerta("Fecha inválida", "La fecha de inicio no puede ser menor a hoy.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        // 2. Fecha fin debe ser mayor a fecha inicio
-        if (fin == null || !fin.isAfter(inicio)) {
-            alerta("Fecha inválida", "La fecha final debe ser mayor que la fecha inicial.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        // 3. No permitir alquileres mayores a 30 días
-        if (inicio.plusDays(30).isBefore(fin)) {
-            alerta("Límite excedido", "No puedes rentar un vehículo por más de 30 días.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        // -------------------------------------------------------
-
-        int clienteId = cliente.getId();
-
-        Alquiler alquiler = new Alquiler();
-        alquiler.setVehiculoId(vehiculo.getId());
-        alquiler.setClienteId(clienteId);
-        alquiler.setFechaInicio(inicio);
-        alquiler.setFechaFin(fin);  // <<<< IMPORTANTE
-        alquiler.setPrecioDiario(vehiculo.getPrecioPorDia());
-        alquiler.setEstado("EN CURSO");
-        alquiler.setNotas("Solicitud enviada desde el cliente.");
-
-        // Guardar en BD
-        AlquilerDAO dao = new AlquilerDAO();
-        boolean exito = dao.crearSolicitudAlquiler(alquiler);
-
-        if (exito) {
-            alerta("Solicitud enviada", "El empleado revisará tu solicitud de renta.", Alert.AlertType.INFORMATION);
-        } else {
-            alerta("Error", "No se pudo completar la solicitud.", Alert.AlertType.ERROR);
+        // intenta lowercase del columnName
+        try (ResultSet rs2 = meta.getColumns(null, null, tableName, columnName.toLowerCase())) {
+            return rs2.next();
         }
     }
 
+    @FXML
+    public void reservar(ActionEvent event) {
+        try {
+            if (vehiculo == null) {
+                alerta("Acción inválida", "No hay vehículo cargado.", Alert.AlertType.WARNING);
+                return;
+            }
 
-    //metodo que confirma la renta
+            Cliente cliente = Sesion.getClienteActual();
+            if (cliente == null) {
+                alerta("Error", "Debe iniciar sesión como cliente.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            LocalDate inicio = (fechaInicio == null) ? null : fechaInicio.getValue();
+            LocalDate fin = (fechaFin == null) ? null : fechaFin.getValue();
+            LocalDate hoy = LocalDate.now();
+
+            if (inicio == null) { alerta("Fecha inicio requerida", "Selecciona la fecha de inicio.", Alert.AlertType.WARNING); return; }
+            if (inicio.isBefore(hoy)) { alerta("Fecha inválida", "La fecha de inicio no puede ser menor a hoy.", Alert.AlertType.WARNING); return; }
+            if (fin == null) { alerta("Fecha fin requerida", "Selecciona la fecha estimada de fin.", Alert.AlertType.WARNING); return; }
+            if (!fin.isAfter(inicio)) { alerta("Fecha inválida", "La fecha final debe ser mayor que la fecha inicial.", Alert.AlertType.WARNING); return; }
+
+            long dias = ChronoUnit.DAYS.between(inicio, fin) + 1;
+            if (dias <= 0) { alerta("Fechas inválidas", "Revisa las fechas ingresadas.", Alert.AlertType.WARNING); return; }
+            if (dias > 30) { alerta("Límite excedido", "No puedes rentar un vehículo por más de 30 días.", Alert.AlertType.WARNING); return; }
+
+            int clienteId = cliente.getId();
+
+            // calcula precios
+            BigDecimal precioPorDia = vehiculo.getPrecioPorDia() == null ? BigDecimal.ZERO : vehiculo.getPrecioPorDia();
+            BigDecimal precioTotal = precioPorDia.multiply(BigDecimal.valueOf(dias));
+
+            Alquiler alquiler = new Alquiler();
+            alquiler.setVehiculoId(vehiculo.getId());
+            alquiler.setClienteId(clienteId);
+            alquiler.setFechaInicio(inicio);
+            alquiler.setFechaFin(fin);
+            alquiler.setPrecioDiario(precioPorDia);
+            // <-- QUITADA la llamada a setPrecioTotal porque tu clase Alquiler no la tiene.
+            // Si quieres almacenar precioTotal en el objeto, añade campo + setter en la clase Alquiler.
+            alquiler.setEstado("EN CURSO");
+            alquiler.setNotas("Solicitud enviada desde el cliente.");
+
+            // 1) Intentar DAO
+            AlquilerDAO dao = new AlquilerDAO();
+            boolean exito = false;
+            try {
+                exito = dao.crearSolicitudAlquiler(alquiler);
+                System.out.println("[VehiculosDetallerController] llamada a AlquilerDAO.crearSolicitudAlquiler result: " + exito);
+            } catch (Exception ex) {
+                System.err.println("[VehiculosDetallerController] AlquilerDAO.crearSolicitudAlquiler lanzó excepción: " + ex.getMessage());
+                ex.printStackTrace();
+                exito = false;
+            }
+
+            // 2) Si DAO falla, fallback robusto: construyo INSERT según columnas reales
+            if (!exito) {
+                System.out.println("[VehiculosDetallerController] Fallback: intento insertar directamente consultando columnas reales.");
+
+                try (Connection cn = ConexionDB.getConnection()) {
+
+                    List<String> cols = new ArrayList<>();
+                    List<Object> values = new ArrayList<>();
+
+                    // columnas básicas
+                    if (hasColumn(cn, "alquileres", "vehiculo_id")) { cols.add("vehiculo_id"); values.add(vehiculo.getId()); }
+                    if (hasColumn(cn, "alquileres", "cliente_id"))  { cols.add("cliente_id"); values.add(clienteId); }
+
+                    // fechas (intento nombres comunes)
+                    if (hasColumn(cn, "alquileres", "fecha_inicio")) { cols.add("fecha_inicio"); values.add(java.sql.Date.valueOf(inicio)); }
+                    else if (hasColumn(cn, "alquileres", "fecha_inicio_renta")) { cols.add("fecha_inicio_renta"); values.add(java.sql.Date.valueOf(inicio)); }
+                    else if (hasColumn(cn, "alquileres", "fecha_reserva")) { cols.add("fecha_reserva"); values.add(java.sql.Date.valueOf(inicio)); }
+
+                    if (hasColumn(cn, "alquileres", "fecha_fin_estimada")) { cols.add("fecha_fin_estimada"); values.add(java.sql.Date.valueOf(fin)); }
+                    else if (hasColumn(cn, "alquileres", "fecha_fin_renta")) { cols.add("fecha_fin_renta"); values.add(java.sql.Date.valueOf(fin)); }
+                    else if (hasColumn(cn, "alquileres", "fecha_fin")) { cols.add("fecha_fin"); values.add(java.sql.Date.valueOf(fin)); }
+
+                    // precios
+                    if (hasColumn(cn, "alquileres", "precio_diario")) { cols.add("precio_diario"); values.add(precioPorDia); }
+                    if (hasColumn(cn, "alquileres", "precio_total"))  { cols.add("precio_total"); values.add(precioTotal); }
+                    if (hasColumn(cn, "alquileres", "precio"))        { cols.add("precio"); values.add(precioTotal); } // alternativa
+
+                    // estado
+                    if (hasColumn(cn, "alquileres", "estado")) { cols.add("estado"); values.add("EN CURSO"); }
+
+                    // notas/observaciones
+                    if (hasColumn(cn, "alquileres", "observaciones")) { cols.add("observaciones"); values.add("Solicitud enviada desde el cliente."); }
+                    else if (hasColumn(cn, "alquileres", "notas")) { cols.add("notas"); values.add("Solicitud enviada desde el cliente."); }
+                    else if (hasColumn(cn, "alquileres", "comentarios")) { cols.add("comentarios"); values.add("Solicitud enviada desde el cliente."); }
+
+                    // fecha_creacion: si existe, lo marcamos con current_timestamp en SQL (no como parámetro)
+                    boolean tieneFechaCreacion = hasColumn(cn, "alquileres", "fecha_creacion") || hasColumn(cn, "alquileres", "created_at");
+
+                    if (cols.isEmpty()) {
+                        System.err.println("[VehiculosDetallerController] No se identificaron columnas válidas para insertar en alquileres. Abortando fallback.");
+                    } else {
+                        StringBuilder sbCols = new StringBuilder();
+                        StringBuilder sbVals = new StringBuilder();
+                        for (int i = 0; i < cols.size(); i++) {
+                            if (i > 0) { sbCols.append(", "); sbVals.append(", "); }
+                            sbCols.append(cols.get(i));
+                            sbVals.append("?");
+                        }
+                        String sql = "INSERT INTO alquileres (" + sbCols.toString() + (tieneFechaCreacion ? ", fecha_creacion" : "") + ") VALUES (" + sbVals.toString() + (tieneFechaCreacion ? ", current_timestamp" : "") + ")";
+                        System.out.println("[VehiculosDetallerController] SQL fallback: " + sql);
+
+                        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+                            for (int i = 0; i < values.size(); i++) {
+                                Object val = values.get(i);
+                                int idx = i + 1;
+                                if (val instanceof Integer) ps.setInt(idx, (Integer) val);
+                                else if (val instanceof BigDecimal) ps.setBigDecimal(idx, (BigDecimal) val);
+                                else if (val instanceof java.sql.Date) ps.setDate(idx, (java.sql.Date) val);
+                                else if (val instanceof java.sql.Timestamp) ps.setTimestamp(idx, (java.sql.Timestamp) val);
+                                else if (val instanceof String) ps.setString(idx, (String) val);
+                                else ps.setObject(idx, val);
+                            }
+                            int rows = ps.executeUpdate();
+                            if (rows > 0) {
+                                exito = true;
+                                System.out.println("[VehiculosDetallerController] Insert directo OK, filas=" + rows);
+                            } else {
+                                System.err.println("[VehiculosDetallerController] Insert directo devolvió 0 filas afectadas.");
+                            }
+                        }
+                    }
+                } catch (SQLException sqe) {
+                    sqe.printStackTrace();
+                    System.err.println("[VehiculosDetallerController] Error en fallback insert: " + sqe.getMessage());
+                    exito = false;
+                }
+            }
+
+            if (exito) {
+                alerta("Solicitud enviada", "El empleado revisará tu solicitud de renta.", Alert.AlertType.INFORMATION);
+            } else {
+                alerta("Error", "No se pudo completar la solicitud. Revisa la consola para más detalles.", Alert.AlertType.ERROR);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            alerta("Error", "Error al procesar la solicitud: " + ex.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
     @FXML
     void ConfirmarRenta(ActionEvent event) {
-        if (vehiculo == null) {
-            alerta("Error", "No hay vehículo cargado.", Alert.AlertType.ERROR);
-            return;
-        }
-
-        if (!vehiculo.getEstado().equalsIgnoreCase("DISPONIBLE")) {
-            alerta("No disponible", "El vehículo no está disponible para renta.", Alert.AlertType.WARNING);
-            return;
-        }
-
+        if (vehiculo == null) { alerta("Error", "No hay vehículo cargado.", Alert.AlertType.ERROR); return; }
+        if (!"DISPONIBLE".equalsIgnoreCase(vehiculo.getEstado())) { alerta("No disponible", "El vehículo no está disponible para renta.", Alert.AlertType.WARNING); return; }
         Usuario empleado = Sesion.getUsuarioActual();
-        if (empleado == null || empleado.getRolId() != 2) {
-            alerta("Permiso denegado", "Solo un empleado puede confirmar la renta.", Alert.AlertType.ERROR);
-            return;
-        }
+        if (empleado == null || empleado.getRolId() != 2) { alerta("Permiso denegado", "Solo un empleado puede confirmar la renta.", Alert.AlertType.ERROR); return; }
 
         AlquilerDAO alquilerDAO = new AlquilerDAO();
         Alquiler solicitud = alquilerDAO.obtenerSolicitudEnCursoPorVehiculo(vehiculo.getId());
 
-        if (solicitud == null) {
-            alerta("Sin solicitud", "No existe una solicitud activa para este vehículo.", Alert.AlertType.WARNING);
-            return;
-        }
+        if (solicitud == null) { alerta("Sin solicitud", "No existe una solicitud activa para este vehículo.", Alert.AlertType.WARNING); return; }
 
         boolean ok = alquilerDAO.confirmarRenta(solicitud.getId(), empleado.getId());
+        if (!ok) { alerta("Error", "No se pudo confirmar la renta.", Alert.AlertType.ERROR); return; }
 
-        if (!ok) {
-            alerta("Error", "No se pudo confirmar la renta.", Alert.AlertType.ERROR);
-            return;
-        }
-
-        // Cambiar estado vehículo
         VehiculosDAO vdao = new VehiculosDAO();
         vdao.actualizarEstadoVehiculo(vehiculo.getId(), "ALQUILADO");
-
         vehiculo.setEstado("ALQUILADO");
         lblEstado.setText("Estado: ALQUILADO");
-
         alerta("Renta confirmada", "La renta ha sido confirmada correctamente.", Alert.AlertType.INFORMATION);
-
-        // Cerrar ventana
         ((Stage) btnCerrar.getScene().getWindow()).close();
-
     }
 
-
-    // helper alert
     private void alerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert a = new Alert(tipo);
         a.setTitle(titulo);
