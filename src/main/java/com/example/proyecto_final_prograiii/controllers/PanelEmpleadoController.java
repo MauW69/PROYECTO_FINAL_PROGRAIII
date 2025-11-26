@@ -169,7 +169,7 @@ public class PanelEmpleadoController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(tblSolicitudes.getScene().getWindow());
             stage.showAndWait();
-
+            cargarDatos();
         } catch (IOException ex) {
             ex.printStackTrace();
         }

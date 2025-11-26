@@ -350,26 +350,42 @@ public class VehiculosDetallerController {
 
     @FXML
     void ConfirmarRenta(ActionEvent event) {
-        if (vehiculo == null) { alerta("Error", "No hay vehículo cargado.", Alert.AlertType.ERROR); return; }
-        if (!"DISPONIBLE".equalsIgnoreCase(vehiculo.getEstado())) { alerta("No disponible", "El vehículo no está disponible para renta.", Alert.AlertType.WARNING); return; }
-        Usuario empleado = Sesion.getUsuarioActual();
-        if (empleado == null || empleado.getRolId() != 2) { alerta("Permiso denegado", "Solo un empleado puede confirmar la renta.", Alert.AlertType.ERROR); return; }
+        if (vehiculo == null) {
+            alerta("Error", "No hay vehículo cargado.", Alert.AlertType.ERROR);
+            return;
+        }
 
+        if (!"DISPONIBLE".equalsIgnoreCase(vehiculo.getEstado())) {
+            alerta("No disponible", "El vehículo no está disponible para renta.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Usuario empleado = Sesion.getUsuarioActual();
+        if (empleado == null || empleado.getRolId() != 2) {
+            alerta("Permiso denegado", "Solo un empleado puede confirmar la renta.", Alert.AlertType.ERROR);
+            return;
+        }
         AlquilerDAO alquilerDAO = new AlquilerDAO();
         Alquiler solicitud = alquilerDAO.obtenerSolicitudEnCursoPorVehiculo(vehiculo.getId());
 
-        if (solicitud == null) { alerta("Sin solicitud", "No existe una solicitud activa para este vehículo.", Alert.AlertType.WARNING); return; }
-
+        if (solicitud == null) {
+            alerta("Sin solicitud", "No existe una solicitud activa para este vehículo.", Alert.AlertType.WARNING);
+            return;
+        }
         boolean ok = alquilerDAO.confirmarRenta(solicitud.getId(), empleado.getId());
-        if (!ok) { alerta("Error", "No se pudo confirmar la renta.", Alert.AlertType.ERROR); return; }
-
+        if (!ok) {
+            alerta("Error", "No se pudo confirmar la renta.", Alert.AlertType.ERROR);
+            return;
+        }
         VehiculosDAO vdao = new VehiculosDAO();
         vdao.actualizarEstadoVehiculo(vehiculo.getId(), "ALQUILADO");
         vehiculo.setEstado("ALQUILADO");
         lblEstado.setText("Estado: ALQUILADO");
+        ajustarInterfazPorRol();
         alerta("Renta confirmada", "La renta ha sido confirmada correctamente.", Alert.AlertType.INFORMATION);
         ((Stage) btnCerrar.getScene().getWindow()).close();
     }
+
 
     private void alerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert a = new Alert(tipo);

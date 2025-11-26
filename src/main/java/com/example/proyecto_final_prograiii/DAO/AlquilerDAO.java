@@ -20,18 +20,23 @@ public class AlquilerDAO {
     //metodo que creara las solicitudes de los clientes
     public boolean crearSolicitudAlquiler(Alquiler a) {
         String sql = """
-            INSERT INTO alquileres 
-            (vehiculo_id, cliente_id, fecha_inicio, precio_diario, estado, notas)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """;
+        INSERT INTO alquileres 
+        (vehiculo_id, cliente_id, fecha_inicio, fecha_fin, precio_diario, estado, notas)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """;
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+
             ps.setInt(1, a.getVehiculoId());
             ps.setInt(2, a.getClienteId());
             ps.setDate(3, Date.valueOf(a.getFechaInicio()));
-            ps.setBigDecimal(4, a.getPrecioDiario());
-            ps.setString(5, a.getEstado());
-            ps.setString(6, a.getNotas());
+
+            // 👇 AQUI LO QUE FALTABA
+            ps.setDate(4, a.getFechaFin() != null ? Date.valueOf(a.getFechaFin()) : null);
+
+            ps.setBigDecimal(5, a.getPrecioDiario());
+            ps.setString(6, a.getEstado());
+            ps.setString(7, a.getNotas());
 
             return ps.executeUpdate() > 0;
 
