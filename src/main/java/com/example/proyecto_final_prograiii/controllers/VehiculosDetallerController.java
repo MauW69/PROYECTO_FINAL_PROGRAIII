@@ -19,11 +19,11 @@ import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 
 import java.io.File;
+import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
-import java.net.URL;
-import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,12 +151,10 @@ public class VehiculosDetallerController {
 
     // Helper: comprueba si la tabla tiene la columna dada (case-insensitive)
     private boolean hasColumn(Connection cn, String tableName, String columnName) throws SQLException {
-        // Postgres guarda en lowercase si no se usan comillas, así que consultamos en lowercase
         DatabaseMetaData meta = cn.getMetaData();
         try (ResultSet rs = meta.getColumns(null, null, tableName, columnName)) {
             if (rs.next()) return true;
         }
-        // intenta lowercase del columnName
         try (ResultSet rs2 = meta.getColumns(null, null, tableName, columnName.toLowerCase())) {
             return rs2.next();
         }
@@ -185,7 +183,8 @@ public class VehiculosDetallerController {
             if (fin == null) { alerta("Fecha fin requerida", "Selecciona la fecha estimada de fin.", Alert.AlertType.WARNING); return; }
             if (!fin.isAfter(inicio)) { alerta("Fecha inválida", "La fecha final debe ser mayor que la fecha inicial.", Alert.AlertType.WARNING); return; }
 
-            long dias = ChronoUnit.DAYS.between(inicio, fin) + 1;
+            long diasLong = ChronoUnit.DAYS.between(inicio, fin) + 1;
+            int dias = (int) diasLong;
             if (dias <= 0) { alerta("Fechas inválidas", "Revisa las fechas ingresadas.", Alert.AlertType.WARNING); return; }
             if (dias > 30) { alerta("Límite excedido", "No puedes rentar un vehículo por más de 30 días.", Alert.AlertType.WARNING); return; }
 
@@ -195,16 +194,53 @@ public class VehiculosDetallerController {
             BigDecimal precioPorDia = vehiculo.getPrecioPorDia() == null ? BigDecimal.ZERO : vehiculo.getPrecioPorDia();
             BigDecimal precioTotal = precioPorDia.multiply(BigDecimal.valueOf(dias));
 
+            // Construir Alquiler y asignar total mediante reflexión si es necesario
             Alquiler alquiler = new Alquiler();
             alquiler.setVehiculoId(vehiculo.getId());
             alquiler.setClienteId(clienteId);
             alquiler.setFechaInicio(inicio);
             alquiler.setFechaFin(fin);
-            alquiler.setPrecioDiario(precioPorDia);
-            // <-- QUITADA la llamada a setPrecioTotal porque tu clase Alquiler no la tiene.
-            // Si quieres almacenar precioTotal en el objeto, añade campo + setter en la clase Alquiler.
+            // intenta setPrecioDiario si existe
+            try {
+                alquiler.getClass().getMethod("setPrecioDiario", BigDecimal.class).invoke(alquiler, precioPorDia);
+            } catch (NoSuchMethodException nsmd) {
+                // ignora si no existe
+            } catch (Exception e) { e.printStackTrace(); }
+
+            // asignar el total con varios nombres posibles
+            try {
+                alquiler.getClass().getMethod("setTotal", BigDecimal.class).invoke(alquiler, precioTotal);
+            } catch (NoSuchMethodException nsme) {
+                try {
+                    alquiler.getClass().getMethod("setPrecioTotal", BigDecimal.class).invoke(alquiler, precioTotal);
+                } catch (NoSuchMethodException nsme2) {
+                    try {
+                        alquiler.getClass().getMethod("setPrecio", BigDecimal.class).invoke(alquiler, precioTotal);
+                    } catch (Exception ignored) { /* no setter de total disponible */ }
+                } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) { e.printStackTrace(); }
+
             alquiler.setEstado("EN CURSO");
-            alquiler.setNotas("Solicitud enviada desde el cliente.");
+            // intenta setNotas / setObservaciones
+            try {
+                alquiler.getClass().getMethod("setNotas", String.class).invoke(alquiler, "Solicitud enviada desde el cliente.");
+            } catch (NoSuchMethodException nm) {
+                try { alquiler.getClass().getMethod("setObservaciones", String.class).invoke(alquiler, "Solicitud enviada desde el cliente."); }
+                catch (Exception ignored) {}
+            } catch (Exception e) { e.printStackTrace(); }
+
+            // Mostrar confirmación con monto calculado
+            String montoMostrar = (precioTotal != null) ? ("$" + precioTotal.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()) : "N/A";
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Confirmar reserva");
+            confirm.setHeaderText("Confirma tu reserva");
+            confirm.setContentText("Días: " + dias + "\nPrecio/día: " + (precioPorDia != null ? "$" + precioPorDia.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : "N/A") +
+                    "\n\nTotal a pagar: " + montoMostrar + "\n\n¿Deseas confirmar la reserva?");
+            java.util.Optional<javafx.scene.control.ButtonType> resp = confirm.showAndWait();
+            if (!resp.isPresent() || resp.get() != javafx.scene.control.ButtonType.OK) {
+                alerta("Cancelado", "Reserva cancelada por el usuario.", Alert.AlertType.INFORMATION);
+                return;
+            }
 
             // 1) Intentar DAO
             AlquilerDAO dao = new AlquilerDAO();
@@ -230,6 +266,7 @@ public class VehiculosDetallerController {
                     // columnas básicas
                     if (hasColumn(cn, "alquileres", "vehiculo_id")) { cols.add("vehiculo_id"); values.add(vehiculo.getId()); }
                     if (hasColumn(cn, "alquileres", "cliente_id"))  { cols.add("cliente_id"); values.add(clienteId); }
+                    else if (hasColumn(cn, "alquileres", "usuario_id")) { cols.add("usuario_id"); values.add(clienteId); }
 
                     // fechas (intento nombres comunes)
                     if (hasColumn(cn, "alquileres", "fecha_inicio")) { cols.add("fecha_inicio"); values.add(java.sql.Date.valueOf(inicio)); }
@@ -242,8 +279,11 @@ public class VehiculosDetallerController {
 
                     // precios
                     if (hasColumn(cn, "alquileres", "precio_diario")) { cols.add("precio_diario"); values.add(precioPorDia); }
+                    else if (hasColumn(cn, "alquileres", "precio_por_dia")) { cols.add("precio_por_dia"); values.add(precioPorDia); }
+
                     if (hasColumn(cn, "alquileres", "precio_total"))  { cols.add("precio_total"); values.add(precioTotal); }
-                    if (hasColumn(cn, "alquileres", "precio"))        { cols.add("precio"); values.add(precioTotal); } // alternativa
+                    else if (hasColumn(cn, "alquileres", "precio"))        { cols.add("precio"); values.add(precioTotal); }
+                    else if (hasColumn(cn, "alquileres", "total"))        { cols.add("total"); values.add(precioTotal); }
 
                     // estado
                     if (hasColumn(cn, "alquileres", "estado")) { cols.add("estado"); values.add("EN CURSO"); }
