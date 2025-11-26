@@ -1,8 +1,10 @@
 package com.example.proyecto_final_prograiii.DAO;
 
+import com.example.proyecto_final_prograiii.DTO.AlquilerHistorialDTO;
 import com.example.proyecto_final_prograiii.DTO.AlquilerSolicitudDTO;
 import com.example.proyecto_final_prograiii.config.ConexionDB;
 import com.example.proyecto_final_prograiii.models.Alquiler;
+import com.example.proyecto_final_prograiii.models.Pago;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -17,12 +19,14 @@ public class AlquilerDAO {
         conexion = ConexionDB.getConnection();
     }
 
-    //metodo que creara las solicitudes de los clientes
-    public boolean crearSolicitudAlquiler(Alquiler a) {
+    //metodo para crear solicitudes de alquiler por parte del cliente
+    public int crearSolicitudAlquiler(Alquiler a) {
+
         String sql = """
-        INSERT INTO alquileres 
+        INSERT INTO alquileres
         (vehiculo_id, cliente_id, fecha_inicio, fecha_fin, precio_diario, estado, notas)
         VALUES (?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
     """;
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -30,22 +34,24 @@ public class AlquilerDAO {
             ps.setInt(1, a.getVehiculoId());
             ps.setInt(2, a.getClienteId());
             ps.setDate(3, Date.valueOf(a.getFechaInicio()));
-
-            // 👇 AQUI LO QUE FALTABA
             ps.setDate(4, a.getFechaFin() != null ? Date.valueOf(a.getFechaFin()) : null);
-
             ps.setBigDecimal(5, a.getPrecioDiario());
             ps.setString(6, a.getEstado());
             ps.setString(7, a.getNotas());
 
-            return ps.executeUpdate() > 0;
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1); // retorna el ID del alquiler
+            }
 
         } catch (SQLException e) {
             System.out.println("Error al crear la solicitud: " + e.getMessage());
-            return false;
         }
+
+        return -1; // fallo
     }
 
+    //metodo para llenar la tabla de solicitudes de reserva para el empleado
     public List<AlquilerSolicitudDTO> obtenerSolicitudesActivas() {
         List<AlquilerSolicitudDTO> lista = new ArrayList<>();
 
@@ -85,8 +91,47 @@ public class AlquilerDAO {
 
         return lista;
     }
+    //metodo para llenar la tabla de historial de rentas para el empleado
+    public List<AlquilerHistorialDTO> obtenerHistorial() {
 
+        String sql = """
+        SELECT a.id,
+               CONCAT(v.modelo, ' (', v.placa, ')') AS vehiculo,
+               a.fecha_inicio,
+               a.fecha_fin,
+               COALESCE(p.monto, 0) AS total_pagado,
+               p.metodo,
+               a.estado
+        FROM alquileres a
+        INNER JOIN vehiculos v ON a.vehiculo_id = v.id
+        LEFT JOIN pagos p ON p.alquiler_id = a.id
+        WHERE a.estado IN ('FINALIZADO', 'CANCELADO')
+        ORDER BY a.fecha_inicio DESC
+    """;
 
+        List<AlquilerHistorialDTO> lista = new ArrayList<>();
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(new AlquilerHistorialDTO(
+                        rs.getInt("id"),
+                        rs.getString("vehiculo"),
+                        rs.getDate("fecha_inicio").toLocalDate(),
+                        rs.getDate("fecha_fin") != null ? rs.getDate("fecha_fin").toLocalDate() : null,
+                        rs.getBigDecimal("total_pagado"),
+                        rs.getString("metodo"),
+                        rs.getString("estado")
+                ));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
 
 
 
@@ -106,16 +151,44 @@ public class AlquilerDAO {
     }
 
     public boolean cancelarSolicitud(int alquilerId) {
-        String sql = "UPDATE alquileres SET estado = 'CANCELADO' WHERE id = ?";
 
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+        Integer vehiculoId = null;
+
+        //obtener ID del vehiculo asociado
+        try (PreparedStatement ps = conexion.prepareStatement("SELECT vehiculo_id FROM alquileres WHERE id = ?")) {
             ps.setInt(1, alquilerId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                vehiculoId = rs.getInt("vehiculo_id");
+            }
+        } catch (Exception e) {
+            System.out.println("Error obteniendo vehiculo_id: " + e.getMessage());
         }
+
+        // Eliminar pago asociado
+        try (PreparedStatement ps = conexion.prepareStatement("DELETE FROM pagos WHERE alquiler_id = ?")) {
+            ps.setInt(1, alquilerId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error eliminando pago asociado: " + e.getMessage());
+        }
+
+        // Cambiar estado del alquiler
+        boolean ok = false;
+        try (PreparedStatement ps = conexion.prepareStatement("UPDATE alquileres SET estado = 'CANCELADO' WHERE id = ?")) {
+            ps.setInt(1, alquilerId);
+            ok = ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //cambiar el vehículo a DISPONIBLE
+        if (ok && vehiculoId != null) {
+            new VehiculosDAO().actualizarEstadoVehiculo(vehiculoId, "DISPONIBLE");
+        }
+        return ok;
     }
+
 
 
     public boolean finalizar(int id, LocalDate fechaFin, BigDecimal costoTotal) {
@@ -193,23 +266,56 @@ public class AlquilerDAO {
 
         return null;
     }
+
+
     public boolean confirmarRenta(int idAlquiler, int idEmpleado) {
         String sql = """
         UPDATE alquileres
         SET estado = 'ALQUILADO',
-            empleado_inicio_id = ?
+            empleado_inicio_id = ?,
+            costo_total = (
+                SELECT precio_diario * 
+                (DATE_PART('day', fecha_fin - fecha_inicio) + 1)
+                FROM alquileres WHERE id = ?
+            )
         WHERE id = ?
     """;
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, idEmpleado);
             ps.setInt(2, idAlquiler);
-            return ps.executeUpdate() > 0;
+            ps.setInt(3, idAlquiler);
+
+            int updated = ps.executeUpdate();
+
+            if (updated == 0) return false;
+
+            //Obtener costo total ya calculado
+            BigDecimal costoTotal = null;
+            try (PreparedStatement ps2 = conexion.prepareStatement(
+                    "SELECT costo_total FROM alquileres WHERE id = ?"
+            )) {
+                ps2.setInt(1, idAlquiler);
+                var rs = ps2.executeQuery();
+                if (rs.next()) costoTotal = rs.getBigDecimal("costo_total");
+            }
+
+            // ACTUALIZAR pago existente (ya creado por el cliente)
+            String sqlPago = "UPDATE pagos SET monto = ? WHERE alquiler_id = ?";
+            try (PreparedStatement ps3 = conexion.prepareStatement(sqlPago)) {
+                ps3.setBigDecimal(1, costoTotal);
+                ps3.setInt(2, idAlquiler);
+                ps3.executeUpdate();
+            }
+
+            return true;
+
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+
 
 }
 

@@ -3,6 +3,7 @@ package com.example.proyecto_final_prograiii.controllers;
 import com.example.proyecto_final_prograiii.DAO.AlquilerDAO;
 import com.example.proyecto_final_prograiii.DAO.PagoDAO;
 import com.example.proyecto_final_prograiii.DAO.VehiculosDAO;
+import com.example.proyecto_final_prograiii.DTO.AlquilerHistorialDTO;
 import com.example.proyecto_final_prograiii.DTO.AlquilerSolicitudDTO;
 import com.example.proyecto_final_prograiii.models.Alquiler;
 import com.example.proyecto_final_prograiii.models.Usuario;
@@ -70,19 +71,19 @@ public class PanelEmpleadoController {
     private TableView<Alquiler> tblHistorial;
 
     @FXML
-    private TableColumn<Alquiler, Integer> colIdHistorial;
+    private TableColumn<AlquilerSolicitudDTO, Integer> colIdHistorial;
     @FXML
-    private TableColumn<Alquiler, String> colVehiculoHistorial;
+    private TableColumn<AlquilerSolicitudDTO, String> colVehiculoHistorial;
     @FXML
-    private TableColumn<Alquiler, LocalDate> colFechainicioHistorial;
+    private TableColumn<AlquilerSolicitudDTO, LocalDate> colFechainicioHistorial;
     @FXML
-    private TableColumn<Alquiler, LocalDate> colFechafinHistorial;
+    private TableColumn<AlquilerSolicitudDTO, LocalDate> colFechafinHistorial;
     @FXML
-    private TableColumn<Alquiler, BigDecimal> colTotalPagadoHistorial;
+    private TableColumn<AlquilerSolicitudDTO, BigDecimal> colTotalPagadoHistorial;
     @FXML
-    private TableColumn<Alquiler, String> colMetodoPagoHistorial;
+    private TableColumn<AlquilerSolicitudDTO, String> colMetodoPagoHistorial;
     @FXML
-    private TableColumn<Alquiler, String> colEstadoHistorial;
+    private TableColumn<AlquilerSolicitudDTO, String> colEstadoHistorial;
 
 
     private final AlquilerDAO alquilerDao = new AlquilerDAO();
@@ -90,7 +91,7 @@ public class PanelEmpleadoController {
 
     //obserbablesList
     private ObservableList<AlquilerSolicitudDTO> listaSolicitudes = FXCollections.observableArrayList();
-    private ObservableList<Alquiler> listaHistorial = FXCollections.observableArrayList() ;
+    private ObservableList<AlquilerHistorialDTO> listaHistorial = FXCollections.observableArrayList() ;
 
     //metodos de inicializacion de tablas
 
@@ -218,7 +219,7 @@ public class PanelEmpleadoController {
         tblSolicitudes.setItems(listaSolicitudes);
 
         tblSolicitudes.setItems(listaSolicitudes);
-        tblHistorial.setItems(listaHistorial);
+       // tblHistorial.setItems(listaHistorial);
     }
 
 
