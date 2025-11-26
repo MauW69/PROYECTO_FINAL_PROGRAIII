@@ -167,15 +167,23 @@ public class VehiculosDetallerController {
                 alerta("Acción inválida", "No hay vehículo cargado.", Alert.AlertType.WARNING);
                 return;
             }
-
+            String estado = vehiculo.getEstado();
+            if (estado != null && (estado.equalsIgnoreCase("RESERVADO") || estado.equalsIgnoreCase("ALQUILADO"))) {
+                alerta(
+                        "No disponible",
+                        "Este vehículo ya está " + estado + " y no puede reservarse.",
+                        Alert.AlertType.WARNING
+                );
+                return;
+            }
             Cliente cliente = Sesion.getClienteActual();
             if (cliente == null) {
                 alerta("Error", "Debe iniciar sesión como cliente.", Alert.AlertType.ERROR);
                 return;
             }
 
-            LocalDate inicio = (fechaInicio == null) ? null : fechaInicio.getValue();
-            LocalDate fin = (fechaFin == null) ? null : fechaFin.getValue();
+            LocalDate inicio = fechaInicio != null ? fechaInicio.getValue() : null;
+            LocalDate fin = fechaFin != null ? fechaFin.getValue() : null;
             LocalDate hoy = LocalDate.now();
 
             if (inicio == null) { alerta("Fecha inicio requerida", "Selecciona la fecha de inicio.", Alert.AlertType.WARNING); return; }
@@ -183,164 +191,93 @@ public class VehiculosDetallerController {
             if (fin == null) { alerta("Fecha fin requerida", "Selecciona la fecha estimada de fin.", Alert.AlertType.WARNING); return; }
             if (!fin.isAfter(inicio)) { alerta("Fecha inválida", "La fecha final debe ser mayor que la fecha inicial.", Alert.AlertType.WARNING); return; }
 
-            long diasLong = ChronoUnit.DAYS.between(inicio, fin) + 1;
-            int dias = (int) diasLong;
+            long dias = ChronoUnit.DAYS.between(inicio, fin) + 1;
             if (dias <= 0) { alerta("Fechas inválidas", "Revisa las fechas ingresadas.", Alert.AlertType.WARNING); return; }
             if (dias > 30) { alerta("Límite excedido", "No puedes rentar un vehículo por más de 30 días.", Alert.AlertType.WARNING); return; }
 
             int clienteId = cliente.getId();
-
-            // calcula precios
-            BigDecimal precioPorDia = vehiculo.getPrecioPorDia() == null ? BigDecimal.ZERO : vehiculo.getPrecioPorDia();
+            BigDecimal precioPorDia = vehiculo.getPrecioPorDia() != null ? vehiculo.getPrecioPorDia() : BigDecimal.ZERO;
             BigDecimal precioTotal = precioPorDia.multiply(BigDecimal.valueOf(dias));
 
-            // Construir Alquiler y asignar total mediante reflexión si es necesario
+            // Crear objeto Alquiler
             Alquiler alquiler = new Alquiler();
             alquiler.setVehiculoId(vehiculo.getId());
             alquiler.setClienteId(clienteId);
             alquiler.setFechaInicio(inicio);
             alquiler.setFechaFin(fin);
-            // intenta setPrecioDiario si existe
-            try {
-                alquiler.getClass().getMethod("setPrecioDiario", BigDecimal.class).invoke(alquiler, precioPorDia);
-            } catch (NoSuchMethodException nsmd) {
-                // ignora si no existe
-            } catch (Exception e) { e.printStackTrace(); }
-
-            // asignar el total con varios nombres posibles
-            try {
-                alquiler.getClass().getMethod("setTotal", BigDecimal.class).invoke(alquiler, precioTotal);
-            } catch (NoSuchMethodException nsme) {
-                try {
-                    alquiler.getClass().getMethod("setPrecioTotal", BigDecimal.class).invoke(alquiler, precioTotal);
-                } catch (NoSuchMethodException nsme2) {
-                    try {
-                        alquiler.getClass().getMethod("setPrecio", BigDecimal.class).invoke(alquiler, precioTotal);
-                    } catch (Exception ignored) { /* no setter de total disponible */ }
-                } catch (Exception e) { e.printStackTrace(); }
-            } catch (Exception e) { e.printStackTrace(); }
-
+            alquiler.setPrecioDiario(precioPorDia);
             alquiler.setEstado("EN CURSO");
-            // intenta setNotas / setObservaciones
-            try {
-                alquiler.getClass().getMethod("setNotas", String.class).invoke(alquiler, "Solicitud enviada desde el cliente.");
-            } catch (NoSuchMethodException nm) {
-                try { alquiler.getClass().getMethod("setObservaciones", String.class).invoke(alquiler, "Solicitud enviada desde el cliente."); }
-                catch (Exception ignored) {}
-            } catch (Exception e) { e.printStackTrace(); }
+            alquiler.setNotas("Solicitud enviada desde el cliente.");
 
-            // Mostrar confirmación con monto calculado
-            String montoMostrar = (precioTotal != null) ? ("$" + precioTotal.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()) : "N/A";
+            // Confirmación
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle("Confirmar reserva");
             confirm.setHeaderText("Confirma tu reserva");
-            confirm.setContentText("Días: " + dias + "\nPrecio/día: " + (precioPorDia != null ? "$" + precioPorDia.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : "N/A") +
-                    "\n\nTotal a pagar: " + montoMostrar + "\n\n¿Deseas confirmar la reserva?");
-            java.util.Optional<javafx.scene.control.ButtonType> resp = confirm.showAndWait();
-            if (!resp.isPresent() || resp.get() != javafx.scene.control.ButtonType.OK) {
+            confirm.setContentText("Días: " + dias +
+                    "\nPrecio/día: $" + precioPorDia +
+                    "\n\nTotal a pagar: $" + precioTotal +
+                    "\n\n¿Deseas confirmar la reserva?");
+            if (confirm.showAndWait().orElse(null) != javafx.scene.control.ButtonType.OK) {
                 alerta("Cancelado", "Reserva cancelada por el usuario.", Alert.AlertType.INFORMATION);
                 return;
             }
 
-            // 1) Intentar DAO
+            // Intentar INSERT normal
             AlquilerDAO dao = new AlquilerDAO();
             boolean exito = false;
             try {
                 exito = dao.crearSolicitudAlquiler(alquiler);
-                System.out.println("[VehiculosDetallerController] llamada a AlquilerDAO.crearSolicitudAlquiler result: " + exito);
-            } catch (Exception ex) {
-                System.err.println("[VehiculosDetallerController] AlquilerDAO.crearSolicitudAlquiler lanzó excepción: " + ex.getMessage());
-                ex.printStackTrace();
-                exito = false;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            // 2) Si DAO falla, fallback robusto: construyo INSERT según columnas reales
-            if (!exito) {
-                System.out.println("[VehiculosDetallerController] Fallback: intento insertar directamente consultando columnas reales.");
-
-                try (Connection cn = ConexionDB.getConnection()) {
-
-                    List<String> cols = new ArrayList<>();
-                    List<Object> values = new ArrayList<>();
-
-                    // columnas básicas
-                    if (hasColumn(cn, "alquileres", "vehiculo_id")) { cols.add("vehiculo_id"); values.add(vehiculo.getId()); }
-                    if (hasColumn(cn, "alquileres", "cliente_id"))  { cols.add("cliente_id"); values.add(clienteId); }
-                    else if (hasColumn(cn, "alquileres", "usuario_id")) { cols.add("usuario_id"); values.add(clienteId); }
-
-                    // fechas (intento nombres comunes)
-                    if (hasColumn(cn, "alquileres", "fecha_inicio")) { cols.add("fecha_inicio"); values.add(java.sql.Date.valueOf(inicio)); }
-                    else if (hasColumn(cn, "alquileres", "fecha_inicio_renta")) { cols.add("fecha_inicio_renta"); values.add(java.sql.Date.valueOf(inicio)); }
-                    else if (hasColumn(cn, "alquileres", "fecha_reserva")) { cols.add("fecha_reserva"); values.add(java.sql.Date.valueOf(inicio)); }
-
-                    if (hasColumn(cn, "alquileres", "fecha_fin_estimada")) { cols.add("fecha_fin_estimada"); values.add(java.sql.Date.valueOf(fin)); }
-                    else if (hasColumn(cn, "alquileres", "fecha_fin_renta")) { cols.add("fecha_fin_renta"); values.add(java.sql.Date.valueOf(fin)); }
-                    else if (hasColumn(cn, "alquileres", "fecha_fin")) { cols.add("fecha_fin"); values.add(java.sql.Date.valueOf(fin)); }
-
-                    // precios
-                    if (hasColumn(cn, "alquileres", "precio_diario")) { cols.add("precio_diario"); values.add(precioPorDia); }
-                    else if (hasColumn(cn, "alquileres", "precio_por_dia")) { cols.add("precio_por_dia"); values.add(precioPorDia); }
-
-                    if (hasColumn(cn, "alquileres", "precio_total"))  { cols.add("precio_total"); values.add(precioTotal); }
-                    else if (hasColumn(cn, "alquileres", "precio"))        { cols.add("precio"); values.add(precioTotal); }
-                    else if (hasColumn(cn, "alquileres", "total"))        { cols.add("total"); values.add(precioTotal); }
-
-                    // estado
-                    if (hasColumn(cn, "alquileres", "estado")) { cols.add("estado"); values.add("EN CURSO"); }
-
-                    // notas/observaciones
-                    if (hasColumn(cn, "alquileres", "observaciones")) { cols.add("observaciones"); values.add("Solicitud enviada desde el cliente."); }
-                    else if (hasColumn(cn, "alquileres", "notas")) { cols.add("notas"); values.add("Solicitud enviada desde el cliente."); }
-                    else if (hasColumn(cn, "alquileres", "comentarios")) { cols.add("comentarios"); values.add("Solicitud enviada desde el cliente."); }
-
-                    // fecha_creacion: si existe, lo marcamos con current_timestamp en SQL (no como parámetro)
-                    boolean tieneFechaCreacion = hasColumn(cn, "alquileres", "fecha_creacion") || hasColumn(cn, "alquileres", "created_at");
-
-                    if (cols.isEmpty()) {
-                        System.err.println("[VehiculosDetallerController] No se identificaron columnas válidas para insertar en alquileres. Abortando fallback.");
-                    } else {
-                        StringBuilder sbCols = new StringBuilder();
-                        StringBuilder sbVals = new StringBuilder();
-                        for (int i = 0; i < cols.size(); i++) {
-                            if (i > 0) { sbCols.append(", "); sbVals.append(", "); }
-                            sbCols.append(cols.get(i));
-                            sbVals.append("?");
-                        }
-                        String sql = "INSERT INTO alquileres (" + sbCols.toString() + (tieneFechaCreacion ? ", fecha_creacion" : "") + ") VALUES (" + sbVals.toString() + (tieneFechaCreacion ? ", current_timestamp" : "") + ")";
-                        System.out.println("[VehiculosDetallerController] SQL fallback: " + sql);
-
-                        try (PreparedStatement ps = cn.prepareStatement(sql)) {
-                            for (int i = 0; i < values.size(); i++) {
-                                Object val = values.get(i);
-                                int idx = i + 1;
-                                if (val instanceof Integer) ps.setInt(idx, (Integer) val);
-                                else if (val instanceof BigDecimal) ps.setBigDecimal(idx, (BigDecimal) val);
-                                else if (val instanceof java.sql.Date) ps.setDate(idx, (java.sql.Date) val);
-                                else if (val instanceof java.sql.Timestamp) ps.setTimestamp(idx, (java.sql.Timestamp) val);
-                                else if (val instanceof String) ps.setString(idx, (String) val);
-                                else ps.setObject(idx, val);
-                            }
-                            int rows = ps.executeUpdate();
-                            if (rows > 0) {
-                                exito = true;
-                                System.out.println("[VehiculosDetallerController] Insert directo OK, filas=" + rows);
-                            } else {
-                                System.err.println("[VehiculosDetallerController] Insert directo devolvió 0 filas afectadas.");
-                            }
-                        }
-                    }
-                } catch (SQLException sqe) {
-                    sqe.printStackTrace();
-                    System.err.println("[VehiculosDetallerController] Error en fallback insert: " + sqe.getMessage());
-                    exito = false;
-                }
-            }
-
+            // Marcar vehículo como RESERVADO si funcionó
             if (exito) {
-                alerta("Solicitud enviada", "El empleado revisará tu solicitud de renta.", Alert.AlertType.INFORMATION);
-            } else {
-                alerta("Error", "No se pudo completar la solicitud. Revisa la consola para más detalles.", Alert.AlertType.ERROR);
+                VehiculosDAO vdao = new VehiculosDAO();
+                vdao.actualizarEstadoVehiculo(vehiculo.getId(), "RESERVADO");
+                vehiculo.setEstado("RESERVADO");
+                lblEstado.setText("Estado: RESERVADO");
+
+                alerta("Solicitud enviada", "El empleado revisará tu solicitud.", Alert.AlertType.INFORMATION);
+                return;
             }
+
+            // Fallback en caso de fallo del DAO
+            try (Connection cn = ConexionDB.getConnection()) {
+
+                String sql = """
+                INSERT INTO alquileres (vehiculo_id, cliente_id, fecha_inicio, fecha_fin, precio_diario, estado, notas)
+                VALUES (?, ?, ?, ?, ?, 'EN CURSO', ?)
+            """;
+
+                try (PreparedStatement ps = cn.prepareStatement(sql)) {
+                    ps.setInt(1, vehiculo.getId());
+                    ps.setInt(2, clienteId);
+                    ps.setDate(3, Date.valueOf(inicio));
+                    ps.setDate(4, Date.valueOf(fin));
+                    ps.setBigDecimal(5, precioPorDia);
+                    ps.setString(6, "Solicitud enviada desde el cliente.");
+
+                    int rows = ps.executeUpdate();
+                    if (rows > 0) {
+                        exito = true;
+
+                        // También marcar vehículo como RESERVADO en fallback
+                        VehiculosDAO vdao = new VehiculosDAO();
+                        vdao.actualizarEstadoVehiculo(vehiculo.getId(), "RESERVADO");
+                        vehiculo.setEstado("RESERVADO");
+                        lblEstado.setText("Estado: RESERVADO");
+
+                        alerta("Solicitud enviada", "El empleado revisará tu solicitud.", Alert.AlertType.INFORMATION);
+                        return;
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            alerta("Error", "No se pudo completar la solicitud.", Alert.AlertType.ERROR);
 
         } catch (Exception ex) {
             ex.printStackTrace();
