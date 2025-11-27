@@ -1,6 +1,5 @@
 package com.example.proyecto_final_prograiii.DAO;
 
-
 import com.example.proyecto_final_prograiii.DTO.AlquilerHistorialDTO;
 import com.example.proyecto_final_prograiii.config.ConexionDB;
 import com.example.proyecto_final_prograiii.models.Alquiler;
@@ -22,31 +21,23 @@ public class AlquilerDAO {
 
     // -------------------- CREATE --------------------
     /**
-     * Crea una solicitud (sin convertirla automáticamente a alquiler).
-     * Retorna id generado o -1 en caso de error.
-     *
-     * Usa fecha_fin_estimada (columna que existe en tu tabla).
+     * Crea una solicitud / alquiler con pago en una transacción.
+     * NOTA: NO modifica el estado del vehículo (no escribe 'ALQUILADO' en la tabla vehiculos).
+     * Devuelve el id del alquiler creado (>0) o -1 en caso de error.
      */
-
-
-    // ---------------------
-    // Método transaccional: crear alquiler + pago + marcar vehículo alquilado
-    // Devuelve el id del alquiler creado (>0) o -1 en caso de error.
-    // ---------------------
     public int crearAlquilerConPago(Alquiler a, Pago p) {
         String sqlInsertAlquiler = """
             INSERT INTO alquileres
-            (vehiculo_id, cliente_id, fecha_inicio, fecha_fin, precio_diario, costo_total, estado, notas)
-            VALUES (?, ?, ?, ?, ?, ?, 'ALQUILADO', ?)
+            (vehiculo_id, cliente_id, fecha_inicio, fecha_fin_estimada, precio_diario, costo_total, estado, notas)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             RETURNING id
         """;
         String sqlInsertPago = "INSERT INTO pagos (alquiler_id, monto, metodo) VALUES (?, ?, ?)";
         int alquilerId = -1;
         try {
-            // Iniciamos transacción
             conexion.setAutoCommit(false);
 
-            // 1) calcular costo_total si no viene en el objeto Alquiler
+            // 1) calcular costo_total si no viene
             BigDecimal costoTotal = a.getCostoTotal();
             if (costoTotal == null) {
                 LocalDate inicio = a.getFechaInicio();
@@ -56,7 +47,7 @@ public class AlquilerDAO {
                 costoTotal = precioDiario.multiply(BigDecimal.valueOf(dias));
             }
 
-            // 2) Insertar alquiler (estado ALQUILADO directamente)
+            // 2) Insertar alquiler (no tocamos vehiculos.estado aquí)
             try (PreparedStatement ps = conexion.prepareStatement(sqlInsertAlquiler)) {
                 ps.setInt(1, a.getVehiculoId());
                 ps.setInt(2, a.getClienteId());
@@ -64,7 +55,8 @@ public class AlquilerDAO {
                 ps.setDate(4, a.getFechaFin() != null ? Date.valueOf(a.getFechaFin()) : null);
                 ps.setBigDecimal(5, a.getPrecioDiario() != null ? a.getPrecioDiario() : BigDecimal.ZERO);
                 ps.setBigDecimal(6, costoTotal);
-                ps.setString(7, a.getNotas());
+                ps.setString(7, a.getEstado() != null ? a.getEstado() : "EN CURSO");
+                ps.setString(8, a.getNotas());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         alquilerId = rs.getInt(1);
@@ -74,7 +66,7 @@ public class AlquilerDAO {
                 }
             }
 
-            // 3) Insertar pago (monto y metodo obligatorios para este flujo)
+            // 3) Insertar pago
             try (PreparedStatement ps2 = conexion.prepareStatement(sqlInsertPago)) {
                 ps2.setInt(1, alquilerId);
                 ps2.setBigDecimal(2, p.getMonto());
@@ -82,14 +74,9 @@ public class AlquilerDAO {
                 ps2.executeUpdate();
             }
 
-            // 4) Actualizar estado del vehículo a ALQUILADO
-            String sqlUpdateVeh = "UPDATE vehiculos SET estado = 'ALQUILADO' WHERE id = ?";
-            try (PreparedStatement ps3 = conexion.prepareStatement(sqlUpdateVeh)) {
-                ps3.setInt(1, a.getVehiculoId());
-                ps3.executeUpdate();
-            }
+            // 4) NO actualizamos tabla vehiculos automáticamente aquí.
+            // Si quieres marcar vehículo manualmente, existe el método marcarVehiculoEstado below.
 
-            // 5) commit
             conexion.commit();
             conexion.setAutoCommit(true);
             return alquilerId;
@@ -105,52 +92,66 @@ public class AlquilerDAO {
             return -1;
         }
     }
-    // -------------------- CHECK AVAILABILITY --------------------
+
     /**
-     * Devuelve true si existe algún alquiler activo (EN CURSO o ALQUILADO)
-     * para el mismo vehículo que solapa con el rango [inicioNuevo, finNuevo].
+     * Método opcional: marcar el estado del vehículo (uso administrativo).
      */
+    public boolean marcarVehiculoEstado(int vehiculoId, String estado) {
+        String sql = "UPDATE vehiculos SET estado = ? WHERE id = ?";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, estado);
+            ps.setInt(2, vehiculoId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // -------------------- CHECK AVAILABILITY --------------------
     public boolean existeTraslape(int vehiculoId, LocalDate inicioNuevo, LocalDate finNuevo) {
         String sql = """
         SELECT COUNT(*) FROM alquileres
         WHERE vehiculo_id = ?
           AND estado IN ('EN CURSO','ALQUILADO')
-          AND ( ? <= fecha_fin AND ? >= fecha_inicio )
-    """;
+          AND ( ? <= COALESCE(fecha_fin_real, fecha_fin_estimada) AND ? >= fecha_inicio )
+        """;
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, vehiculoId);
-            // condicion: inicioNuevo <= fecha_fin AND finNuevo >= fecha_inicio
-            ps.setDate(2, Date.valueOf(finNuevo));   // ? <= fecha_fin  -> finNuevo <= fecha_fin  (we'll use symmetrical pass)
-            ps.setDate(3, Date.valueOf(inicioNuevo)); // ? >= fecha_inicio -> inicioNuevo >= fecha_inicio
+            ps.setDate(2, Date.valueOf(inicioNuevo));
+            ps.setDate(3, Date.valueOf(finNuevo));
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1) > 0;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // si hay error, por seguridad impedir la reserva
-        return true;
+        return true; // si hay error, mejor no permitir
     }
-    //recupera las fechas en las que estan rentados los carros
+
+    // recupera las fechas ocupadas
     public List<LocalDate[]> obtenerRangosOcupados(int vehiculoId) {
         List<LocalDate[]> lista = new ArrayList<>();
 
         String sql = """
-        SELECT fecha_inicio, fecha_fin
+        SELECT fecha_inicio,
+               COALESCE(fecha_fin_real, fecha_fin_estimada) AS fecha_fin
         FROM alquileres
         WHERE vehiculo_id = ?
-        AND estado IN ('EN CURSO', 'ALQUILADO')
-    """;
+          AND estado IN ('EN CURSO', 'ALQUILADO')
+        """;
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, vehiculoId);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                LocalDate inicio = rs.getDate("fecha_inicio").toLocalDate();
-                LocalDate fin = rs.getDate("fecha_fin").toLocalDate();
-                lista.add(new LocalDate[]{inicio, fin});
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    java.sql.Date dInicio = rs.getDate("fecha_inicio");
+                    java.sql.Date dFin = rs.getDate("fecha_fin");
+                    java.time.LocalDate inicio = dInicio != null ? dInicio.toLocalDate() : null;
+                    java.time.LocalDate fin = dFin != null ? dFin.toLocalDate() : null;
+                    lista.add(new LocalDate[]{inicio, fin});
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,32 +159,25 @@ public class AlquilerDAO {
 
         return lista;
     }
+
     public Alquiler obtenerAlquilerActivoPorVehiculo(int vehiculoId) {
         String sql = """
-        SELECT *
-        FROM alquileres
+        SELECT a.*, COALESCE(a.fecha_fin_real, a.fecha_fin_estimada) AS fecha_fin
+        FROM alquileres a
         WHERE vehiculo_id = ?
-        AND estado IN ('ALQUILADO', 'EN CURSO')
+          AND estado IN ('ALQUILADO', 'EN CURSO')
         ORDER BY fecha_inicio DESC
         LIMIT 1
-    """;
+        """;
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, vehiculoId);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return mapResultSetToAlquiler(rs);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapResultSetToAlquiler(rs);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        } catch (Exception e) { e.printStackTrace(); }
         return null;
     }
-
-
 
     // -------------------- READ / LIST --------------------
     public List<AlquilerHistorialDTO> obtenerHistorial() {
@@ -196,7 +190,7 @@ public class AlquilerDAO {
             CONCAT(v.modelo, ' (', v.placa, ')') AS vehiculo,
             c.nombre AS cliente,
             a.fecha_inicio,
-            a.fecha_fin,
+            COALESCE(a.fecha_fin_real, a.fecha_fin_estimada) AS fecha_fin,
             COALESCE(p.monto, 0) AS monto,
             p.metodo,
             a.estado
@@ -206,50 +200,37 @@ public class AlquilerDAO {
         LEFT JOIN pagos p ON p.alquiler_id = a.id
         WHERE a.estado IN ('ALQUILADO', 'FINALIZADO')
         ORDER BY a.fecha_inicio DESC
-    """;
+        """;
 
         try (PreparedStatement ps = conexion.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) {
-
                 lista.add(new AlquilerHistorialDTO(
                         rs.getInt("alquiler_id"),
                         rs.getInt("vehiculo_id"),
                         rs.getString("vehiculo"),
                         rs.getString("cliente"),
-                        rs.getDate("fecha_inicio").toLocalDate(),
-                        rs.getDate("fecha_fin").toLocalDate(),
+                        rs.getDate("fecha_inicio") != null ? rs.getDate("fecha_inicio").toLocalDate() : null,
+                        rs.getDate("fecha_fin") != null ? rs.getDate("fecha_fin").toLocalDate() : null,
                         rs.getBigDecimal("monto"),
                         rs.getString("metodo"),
                         rs.getString("estado")
                 ));
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        } catch (Exception e) { e.printStackTrace(); }
         return lista;
     }
 
     public Alquiler obtenerAlquilerPorId(int alquilerId) {
         String sql = "SELECT * FROM alquileres WHERE id = ?";
-
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, alquilerId);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return mapResultSetToAlquiler(rs);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapResultSetToAlquiler(rs);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        } catch (Exception e) { e.printStackTrace(); }
         return null;
     }
-
 
     // -------------------- DELETE --------------------------
     public boolean eliminarAlquilerCompleto(int alquilerId) {
@@ -258,21 +239,17 @@ public class AlquilerDAO {
 
         try {
             conexion.setAutoCommit(false);
-
             try (PreparedStatement ps1 = conexion.prepareStatement(delPagos)) {
                 ps1.setInt(1, alquilerId);
                 ps1.executeUpdate();
             }
-
             try (PreparedStatement ps2 = conexion.prepareStatement(delAlquiler)) {
                 ps2.setInt(1, alquilerId);
                 ps2.executeUpdate();
             }
-
             conexion.commit();
             conexion.setAutoCommit(true);
             return true;
-
         } catch (Exception e) {
             e.printStackTrace();
             try { conexion.rollback(); } catch (Exception ignored) {}
@@ -280,43 +257,37 @@ public class AlquilerDAO {
         }
     }
 
-
     // -------------------- HELPERS --------------------
     private Alquiler mapResultSetToAlquiler(ResultSet rs) throws SQLException {
-
         Alquiler a = new Alquiler();
-
         a.setId(rs.getInt("id"));
         a.setVehiculoId(rs.getInt("vehiculo_id"));
         a.setClienteId(rs.getInt("cliente_id"));
 
-        // ✔ fecha inicio
-        a.setFechaInicio(
-                rs.getDate("fecha_inicio") != null
-                        ? rs.getDate("fecha_inicio").toLocalDate()
-                        : null
-        );
+        a.setFechaInicio(rs.getDate("fecha_inicio") != null ? rs.getDate("fecha_inicio").toLocalDate() : null);
 
-        // ✔ fecha fin (LA ÚNICA QUE EXISTE AHORA)
-        a.setFechaFin(
-                rs.getDate("fecha_fin") != null
-                        ? rs.getDate("fecha_fin").toLocalDate()
-                        : null
-        );
+        // prefer alias 'fecha_fin' si viene; si no, las columnas reales
+        java.sql.Date df = null;
+        try {
+            df = rs.getDate("fecha_fin");
+        } catch (SQLException ignored) {}
+        if (df == null) {
+            if (hasColumn(rs, "fecha_fin_real")) df = rs.getDate("fecha_fin_real");
+            else if (hasColumn(rs, "fecha_fin_estimada")) df = rs.getDate("fecha_fin_estimada");
+        }
+        a.setFechaFin(df != null ? df.toLocalDate() : null);
 
-        a.setPrecioDiario(rs.getBigDecimal("precio_diario"));
-        a.setCostoTotal(rs.getBigDecimal("costo_total"));
-        a.setEstado(rs.getString("estado"));
-        a.setNotas(rs.getString("notas"));
+        if (hasColumn(rs, "precio_diario")) a.setPrecioDiario(rs.getBigDecimal("precio_diario"));
+        if (hasColumn(rs, "costo_total")) a.setCostoTotal(rs.getBigDecimal("costo_total"));
+        if (hasColumn(rs, "estado")) a.setEstado(rs.getString("estado"));
+        if (hasColumn(rs, "notas")) a.setNotas(rs.getString("notas"));
 
-        Timestamp ts = rs.getTimestamp("fecha_creacion");
+        Timestamp ts = hasColumn(rs, "fecha_creacion") ? rs.getTimestamp("fecha_creacion") : null;
         a.setFechaCreacion(ts != null ? ts.toLocalDateTime() : null);
 
         return a;
     }
 
-
-    // helper para saber si ResultSet tiene la columna (evita SQLException)
     private boolean hasColumn(ResultSet rs, String columnName) {
         try {
             ResultSetMetaData md = rs.getMetaData();
@@ -330,38 +301,4 @@ public class AlquilerDAO {
         }
         return false;
     }
-
-
-    public Alquiler obtenerSolicitudEnCursoPorVehiculo(int vehiculoId) {
-        String sql = """
-            SELECT * FROM alquileres 
-            WHERE vehiculo_id = ? 
-            AND estado = 'EN CURSO'
-            LIMIT 1
-        """;
-
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setInt(1, vehiculoId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToAlquiler(rs);
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error en obtenerSolicitudEnCursoPorVehiculo: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    /**
-     * Confirma una renta (método administrativo).
-     * Calcula costo_total usando COALESCE(fecha_fin_real, fecha_fin_estimada) para soportar ambos campos.
-     *
-     * CORRECCIÓN: ya no usamos DATE_PART sobre un integer — usamos la resta directa de dates.
-     */
-
-
-    // -------------------- FIN CLASS --------------------
 }

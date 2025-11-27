@@ -372,33 +372,56 @@ public class PanelClienteController {
     private void cargarAlquileresCliente(int clienteId) {
         ObservableList<Renta> lista = FXCollections.observableArrayList();
 
+        // Usamos COALESCE para soportar tanto fecha_fin_real como fecha_fin_estimada
         String sql = """
-        SELECT 
-            v.modelo,
-            v.placa,
-            a.fecha_inicio,
-            a.fecha_fin,
-            a.costo_total
-        FROM alquileres a
-        INNER JOIN vehiculos v ON v.id = a.vehiculo_id
-        WHERE a.cliente_id = ?
-        ORDER BY a.fecha_inicio DESC
-    """;
+    SELECT 
+        v.modelo,
+        v.placa,
+        a.fecha_inicio,
+        COALESCE(a.fecha_fin_real, a.fecha_fin_estimada) AS fecha_fin,
+        a.costo_total
+    FROM alquileres a
+    INNER JOIN vehiculos v ON v.id = a.vehiculo_id
+    WHERE a.cliente_id = ?
+    ORDER BY a.fecha_inicio DESC
+""";
 
         try (Connection cn = ConexionDB.getConnection();
              PreparedStatement ps = cn.prepareStatement(sql)) {
 
             ps.setInt(1, clienteId);
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Fecha inicio (segura)
+                    String sInicio = "-";
+                    java.sql.Date dInicio = rs.getDate("fecha_inicio");
+                    if (dInicio != null) {
+                        sInicio = dInicio.toString();
+                    }
 
-            while (rs.next()) {
-                lista.add(new Renta(
-                        rs.getString("modelo"),
-                        rs.getString("placa"),
-                        rs.getDate("fecha_inicio").toString(),
-                        rs.getDate("fecha_fin").toString(),
-                        "$" + rs.getBigDecimal("costo_total")
-                ));
+                    // Fecha fin (alias COALESCE -> "fecha_fin")
+                    String sFin = "-";
+                    java.sql.Date dFin = rs.getDate("fecha_fin");
+                    if (dFin != null) {
+                        sFin = dFin.toString();
+                    }
+
+                    // costo_total (puede ser null)
+                    String sTotal = "-";
+                    java.math.BigDecimal monto = rs.getBigDecimal("costo_total");
+                    if (monto != null) {
+                        // formateo simple a 2 decimales
+                        sTotal = "$" + monto.setScale(2, java.math.RoundingMode.HALF_UP).toString();
+                    }
+
+                    lista.add(new Renta(
+                            rs.getString("modelo"),
+                            rs.getString("placa"),
+                            sInicio,
+                            sFin,
+                            sTotal
+                    ));
+                }
             }
 
         } catch (Exception ex) {
@@ -407,6 +430,8 @@ public class PanelClienteController {
 
         tblAlquileres.setItems(lista);
     }
+
+
     public static int obtenerClienteIdPorUsuario(int usuarioId) {
         String sql = "SELECT id FROM clientes WHERE usuario_id = ?";
         try (Connection cn = ConexionDB.getConnection();
