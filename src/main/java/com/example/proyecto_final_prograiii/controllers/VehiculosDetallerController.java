@@ -23,8 +23,6 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Controller para la vista de detalle de vehículo.
@@ -229,8 +227,9 @@ public class VehiculosDetallerController {
                 return;
             }
 
+            // Si ya está ALQUILADO, bloquear
             String estado = vehiculo.getEstado();
-            if (estado != null && (estado.equalsIgnoreCase("RESERVADO") || estado.equalsIgnoreCase("ALQUILADO"))) {
+            if (estado != null && estado.equalsIgnoreCase("ALQUILADO")) {
                 alerta("No disponible", "Este vehículo ya está " + estado + " y no puede reservarse.", Alert.AlertType.WARNING);
                 return;
             }
@@ -249,7 +248,8 @@ public class VehiculosDetallerController {
             if (inicio == null) { alerta("Fecha inicio requerida", "Selecciona la fecha de inicio.", Alert.AlertType.WARNING); return; }
             if (inicio.isBefore(hoy)) { alerta("Fecha inválida", "La fecha de inicio no puede ser menor a hoy.", Alert.AlertType.WARNING); return; }
             if (fin == null) { alerta("Fecha fin requerida", "Selecciona la fecha estimada de fin.", Alert.AlertType.WARNING); return; }
-            if (!fin.isAfter(inicio)) { alerta("Fecha inválida", "La fecha final debe ser mayor que la fecha inicial.", Alert.AlertType.WARNING); return; }
+
+            if (fin.isBefore(inicio)) { alerta("Fecha inválida", "La fecha final no puede ser anterior a la fecha inicial.", Alert.AlertType.WARNING); return; }
 
             long dias = ChronoUnit.DAYS.between(inicio, fin) + 1;
             if (dias <= 0) { alerta("Fechas inválidas", "Revisa las fechas ingresadas.", Alert.AlertType.WARNING); return; }
@@ -259,6 +259,14 @@ public class VehiculosDetallerController {
             String metodoPago = cmbMetodoPagoCliente != null ? cmbMetodoPagoCliente.getValue() : null;
             if (metodoPago == null) {
                 alerta("Método de pago", "Debes seleccionar un método de pago.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            // <-- Comprobación de disponibilidad por fechas en BD
+            AlquilerDAO aCheckDao = new AlquilerDAO();
+            boolean disponible = aCheckDao.isVehiculoDisponible(vehiculo.getId(), inicio, fin);
+            if (!disponible) {
+                alerta("No disponible", "El vehículo NO está disponible en las fechas seleccionadas.", Alert.AlertType.WARNING);
                 return;
             }
 
@@ -273,52 +281,53 @@ public class VehiculosDetallerController {
             alquiler.setFechaInicio(inicio);
             alquiler.setFechaFin(fin);
             alquiler.setPrecioDiario(precioPorDia);
-            alquiler.setEstado("EN CURSO");
-
-            //guardamos el metodo de pago elegido en notas
             alquiler.setNotas("Método de pago: " + metodoPago);
 
-            // Confirmación
+            // Confirmación final al usuario
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-            confirm.setTitle("Confirmar reserva");
-            confirm.setHeaderText("Confirma tu reserva");
+            confirm.setTitle("Confirmar reserva y alquiler inmediato");
+            confirm.setHeaderText("Confirmación");
             confirm.setContentText("Días: " + dias +
                     "\nPrecio/dia: $" + precioPorDia +
                     "\nTotal estimado: $" + precioTotal +
                     "\nMétodo de pago: " + metodoPago +
-                    "\n\n¿Deseas confirmar la reserva?");
+                    "\n\nAl confirmar, la reserva se convertirá en ALQUILER inmediatamente. ¿Deseas continuar?");
 
             if (confirm.showAndWait().orElse(null) != ButtonType.OK) {
                 alerta("Cancelado", "Reserva cancelada por el usuario.", Alert.AlertType.INFORMATION);
                 return;
             }
 
-            // Insertar alquiler y obtener ID
+            // LLAMADA A reservarYAlquilar(...) <-- crea registro con estado = 'ALQUILADO'
             AlquilerDAO dao = new AlquilerDAO();
-            int alquilerId = dao.crearSolicitudAlquiler(alquiler);
+            int nuevoId = dao.reservarYAlquilar(alquiler);
 
-            if (alquilerId <= 0) {
-                alerta("Error", "No se pudo crear la solicitud.", Alert.AlertType.ERROR);
+            if (nuevoId <= 0) {
+                alerta("No disponible", "No se pudo reservar: el vehículo no está disponible en esas fechas.", Alert.AlertType.ERROR);
                 return;
             }
 
             // Registrar pago inicial (solo el método, sin monto)
             PagoDAO pagoDAO = new PagoDAO();
-            pagoDAO.registrarPagoInicial(alquilerId, metodoPago);
+            pagoDAO.registrarPagoInicial(nuevoId, metodoPago);
 
-            // Marcar vehículo como reservado inmediatamente
+            // Actualizar estado de vehículo en UI y BD (reservarYAlquilar ya actualiza vehiculos.estado a 'ALQUILADO', pero actualizamos modelo local)
             VehiculosDAO vdao = new VehiculosDAO();
-            vdao.actualizarEstadoVehiculo(vehiculo.getId(), "RESERVADO");
-            vehiculo.setEstado("RESERVADO");
-            lblEstado.setText("Estado: RESERVADO");
+            vdao.actualizarEstadoVehiculo(vehiculo.getId(), "ALQUILADO");
+            vehiculo.setEstado("ALQUILADO");
+            lblEstado.setText("Estado: ALQUILADO");
 
-            alerta("Solicitud enviada", "Tu solicitud fue enviada y está en revisión.", Alert.AlertType.INFORMATION);
+            // Ocultar/desactivar el botón confirmar porque ya no hace falta en este flujo
+            ocultar(btnConfirmarRenta);
+
+            alerta("Alquiler creado", "Tu reserva fue procesada y el vehículo queda alquilado. ID: " + nuevoId, Alert.AlertType.INFORMATION);
 
         } catch (Exception ex) {
             ex.printStackTrace();
             alerta("Error", "Error al procesar la solicitud: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
+
 
 
     @FXML

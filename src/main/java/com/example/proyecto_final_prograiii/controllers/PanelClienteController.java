@@ -9,20 +9,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -39,6 +35,7 @@ public class PanelClienteController {
 
     private VehiculosDAO vehiculosDAO;
 
+    @FXML
     public void initialize() {
         Usuario usuario = null;
         try {
@@ -50,13 +47,12 @@ public class PanelClienteController {
 
         if (usuario != null) {
             lblBienvenida.setText("Bienvenido, " + usuario.getNombreUsuario());
-            vehiculosDAO = new VehiculosDAO();
-            cargarTarjetasDinamicas();
         } else {
             lblBienvenida.setText("Debe iniciar sesión para poder reservar los vehículos");
-            vehiculosDAO = new VehiculosDAO();
-            cargarTarjetasDinamicas();
         }
+
+        vehiculosDAO = new VehiculosDAO();
+        cargarTarjetasDinamicas();
     }
 
     private void cargarTarjetasDinamicas() {
@@ -136,7 +132,6 @@ public class PanelClienteController {
         // Si no hay imagen válida, intentar cargar placeholder desde resources (packaged)
         if (!imageSet) {
             try {
-                // 1) Intentar resource empaquetado (recomendado): coloca placeholder.png en /resources/com/example/proyecto_final_prograiii/images/
                 java.net.URL res = getClass().getResource("/com/example/proyecto_final_prograiii/images/placeholder.png");
                 if (res != null) {
                     Image placeholder = new Image(res.toString(), 240, 130, true, true);
@@ -164,20 +159,19 @@ public class PanelClienteController {
                     System.out.println("[DEBUG] Placeholder cargado desde: " + placeholderPath);
                 } else {
                     System.out.println("[DEBUG] Placeholder de prueba no encontrado en: " + placeholderPath);
-                    // si quieres, puedes dejar un Region gris en su lugar (ya está el background en FXML)
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
 
-        // Título
+        // Título (igual que antes)
         Label title = new Label(safe(v.getModelo(), "Modelo N/A") + " — " + safe(v.getPlaca(), "Placa N/A"));
         title.getStyleClass().add("card-title");
 
-        // Información
+        // Información (igual que antes)
         String tipo = obtenerNombreTipo(v.getTipoVehiculoId());
-        java.math.BigDecimal precio = obtenerPrecioPorDiaDeVehiculo(v.getId());
+        BigDecimal precio = obtenerPrecioPorDiaDeVehiculo(v.getId());
         String precioTxt = (precio != null) ? String.format("$%.2f", precio) : "N/A";
 
         Label info = new Label(
@@ -189,6 +183,7 @@ public class PanelClienteController {
         info.setWrapText(true);
         info.getStyleClass().add("card-info");
 
+        // Botón Ver (único botón visible)
         Button btnVer = new Button("Ver");
         btnVer.getStyleClass().add("btn-ver");
         btnVer.setOnAction(e -> abrirDetalleVehiculo(v.getId()));
@@ -200,9 +195,6 @@ public class PanelClienteController {
         System.out.println("============================================");
         return card;
     }
-
-
-
 
     // helpers
     private String safe(String s, String def) { return (s == null || s.isBlank()) ? def : s; }
@@ -239,7 +231,7 @@ public class PanelClienteController {
 
     /**
      * Abre la vista de detalle (modal) para el vehículo con el id indicado.
-     * Asegúrate de tener `vehiculos-detalle-view.fxml` en resources y el controller VehiculosDetallerController.
+     * Asegúrate de tener `vehiculos-detalles-view.fxml` en resources y el controller VehiculosDetallerController.
      */
     private void abrirDetalleVehiculo(int id) {
         Usuario usuario = Sesion.getUsuarioActual();
@@ -268,7 +260,7 @@ public class PanelClienteController {
             Stage stage = new Stage();
             stage.setTitle("Detalle del vehículo");
             stage.setScene(scene);
-            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(cardsContainer.getScene().getWindow());
             stage.showAndWait();
         } catch (IOException ex) {
@@ -277,18 +269,9 @@ public class PanelClienteController {
         }
     }
 
-    //agregar metodo para inicializat tableview para mostrar las rentas del clientes
-
-
-
-    /**
-     * Cerrar sesión (similar al panel admin):
-     * - intenta limpiar Sesion por reflexión (cerrarSesion o setUsuarioActual(null))
-     * - busca login-view.fxml en rutas probables y lo carga
-     */
     @FXML
     public void cerrarSesion(ActionEvent event) {
-        // 1) Limpiar Sesion usando reflexión si es posible
+        // 1) Limpiar Sesion
         try {
             try {
                 java.lang.reflect.Method mCerrar = Sesion.class.getMethod("cerrarSesion");
@@ -308,7 +291,7 @@ public class PanelClienteController {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/proyecto_final_prograiii/login-view.fxml"));
         btnCerrarSesion.getScene().getWindow().hide();
         try {
-            Parent root =fxmlLoader.load();
+            Parent root = fxmlLoader.load();
             Scene scene = new Scene(root, 589, 400);
             scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/login.css").toExternalForm());
             Stage stage = new Stage();
@@ -327,6 +310,8 @@ public class PanelClienteController {
         Alert alert = new Alert(tipoAlerta);
         alert.setTitle(titulo);
         alert.setContentText(mensaje);
+        // aseguro que el diálogo se muestre correctamente aunque el contenido sea pequeño
+        alert.getDialogPane().setMinHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
         alert.show();
     }
 }
