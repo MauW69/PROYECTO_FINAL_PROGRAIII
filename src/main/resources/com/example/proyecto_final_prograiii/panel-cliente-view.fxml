@@ -3,6 +3,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -11,6 +13,16 @@
 <AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelClienteController">
 
     <children>
+      <TableView fx:id="tblAlquileres" layoutX="10.0" layoutY="52.0" prefHeight="526.0" prefWidth="881.0" visible="false">
+        <columns>
+          <TableColumn fx:id="colModelo" prefWidth="176.0" text="VEHICULO" />
+          <TableColumn fx:id="colPlaca" prefWidth="183.0" text="PLACA" />
+            <TableColumn fx:id="inicio" prefWidth="211.0" text="FECHA INICIO" />
+            <TableColumn fx:id="fin" prefWidth="212.0" text="FECHA FINAL" />
+            <TableColumn fx:id="total" prefWidth="98.0" text="TOTAL" />
+        </columns>
+      </TableView>
+      <Button fx:id="misAlquileres" layoutX="534.0" layoutY="12.0" mnemonicParsing="false" onAction="#mostrarMisAlquileres" prefHeight="25.0" prefWidth="160.0" text="MIS ALQUILERES" />
 
         <!-- TITULO / BIENVENIDA -->
         <Label fx:id="lblBienvenida" layoutX="20.0" layoutY="14.0" style="-fx-font-size:18.0px; -fx-font-weight:bold;" text="Bienvenido/a — Vehículos disponibles" />
@@ -19,7 +31,7 @@
         <Button fx:id="btnCerrarSesion" layoutX="720.0" layoutY="10.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="28.0" prefWidth="160.0" text="Cerrar sesión" />
 
         <!-- SCROLLER GENERAL -->
-        <ScrollPane layoutX="10.0" layoutY="51.2" prefHeight="539.0" prefWidth="890.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="51.0">
+        <ScrollPane fx:id="scroll" layoutX="10.0" layoutY="51.2" prefHeight="539.0" prefWidth="890.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="51.0">
 
             <content>
 
@@ -91,6 +103,7 @@
             </content>
 
         </ScrollPane>
+      <Button fx:id="btnVolver" layoutX="404.0" layoutY="12.0" mnemonicParsing="false" onAction="#volver" prefHeight="25.0" prefWidth="103.0" text="Volver" visible="false" />
     </children>
 
 </AnchorPane>

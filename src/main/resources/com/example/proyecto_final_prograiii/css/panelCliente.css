@@ -72,3 +72,22 @@
 #btnCerrarSesion:hover {
     -fx-background-color: linear-gradient(to bottom, #2563eb, #1d4ed8);
 }
+#misAlquileres
+{
+-fx-background-color: linear-gradient(to bottom, #1d4ed8, #1e40af); /* azul corp */
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-padding: 6 14;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+#btnVolver
+{
+-fx-background-color: linear-gradient(to bottom, #1d4ed8, #1e40af); /* azul corp */
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-padding: 6 14;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+
+}

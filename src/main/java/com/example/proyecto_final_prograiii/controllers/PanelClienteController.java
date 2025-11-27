@@ -2,9 +2,12 @@ package com.example.proyecto_final_prograiii.controllers;
 
 import com.example.proyecto_final_prograiii.DAO.VehiculosDAO;
 import com.example.proyecto_final_prograiii.config.ConexionDB;
+import com.example.proyecto_final_prograiii.models.Renta;
 import com.example.proyecto_final_prograiii.models.Usuario;
 import com.example.proyecto_final_prograiii.models.Vehiculo;
 import com.example.proyecto_final_prograiii.utils.Sesion;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -12,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -32,6 +36,14 @@ public class PanelClienteController {
     @FXML private Label lblBienvenida;
     @FXML private HBox cardsContainer; // fx:id en tu FXML
     @FXML private Button btnCerrarSesion;
+    @FXML private TableView<Renta> tblAlquileres;
+    @FXML private TableColumn<Renta,String> colModelo;
+    @FXML private TableColumn<Renta,String> colPlaca;
+    @FXML private TableColumn<Renta,String> inicio;
+    @FXML private TableColumn<Renta,String> fin;
+    @FXML private TableColumn<Renta,String> total;
+    @FXML private ScrollPane scroll;
+    @FXML private Button btnVolver;
 
     private VehiculosDAO vehiculosDAO;
 
@@ -53,6 +65,11 @@ public class PanelClienteController {
 
         vehiculosDAO = new VehiculosDAO();
         cargarTarjetasDinamicas();
+        colModelo.setCellValueFactory(new PropertyValueFactory<>("modelo"));
+        colPlaca.setCellValueFactory(new PropertyValueFactory<>("placa"));
+        inicio.setCellValueFactory(new PropertyValueFactory<>("inicio"));
+        fin.setCellValueFactory(new PropertyValueFactory<>("fin"));
+        total.setCellValueFactory(new PropertyValueFactory<>("total"));
     }
 
     private void cargarTarjetasDinamicas() {
@@ -268,6 +285,44 @@ public class PanelClienteController {
             alerta("Error", "No se pudo abrir la ventana de detalle: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
+    @FXML
+    private void mostrarMisAlquileres() {
+        Usuario usuario = Sesion.getUsuarioActual();
+        if (usuario == null) {
+            alerta("Error", "Debe iniciar sesión para ver sus alquileres.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        int clienteId = obtenerClienteIdPorUsuario(usuario.getId());
+
+        if (clienteId == -1) {
+            alerta("Error", "No se encontró el cliente asociado a este usuario.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        cargarAlquileresCliente(clienteId);
+
+        scroll.setVisible(false);
+        scroll.setManaged(false);
+
+        btnVolver.setVisible(true);
+        btnVolver.setManaged(true);
+
+        tblAlquileres.setVisible(true);
+        tblAlquileres.setManaged(true);
+    }
+    @FXML
+    void volver(ActionEvent event) {
+        scroll.setVisible(true);
+        scroll.setManaged(true);
+
+        btnVolver.setVisible(false);
+        btnVolver.setManaged(false);
+
+        tblAlquileres.setVisible(false);
+        tblAlquileres.setManaged(false);
+
+    }
 
     @FXML
     public void cerrarSesion(ActionEvent event) {
@@ -313,5 +368,53 @@ public class PanelClienteController {
         // aseguro que el diálogo se muestre correctamente aunque el contenido sea pequeño
         alert.getDialogPane().setMinHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
         alert.show();
+    }
+    private void cargarAlquileresCliente(int clienteId) {
+        ObservableList<Renta> lista = FXCollections.observableArrayList();
+
+        String sql = """
+        SELECT 
+            v.modelo,
+            v.placa,
+            a.fecha_inicio,
+            a.fecha_fin,
+            a.costo_total
+        FROM alquileres a
+        INNER JOIN vehiculos v ON v.id = a.vehiculo_id
+        WHERE a.cliente_id = ?
+        ORDER BY a.fecha_inicio DESC
+    """;
+
+        try (Connection cn = ConexionDB.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, clienteId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                lista.add(new Renta(
+                        rs.getString("modelo"),
+                        rs.getString("placa"),
+                        rs.getDate("fecha_inicio").toString(),
+                        rs.getDate("fecha_fin").toString(),
+                        "$" + rs.getBigDecimal("costo_total")
+                ));
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        tblAlquileres.setItems(lista);
+    }
+    public static int obtenerClienteIdPorUsuario(int usuarioId) {
+        String sql = "SELECT id FROM clientes WHERE usuario_id = ?";
+        try (Connection cn = ConexionDB.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, usuarioId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt("id");
+        } catch (Exception e) { e.printStackTrace(); }
+        return -1;
     }
 }
