@@ -40,5 +40,6 @@
           </Tab>
         </tabs>
       </TabPane>
+      <Button fx:id="btnCalendario" layoutX="737.0" layoutY="64.0" mnemonicParsing="false" onAction="#AbrirCalendario" prefHeight="26.0" prefWidth="82.0" text="Calendario" />
     </children>
 </AnchorPane>

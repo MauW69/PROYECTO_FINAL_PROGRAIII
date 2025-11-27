@@ -29,6 +29,8 @@ public class PanelEmpleadoController {
     @FXML private Button btnCerrarSesion;
     @FXML private Button btnGestionar;
     @FXML private Label lblBienvenida;
+    @FXML
+    private Button btnCalendario;
 
     // TAB Historial com tabla Historial
     @FXML private TableView<AlquilerHistorialDTO> tblHistorial;
@@ -233,6 +235,27 @@ public class PanelEmpleadoController {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    //boton para abrir el calendario
+    @FXML
+    void AbrirCalendario(ActionEvent event) {
+        try {
+            URL url = getClass().getResource("/com/example/proyecto_final_prograiii/calendario-view.fxml");
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Calendario de Reservas");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert a = new Alert(Alert.AlertType.ERROR, "No se pudo abrir el calendario");
+            a.show();
         }
     }
 

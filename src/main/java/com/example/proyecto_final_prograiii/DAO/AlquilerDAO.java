@@ -10,7 +10,9 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AlquilerDAO {
     private Connection conexion;
@@ -231,6 +233,43 @@ public class AlquilerDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return null;
     }
+
+    public List<Map<String, Object>> obtenerEventosCalendario() {
+        List<Map<String, Object>> lista = new ArrayList<>();
+
+        String sql = """
+        SELECT 
+            a.id,
+            CONCAT(v.modelo, ' (', v.placa, ')') AS vehiculo_nombre,
+            c.nombre AS cliente_nombre,
+            a.fecha_inicio,
+            COALESCE(a.fecha_fin_real, a.fecha_fin_estimada) AS fecha_fin
+        FROM alquileres a
+        INNER JOIN vehiculos v ON v.id = a.vehiculo_id
+        INNER JOIN clientes c ON c.id = a.cliente_id
+        WHERE a.estado IN ('ALQUILADO', 'EN CURSO')
+        ORDER BY a.fecha_inicio
+    """;
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> evento = new HashMap<>();
+                evento.put("titulo", rs.getString("vehiculo_nombre") + " — " + rs.getString("cliente_nombre"));
+                evento.put("inicio", rs.getDate("fecha_inicio").toLocalDate());
+                evento.put("fin", rs.getDate("fecha_fin").toLocalDate());
+
+                lista.add(evento);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+
 
     // -------------------- DELETE --------------------------
     public boolean eliminarAlquilerCompleto(int alquilerId) {

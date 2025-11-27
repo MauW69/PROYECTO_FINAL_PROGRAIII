@@ -8,6 +8,7 @@ module com.example.proyecto_final_prograiii {
     requires jbcrypt;
     requires java.desktop;
     requires jakarta.mail;
+    requires com.calendarfx.view;
 
     opens com.example.proyecto_final_prograiii to javafx.fxml;
     exports com.example.proyecto_final_prograiii;
