@@ -17,17 +17,16 @@ public class PagoDAO {
         conexion = ConexionDB.getConnection();
     }
 
-    //se utiliza al realizar la reserva
-    public boolean registrarPagoInicial(int alquilerId, String metodo) {
+    public boolean registrarPago(Pago pago) {
         String sql = "INSERT INTO pagos (alquiler_id, monto, metodo) VALUES (?, ?, ?)";
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setInt(1, alquilerId);
-            ps.setBigDecimal(2, BigDecimal.ZERO); // 0.00 temporal
-            ps.setString(3, metodo);
+            ps.setInt(1, pago.getAlquilerId());
+            ps.setBigDecimal(2, pago.getMonto());
+            ps.setString(3, pago.getMetodo());
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("Error registrarPago: " + e.getMessage());
             return false;
         }
     }

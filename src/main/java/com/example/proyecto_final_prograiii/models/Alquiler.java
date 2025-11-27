@@ -8,9 +8,7 @@ public class Alquiler {
     private int id;
     private int vehiculoId;
     private int clienteId;
-    //aqui Integer para poder asignar un valor null ya que con int se tendria que inicializar en 0 y 0 no es nualidad
-    private Integer empleadoInicioId;
-    private Integer empleadoFinId;
+
 
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
@@ -26,12 +24,11 @@ public class Alquiler {
 
     }
 
-    public Alquiler(int id, int vehiculoId, int clienteId, Integer empleadoInicioId, Integer empleadoFinId, LocalDate fechaInicio, LocalDate fechaFin, BigDecimal precioDiario, BigDecimal costoTotal, String estado, String notas, LocalDateTime fechaCreacion) {
+    public Alquiler(int id, int vehiculoId, int clienteId,LocalDate fechaInicio, LocalDate fechaFin, BigDecimal precioDiario, BigDecimal costoTotal, String estado, String notas, LocalDateTime fechaCreacion) {
         this.id = id;
         this.vehiculoId = vehiculoId;
         this.clienteId = clienteId;
-        this.empleadoInicioId = empleadoInicioId;
-        this.empleadoFinId = empleadoFinId;
+
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.precioDiario = precioDiario;
@@ -65,21 +62,7 @@ public class Alquiler {
         this.clienteId = clienteId;
     }
 
-    public Integer getEmpleadoInicioId() {
-        return empleadoInicioId;
-    }
 
-    public void setEmpleadoInicioId(Integer empleadoInicioId) {
-        this.empleadoInicioId = empleadoInicioId;
-    }
-
-    public Integer getEmpleadoFinId() {
-        return empleadoFinId;
-    }
-
-    public void setEmpleadoFinId(Integer empleadoFinId) {
-        this.empleadoFinId = empleadoFinId;
-    }
 
     public LocalDate getFechaInicio() {
         return fechaInicio;
@@ -147,20 +130,17 @@ public class Alquiler {
 
     public void finalizar(LocalDate fechaFin, int empleadoFinId) {
         this.fechaFin = fechaFin;
-        this.empleadoFinId = empleadoFinId;
         this.estado = "FINALIZADO";
         calcularCostoTotal();
     }
 
-    //testeo
+    //testeo pra debug
     @Override
     public String toString() {
         return "Alquiler{" +
                 "id=" + id +
                 ", vehiculoId=" + vehiculoId +
                 ", clienteId=" + clienteId +
-                ", empleadoInicioId=" + empleadoInicioId +
-                ", empleadoFinId=" + empleadoFinId +
                 ", fechaInicio=" + fechaInicio +
                 ", fechaFin=" + fechaFin +
                 ", precioDiario=" + precioDiario +

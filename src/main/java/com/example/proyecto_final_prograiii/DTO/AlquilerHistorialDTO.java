@@ -2,32 +2,84 @@ package com.example.proyecto_final_prograiii.DTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class AlquilerHistorialDTO {
-    private int id;
-    private String vehiculo;
+
+    private int alquilerId;
+    private int vehiculoId;
+    private String nombreVehiculo; // "Corolla (ABC123)"
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
-    private BigDecimal totalPagado;
+    private long diasTotales;
+    private BigDecimal montoPagado;
     private String metodoPago;
     private String estado;
+    private String cliente;
 
-    public AlquilerHistorialDTO(int id, String vehiculo, LocalDate fechaInicio, LocalDate fechaFin,
-                                BigDecimal totalPagado, String metodoPago, String estado) {
-        this.id = id;
-        this.vehiculo = vehiculo;
+    public AlquilerHistorialDTO(
+            int alquilerId,
+            int vehiculoId,
+            String nombreVehiculo,
+            String cliente,
+            LocalDate fechaInicio,
+            LocalDate fechaFin,
+            BigDecimal montoPagado,
+            String metodoPago,
+            String estado
+    ) {
+        this.alquilerId = alquilerId;
+        this.vehiculoId = vehiculoId;
+        this.nombreVehiculo = nombreVehiculo;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
-        this.totalPagado = totalPagado;
+        this.montoPagado = montoPagado;
         this.metodoPago = metodoPago;
         this.estado = estado;
+        this.cliente = cliente;
+
+        this.diasTotales = (fechaInicio != null && fechaFin != null)
+                ? ChronoUnit.DAYS.between(fechaInicio, fechaFin) + 1 : 0;
+    }
+    public int getAlquilerId() {
+        return alquilerId;
     }
 
-    public int getId() { return id; }
-    public String getVehiculo() { return vehiculo; }
-    public LocalDate getFechaInicio() { return fechaInicio; }
-    public LocalDate getFechaFin() { return fechaFin; }
-    public BigDecimal getTotalPagado() { return totalPagado; }
-    public String getMetodoPago() { return metodoPago; }
-    public String getEstado() { return estado; }
+    public int getVehiculoId() {
+        return vehiculoId;
+    }
+
+    public String getNombreVehiculo() {
+        return nombreVehiculo;
+    }
+
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public LocalDate getFechaFin() {
+        return fechaFin;
+    }
+
+    public long getDiasTotales() {
+        return diasTotales;
+    }
+
+    public BigDecimal getMontoPagado() {
+        return montoPagado;
+    }
+
+    public String getMetodoPago() {
+        return metodoPago;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public String getCliente() {
+        return cliente;
+    }
 }
+
+

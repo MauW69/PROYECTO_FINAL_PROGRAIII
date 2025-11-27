@@ -2,10 +2,8 @@ package com.example.proyecto_final_prograiii.controllers;
 
 import com.example.proyecto_final_prograiii.DAO.AlquilerDAO;
 import com.example.proyecto_final_prograiii.DTO.AlquilerHistorialDTO;
-import com.example.proyecto_final_prograiii.DTO.AlquilerSolicitudDTO;
 import com.example.proyecto_final_prograiii.utils.Sesion;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,12 +14,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * PanelEmpleadoController — muestra solicitudes y el historial.
@@ -34,32 +30,23 @@ public class PanelEmpleadoController {
     @FXML private Button btnGestionar;
     @FXML private Label lblBienvenida;
 
-    // TAB SOLICITUDES
-    @FXML private TableView<AlquilerSolicitudDTO> tblSolicitudes;
-    @FXML private TableColumn<AlquilerSolicitudDTO, Void> colCancelarSolicitud;
-    @FXML private TableColumn<AlquilerSolicitudDTO, Void> colDetalleSolicitud;
-    @FXML private TableColumn<AlquilerSolicitudDTO, String> colClienteSolicitud;
-    @FXML private TableColumn<AlquilerSolicitudDTO, String> colVehiculoSolicitud;
-    @FXML private TableColumn<AlquilerSolicitudDTO, BigDecimal> colPrecioSolicitud;
-    @FXML private TableColumn<AlquilerSolicitudDTO, String> colEstadoSolicitud;
-    @FXML private TableColumn<AlquilerSolicitudDTO, LocalDate> colFechaInicioSolicitud;
-
-    // TAB HISTORIAL
+    // TAB Historial com tabla Historial
     @FXML private TableView<AlquilerHistorialDTO> tblHistorial;
-    @FXML private TableColumn<AlquilerHistorialDTO, Integer> colIdHistorial;
+    @FXML private TableColumn<AlquilerHistorialDTO, Void> colBorrarHistorial;
+    @FXML private TableColumn<AlquilerHistorialDTO, Void> colDetalleHistorial;
+    @FXML private TableColumn<AlquilerHistorialDTO, String> colClienteHistorial;
     @FXML private TableColumn<AlquilerHistorialDTO, String> colVehiculoHistorial;
-    @FXML private TableColumn<AlquilerHistorialDTO, LocalDate> colFechainicioHistorial;
-    @FXML private TableColumn<AlquilerHistorialDTO, LocalDate> colFechafinHistorial;
-    @FXML private TableColumn<AlquilerHistorialDTO, BigDecimal> colTotalPagadoHistorial;
-    @FXML private TableColumn<AlquilerHistorialDTO, String> colMetodoPagoHistorial;
+    @FXML private TableColumn<AlquilerHistorialDTO, BigDecimal> colPrecioHistorial;
     @FXML private TableColumn<AlquilerHistorialDTO, String> colEstadoHistorial;
+    @FXML private TableColumn<AlquilerHistorialDTO, LocalDate> colFechaInicioHistorial;
+    @FXML private TableColumn<AlquilerHistorialDTO, LocalDate> colFechaFinHistorial;
+    @FXML private TableColumn<AlquilerHistorialDTO, Integer> colDiasTotalesHistorial;
 
+    // === DAO ===
     private final AlquilerDAO alquilerDao = new AlquilerDAO();
-    private ObservableList<AlquilerSolicitudDTO> listaSolicitudes = FXCollections.observableArrayList();
-    private ObservableList<AlquilerHistorialDTO> listaHistorial = FXCollections.observableArrayList();
 
     // ================================
-    //          INICIALIZACIÓN
+    //          INICIALIZACI0N
     // ================================
     @FXML
     public void initialize() {
@@ -68,155 +55,144 @@ public class PanelEmpleadoController {
             lblBienvenida.setText("Bienvenido, " + Sesion.getUsuarioActual().getNombreUsuario());
         }
 
-        InicializarTablaSolicitudes();
         InicializarTablaHistorial();
         cargarDatos();
     }
 
     // ================================
-    //      TABLA SOLICITUDES
+    //      TABLA historial
     // ================================
-    private void InicializarTablaSolicitudes() {
+    private void InicializarTablaHistorial() {
 
-        // Usa los nombres de propiedades que definen tus DTO (getNombreCliente, getNombreVehiculo, etc.)
-        colClienteSolicitud.setCellValueFactory(new PropertyValueFactory<>("nombreCliente"));
-        colVehiculoSolicitud.setCellValueFactory(new PropertyValueFactory<>("nombreVehiculo"));
-        colPrecioSolicitud.setCellValueFactory(new PropertyValueFactory<>("precioDiario"));
-        colEstadoSolicitud.setCellValueFactory(new PropertyValueFactory<>("estado"));
-        colFechaInicioSolicitud.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
+        colVehiculoHistorial.setCellValueFactory(new PropertyValueFactory<>("nombreVehiculo"));
+        colClienteHistorial.setCellValueFactory(new PropertyValueFactory<>("cliente")); // si luego agregas cliente
+        colFechaInicioHistorial.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
+        colFechaFinHistorial.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
+        colDiasTotalesHistorial.setCellValueFactory(new PropertyValueFactory<>("diasTotales"));
+        colPrecioHistorial.setCellValueFactory(new PropertyValueFactory<>("montoPagado"));
+        colEstadoHistorial.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
-        agregarBotonCancelar();
-        agregarBotonVerDetalle();
-
-        tblSolicitudes.setPlaceholder(new Label("Tabla sin contenido"));
+        BotonVerDetalles();
+        BotonBorrar();
     }
-
-    private void agregarBotonCancelar() {
-        colCancelarSolicitud.setCellFactory(col -> new TableCell<>() {
-            private final Button btnCancel = new Button("Cancelar");
+    //metodos de botones
+    private void BotonVerDetalles() {
+        colDetalleHistorial.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button("Ver");
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
 
-                if (empty) { setGraphic(null); return; }
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
 
-                btnCancel.setOnAction(e -> cancelarSolicitud(getTableView().getItems().get(getIndex())));
-                setGraphic(btnCancel);
-            }
-        });
-    }
+                btn.setOnAction(e -> {
+                    AlquilerHistorialDTO dto =
+                            getTableView().getItems().get(getIndex());
 
-    private void agregarBotonVerDetalle() {
-        colDetalleSolicitud.setCellFactory(col -> new TableCell<>() {
-            private final Button btnVer = new Button("Ver");
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty) { setGraphic(null); return; }
-
-                btnVer.setOnAction(e -> {
-                    AlquilerSolicitudDTO solicitud = getTableView().getItems().get(getIndex());
-                    abrirDetalleVehiculo(solicitud.getVehiculoId());
+                    // PASAMOS vehiculoId y alquilerId
+                    abrirDetalleVehiculo(dto.getVehiculoId(), dto.getAlquilerId());
                 });
 
-                setGraphic(btnVer);
+                setGraphic(btn);
             }
         });
     }
 
-    private void cancelarSolicitud(AlquilerSolicitudDTO solicitud) {
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Confirmar cancelación");
-        confirm.setHeaderText("¿Deseas cancelar esta solicitud?");
-        confirm.setContentText("Vehículo: " + solicitud.getNombreVehiculo());
+    private void BotonBorrar() {
+        colBorrarHistorial.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button("Borrar");
 
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
 
-            boolean exito = alquilerDao.cancelarSolicitud(solicitud.getId());
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
 
-            if (exito) {
-                new Alert(Alert.AlertType.INFORMATION, "Solicitud cancelada correctamente.").show();
-                cargarDatos();
-            } else {
-                new Alert(Alert.AlertType.ERROR, "No se pudo cancelar la solicitud.").show();
+                btn.setOnAction(e -> {
+                    AlquilerHistorialDTO dto = getTableView().getItems().get(getIndex());
+
+                    Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+                    a.setHeaderText("Eliminar del historial");
+                    a.setContentText("¿Deseas eliminar este registro?");
+                    if (a.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+                    eliminarHistorial(dto.getAlquilerId());
+                    cargarDatos();
+                });
+
+                setGraphic(btn);
             }
+        });
+    }
+    // ================================
+    //          ELIMINAR HISTORIAL
+    // ================================
+    private void eliminarHistorial(int alquilerId) {
+        boolean ok = alquilerDao.eliminarAlquilerCompleto(alquilerId);
+
+        if (!ok) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Error");
+            alert.setContentText("No se pudo eliminar el registro.");
+            alert.showAndWait();
+            return;
         }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText("Eliminado");
+        alert.setContentText("Registro eliminado correctamente.");
+        alert.showAndWait();
     }
 
     /**
      * Abre la ventana de detalle para el vehículo.
      * IMPORTANTE: casteamos getController() al tipo concreto para poder llamar cargarVehiculo(id).
      */
-    private void abrirDetalleVehiculo(int id) {
+    private void abrirDetalleVehiculo(int vehiculoId, int alquilerId) {
         try {
             URL url = getClass().getResource("/com/example/proyecto_final_prograiii/vehiculos-detalles-view.fxml");
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
 
-            // CAST explícito para poder llamar cargarVehiculo(...)
-            com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController ctrl =
-                    (com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController) loader.getController();
+            VehiculosDetallerController ctrl = loader.getController();
 
-            ctrl.cargarVehiculo(id);
+            ctrl.cargarVehiculo(vehiculoId, alquilerId);
 
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
             stage.setTitle("Detalle del Vehículo");
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initOwner(tblSolicitudes.getScene().getWindow());
+            stage.initOwner(tblHistorial.getScene().getWindow());
             stage.showAndWait();
 
-            // refrescar datos al volver
-            cargarDatos();
+            cargarDatos(); // refrescar al cerrar
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
+
 
 
     // ================================
     //          TABLA HISTORIAL
     // ================================
-    private void InicializarTablaHistorial() {
 
-        colIdHistorial.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colVehiculoHistorial.setCellValueFactory(new PropertyValueFactory<>("vehiculo"));
-        colFechainicioHistorial.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        colFechafinHistorial.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
-
-        colTotalPagadoHistorial.setCellValueFactory(new PropertyValueFactory<>("totalPagado"));
-        colTotalPagadoHistorial.setCellFactory( col ->
-                new TableCell<>() {
-                    @Override
-                    protected void updateItem(BigDecimal item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText(empty || item == null ? "" : "$" + item);
-                    }
-                });
-
-        colMetodoPagoHistorial.setCellValueFactory(new PropertyValueFactory<>("metodoPago"));
-        colEstadoHistorial.setCellValueFactory(new PropertyValueFactory<>("estado"));
-
-        tblHistorial.setPlaceholder(new Label("No hay historial registrado"));
-    }
 
     // ================================
     //              DATOS
     // ================================
     private void cargarDatos() {
-
-        List<AlquilerSolicitudDTO> solicitudes = alquilerDao.obtenerSolicitudesActivas();
-        listaSolicitudes.setAll(solicitudes);
-        tblSolicitudes.setItems(listaSolicitudes);
-
-        List<AlquilerHistorialDTO> historial = alquilerDao.obtenerHistorial();
-        listaHistorial.setAll(historial);
-        tblHistorial.setItems(listaHistorial);
+            List<AlquilerHistorialDTO> historial = alquilerDao.obtenerHistorial();
+            tblHistorial.setItems(FXCollections.observableArrayList(historial));
     }
 
     // ================================
@@ -234,7 +210,7 @@ public class PanelEmpleadoController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
 
-            cargarDatos();
+
 
         } catch (Exception e) {
             e.printStackTrace();

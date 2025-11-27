@@ -48,7 +48,7 @@ public class PanelClienteController {
         if (usuario != null) {
             lblBienvenida.setText("Bienvenido, " + usuario.getNombreUsuario());
         } else {
-            lblBienvenida.setText("Debe iniciar sesión para poder reservar los vehículos");
+            lblBienvenida.setText("Debe iniciar sesión para poder alquilar los vehículos");
         }
 
         vehiculosDAO = new VehiculosDAO();
@@ -254,7 +254,7 @@ public class PanelClienteController {
             // obtener el controlador y pasar el id para que cargue los datos
             com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController ctrl =
                     loader.getController();
-            ctrl.cargarVehiculo(id);
+            ctrl.cargarVehiculo(id, 0);
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/DetalleVehiculos.css").toExternalForm());
             Stage stage = new Stage();

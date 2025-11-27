@@ -38,11 +38,8 @@
         <Label fx:id="lblEstado" layoutX="280.0" layoutY="172.0" text="Estado: " />
         <Label fx:id="lblFechaCreacion" layoutX="455.0" layoutY="172.0" text="Fecha de creación:" />
 
-        <!-- Botón Reservar -->
-        <Button fx:id="btnReservar" layoutX="283.0" layoutY="268.0" onAction="#reservar" text="Reservar" />
-
-        <!-- Botón Confirmar Renta -->
-        <Button fx:id="btnConfirmarRenta" layoutX="283.0" layoutY="325.0" onAction="#ConfirmarRenta" prefWidth="130" text="Confirmar Renta" />
+        <!-- Botón Alquilar -->
+        <Button fx:id="btnAlquilar" layoutX="283.0" layoutY="268.0" onAction="#Alquilar" text="Alquilar" />
       <DatePicker fx:id="fechaInicio" layoutX="20.0" layoutY="268.0" prefHeight="25.0" prefWidth="231.0" />
       <DatePicker fx:id="fechaFin" layoutX="20.0" layoutY="325.0" prefHeight="25.0" prefWidth="231.0" />
       <Label fx:id="inicio" layoutX="20.0" layoutY="240.0" text="INICIO RENTA" />
