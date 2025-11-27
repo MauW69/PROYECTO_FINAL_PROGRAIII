@@ -8,13 +8,13 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="535.0" prefWidth="1004.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelEmpleadoController">
+<AnchorPane prefHeight="535.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelEmpleadoController">
     <children>
-        <Label fx:id="lblBienvenida" layoutX="266.0" layoutY="14.0" text="BIENVENIDO" />
-        <Button fx:id="btnCerrarSesion" layoutX="23.0" layoutY="23.0" mnemonicParsing="false" onAction="#cerrarOnAction" prefHeight="25.0" prefWidth="122.0" text="CERRAR SESION" />
-        <Button fx:id="agregarBtn" layoutX="14.0" layoutY="76.0" mnemonicParsing="false" onAction="#agregarOnAction" prefHeight="25.0" prefWidth="140.0" text="AGREGAR VEHICULO" />
+        <Label fx:id="lblBienvenida" layoutX="444.0" layoutY="15.0" text="BIENVENIDO" />
+        <Button fx:id="btnCerrarSesion" layoutX="14.0" layoutY="13.0" mnemonicParsing="false" onAction="#cerrarOnAction" prefHeight="17.0" prefWidth="166.0" text="CERRAR SESION" />
+        <Button fx:id="agregarBtn" layoutX="189.0" layoutY="77.0" mnemonicParsing="false" onAction="#agregarOnAction" prefHeight="25.0" prefWidth="140.0" text="AGREGAR VEHICULO" />
         <!-- NUEVO: boton para abrir la gestion/edicion de vehiculos -->
-        <Button fx:id="btnGestionar" layoutX="463.0" layoutY="63.0" mnemonicParsing="false" onAction="#gestionarOnAction" prefHeight="26.0" prefWidth="122.0" text="GESTIONAR VEHÍCULOS" />
+        <Button fx:id="btnGestionar" layoutX="379.0" layoutY="76.0" mnemonicParsing="false" onAction="#gestionarOnAction" prefHeight="26.0" prefWidth="181.0" text="GESTIONAR VEHÍCULOS" />
       <TabPane layoutX="36.0" layoutY="120.0" prefHeight="374.0" prefWidth="885.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab text="HISTORIAL">
@@ -38,8 +38,53 @@
                   </AnchorPane>
             </content>
           </Tab>
+            <Tab fx:id="tabEstadisticas" text="ESTADISTICAS">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TabPane fx:id="tabPaneEstadisticas" prefHeight="348.0" prefWidth="885.0" tabClosingPolicy="UNAVAILABLE">
+                          <tabs>
+                            <Tab fx:id="tabVehiculos" text="VEHICULOS">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <TableView fx:id="tblVehiculos" prefHeight="319.0" prefWidth="885.0">
+                                            <columns>
+                                              <TableColumn fx:id="colVehi" prefWidth="230.0" text="VEHICULO" />
+                                              <TableColumn fx:id="colPlaca" prefWidth="144.0" text="PLACA" />
+                                                <TableColumn fx:id="colEstado" prefWidth="221.0" text="ESTADO" />
+                                                <TableColumn fx:id="colCanRen" prefWidth="149.0" text="RENTAS" />
+                                                <TableColumn fx:id="colGanancias" prefWidth="140.0" text="GANANCIAS" />
+                                            </columns>
+                                          </TableView>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                            <Tab fx:id="tabClientes" text="CLIENTES">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <TableView fx:id="tblClientes" prefHeight="321.0" prefWidth="885.0">
+                                            <columns>
+                                              <TableColumn fx:id="colCliente" prefWidth="270.0" text="CLIENTE" />
+                                              <TableColumn fx:id="colUsuario" prefWidth="207.0" text="USUARIO" />
+                                                <TableColumn fx:id="colRentas" prefWidth="258.0" text="AUTOS RENTADOS" />
+                                                <TableColumn fx:id="colImporte" prefWidth="149.0" text="IMPORTE" />
+                                            </columns>
+                                          </TableView>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
         </tabs>
       </TabPane>
-      <Button fx:id="btnCalendario" layoutX="737.0" layoutY="64.0" mnemonicParsing="false" onAction="#AbrirCalendario" prefHeight="26.0" prefWidth="82.0" text="Calendario" />
+      <Button fx:id="btnCalendario" layoutX="612.0" layoutY="77.0" mnemonicParsing="false" onAction="#AbrirCalendario" prefHeight="26.0" prefWidth="140.0" text="CALENDARIO" />
     </children>
 </AnchorPane>

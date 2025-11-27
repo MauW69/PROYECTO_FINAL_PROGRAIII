@@ -22,13 +22,13 @@
             <TableColumn fx:id="total" prefWidth="98.0" text="TOTAL" />
         </columns>
       </TableView>
-      <Button fx:id="misAlquileres" layoutX="534.0" layoutY="12.0" mnemonicParsing="false" onAction="#mostrarMisAlquileres" prefHeight="25.0" prefWidth="160.0" text="MIS ALQUILERES" />
+      <Button fx:id="misAlquileres" layoutX="557.0" layoutY="12.0" mnemonicParsing="false" onAction="#mostrarMisAlquileres" prefHeight="25.0" prefWidth="160.0" text="MIS ALQUILERES" />
 
         <!-- TITULO / BIENVENIDA -->
         <Label fx:id="lblBienvenida" layoutX="20.0" layoutY="14.0" style="-fx-font-size:18.0px; -fx-font-weight:bold;" text="Bienvenido/a — Vehículos disponibles" />
 
         <!-- BOTÓN CERRAR SESIÓN -->
-        <Button fx:id="btnCerrarSesion" layoutX="720.0" layoutY="10.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="28.0" prefWidth="160.0" text="Cerrar sesión" />
+        <Button fx:id="btnCerrarSesion" layoutX="731.0" layoutY="11.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="28.0" prefWidth="160.0" text="Cerrar sesión" />
 
         <!-- SCROLLER GENERAL -->
         <ScrollPane fx:id="scroll" layoutX="10.0" layoutY="51.2" prefHeight="539.0" prefWidth="890.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="51.0">

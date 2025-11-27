@@ -1,6 +1,8 @@
 package com.example.proyecto_final_prograiii.DAO;
 
 import com.example.proyecto_final_prograiii.DTO.AlquilerHistorialDTO;
+import com.example.proyecto_final_prograiii.DTO.ClienteEstadisticaDTO;
+import com.example.proyecto_final_prograiii.DTO.VehiculoEstadisticaDTO;
 import com.example.proyecto_final_prograiii.config.ConexionDB;
 import com.example.proyecto_final_prograiii.models.Alquiler;
 import com.example.proyecto_final_prograiii.models.Pago;
@@ -339,5 +341,76 @@ public class AlquilerDAO {
             return false;
         }
         return false;
+    }
+    public List<VehiculoEstadisticaDTO> obtenerEstadisticasVehiculos() {
+        List<VehiculoEstadisticaDTO> lista = new ArrayList<>();
+
+        String sql = """
+        SELECT 
+            v.modelo AS nombreVehiculo,
+            v.placa,
+            v.estado,
+            COUNT(a.id) AS cantidadRentas,
+            COALESCE(SUM(a.costo_total), 0) AS ganancias
+        FROM vehiculos v
+        LEFT JOIN alquileres a ON a.vehiculo_id = v.id
+        GROUP BY v.id
+        ORDER BY cantidadRentas DESC;
+    """;
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                VehiculoEstadisticaDTO dto = new VehiculoEstadisticaDTO(
+                        rs.getString("nombreVehiculo"),
+                        rs.getString("placa"),
+                        rs.getString("estado"),
+                        rs.getInt("cantidadRentas"),
+                        rs.getBigDecimal("ganancias")
+                );
+
+                lista.add(dto);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+    public List<ClienteEstadisticaDTO> obtenerEstadisticasClientes() {
+        List<ClienteEstadisticaDTO> lista = new ArrayList<>();
+
+        String sql = """
+        SELECT 
+            CONCAT(c.nombre, ' ', c.apellido) AS nombreCompleto,
+            u.nombre_usuario AS nombreUsuario,
+            COUNT(a.id) AS cantidadRentas,
+            COALESCE(SUM(a.costo_total), 0) AS importeTotal
+        FROM clientes c
+        INNER JOIN usuarios u ON u.id = c.usuario_id
+        LEFT JOIN alquileres a ON a.cliente_id = c.id
+        GROUP BY c.id, u.nombre_usuario
+        ORDER BY cantidadRentas DESC
+    """;
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(new ClienteEstadisticaDTO(
+                        rs.getString("nombreCompleto"),
+                        rs.getString("nombreUsuario"),
+                        rs.getInt("cantidadRentas"),
+                        rs.getBigDecimal("importeTotal")
+                ));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
     }
 }

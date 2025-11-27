@@ -1,7 +1,8 @@
 package com.example.proyecto_final_prograiii.DTO;
 
+import java.math.BigDecimal;
+
 public class ClienteDTO {
-    //datos del cliente
     private int id;
     private int usuarioId;
     private String nombre;
@@ -10,14 +11,11 @@ public class ClienteDTO {
     private String email;
     private String telefono;
     private String direccion;
-
-    //campo proveniente de la tabla usuarios
     private String nombreUsuario;
+    private int cantidadRentas;
+    private BigDecimal importeTotal;
 
-    public ClienteDTO() {
-
-    }
-
+    public ClienteDTO() {}
 
     public int getId() {
         return id;
@@ -89,5 +87,20 @@ public class ClienteDTO {
 
     public void setNombreUsuario(String nombreUsuario) {
         this.nombreUsuario = nombreUsuario;
+    }
+
+    public int getCantidadRentas() {
+        return cantidadRentas;
+    }
+
+    public void setCantidadRentas(int cantidadRentas) {
+        this.cantidadRentas = cantidadRentas;
+    }
+    public BigDecimal getImporteTotal() {
+        return importeTotal;
+    }
+
+    public void setImporteTotal(BigDecimal importeTotal) {
+        this.importeTotal = importeTotal;
     }
 }

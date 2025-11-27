@@ -105,6 +105,30 @@ public class CrearVehiculoController {
                         setText(empty || item == null ? "" : item.getNombre());
                     }
                 });
+                cbTipoVehiculo.valueProperty().addListener((obs, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        switch (newValue.getNombre().toLowerCase()) {
+                            case "sedan":
+                                tfPrecio.setText("20.00");
+                                break;
+                            case "suv":
+                                tfPrecio.setText("25.00");
+                                break;
+                            case "camioneta":
+                                tfPrecio.setText("30.00");
+                                break;
+                            case "compacto":
+                                tfPrecio.setText("17.50");
+                                break;
+                            case "deportivo":
+                                tfPrecio.setText("45.00");
+                                break;
+                            default:
+                                tfPrecio.clear();
+                                break;
+                        }
+                    }
+                });
             } else {
                 cbTipoVehiculo.setPromptText("No hay tipos disponibles");
             }

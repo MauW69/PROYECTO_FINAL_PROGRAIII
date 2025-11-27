@@ -2,6 +2,8 @@ package com.example.proyecto_final_prograiii.controllers;
 
 import com.example.proyecto_final_prograiii.DAO.AlquilerDAO;
 import com.example.proyecto_final_prograiii.DTO.AlquilerHistorialDTO;
+import com.example.proyecto_final_prograiii.DTO.ClienteEstadisticaDTO;
+import com.example.proyecto_final_prograiii.DTO.VehiculoEstadisticaDTO;
 import com.example.proyecto_final_prograiii.utils.Sesion;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -13,7 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
+import javafx.application.Platform;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
@@ -43,6 +45,18 @@ public class PanelEmpleadoController {
     @FXML private TableColumn<AlquilerHistorialDTO, LocalDate> colFechaInicioHistorial;
     @FXML private TableColumn<AlquilerHistorialDTO, LocalDate> colFechaFinHistorial;
     @FXML private TableColumn<AlquilerHistorialDTO, Integer> colDiasTotalesHistorial;
+    @FXML private TableView<VehiculoEstadisticaDTO> tblVehiculos;
+    @FXML private TableColumn<VehiculoEstadisticaDTO, String> colVehi;
+    @FXML private TableColumn<VehiculoEstadisticaDTO, String> colPlaca;
+    @FXML private TableColumn<VehiculoEstadisticaDTO, String> colEstado;
+    @FXML private TableColumn<VehiculoEstadisticaDTO, Integer> colCanRen;
+    @FXML private TableColumn<VehiculoEstadisticaDTO, BigDecimal> colGanancias;
+    @FXML private TableView<ClienteEstadisticaDTO> tblClientes;
+    @FXML private TableColumn<ClienteEstadisticaDTO, String> colCliente;
+    @FXML private TableColumn<ClienteEstadisticaDTO, String> colUsuario;
+    @FXML private TableColumn<ClienteEstadisticaDTO, Integer> colRentas;
+    @FXML private TableColumn<ClienteEstadisticaDTO, BigDecimal> colImporte;
+    @FXML private Tab tabClientes;
 
     // === DAO ===
     private final AlquilerDAO alquilerDao = new AlquilerDAO();
@@ -57,10 +71,43 @@ public class PanelEmpleadoController {
             lblBienvenida.setText("Bienvenido, " + Sesion.getUsuarioActual().getNombreUsuario());
         }
 
+        // Estas tablas sí pueden cargarse de inmediato
         InicializarTablaHistorial();
         cargarDatos();
-    }
+        InicializarTablaVehiculos();
+        cargarEstadisticasVehiculos();
 
+        tabClientes.setOnSelectionChanged(event -> {
+            if (tabClientes.isSelected()) {
+                InicializarTablaClientes();
+                cargarEstadisticasClientes();
+            }
+        });
+    }
+    private void cargarEstadisticasVehiculos() {
+        tblVehiculos.setItems(FXCollections.observableArrayList(
+                alquilerDao.obtenerEstadisticasVehiculos()
+        ));
+    }
+    private void cargarEstadisticasClientes() {
+        tblClientes.setItems(FXCollections.observableArrayList(
+                alquilerDao.obtenerEstadisticasClientes()
+        ));
+    }
+    private void InicializarTablaClientes() {
+        colCliente.setCellValueFactory(new PropertyValueFactory<>("nombreCompleto"));
+        colUsuario.setCellValueFactory(new PropertyValueFactory<>("nombreUsuario"));
+        colRentas.setCellValueFactory(new PropertyValueFactory<>("cantidadRentas"));
+        colImporte.setCellValueFactory(new PropertyValueFactory<>("importeTotal"));
+    }
+    private void InicializarTablaVehiculos() {
+
+        colVehi.setCellValueFactory(new PropertyValueFactory<>("nombreVehiculo"));
+        colPlaca.setCellValueFactory(new PropertyValueFactory<>("placa"));
+        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
+        colCanRen.setCellValueFactory(new PropertyValueFactory<>("cantidadRentas"));
+        colGanancias.setCellValueFactory(new PropertyValueFactory<>("ganancias"));
+    }
     // ================================
     //      TABLA historial
     // ================================
@@ -73,7 +120,6 @@ public class PanelEmpleadoController {
         colDiasTotalesHistorial.setCellValueFactory(new PropertyValueFactory<>("diasTotales"));
         colPrecioHistorial.setCellValueFactory(new PropertyValueFactory<>("montoPagado"));
         colEstadoHistorial.setCellValueFactory(new PropertyValueFactory<>("estado"));
-
         BotonVerDetalles();
         BotonBorrar();
     }
@@ -267,8 +313,11 @@ public class PanelEmpleadoController {
 
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/com/example/proyecto_final_prograiii/login-view.fxml"));
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/login.css").toExternalForm());
             Stage stage = new Stage();
-            stage.setScene(new Scene(root));
+            stage.setTitle("INICIO DE SESION");
+            stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
