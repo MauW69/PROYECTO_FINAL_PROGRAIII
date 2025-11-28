@@ -1,49 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.image.Image?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.shape.Rectangle?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController"
-            prefHeight="400.0" prefWidth="600.0"
-            styleClass="vehicle-card">
+<AnchorPane prefHeight="318.0" prefWidth="468.0" styleClass="vehicle-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController">
 
     <children>
-        <ImageView fitHeight="370.0" fitWidth="369.0" layoutX="272.0" layoutY="-6.0"
-                   opacity="0.09" pickOnBounds="true" preserveRatio="true">
-            <image><Image url="@images/b17bb0b8-72e9-40be-bfe6-f7a1246b26f9.jpg"/></image>
-        </ImageView>
 
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#388cda"
-                   height="370.0" layoutX="-1.0" layoutY="-6.0"
-                   strokeType="INSIDE" strokeWidth="0.0" width="273.0"/>
+        <!-- CONTENEDOR PRINCIPAL -->
+        <HBox prefHeight="320.0" prefWidth="468">
 
-        <Label fx:id="lblDetalle" layoutX="6.0" layoutY="9.0" prefHeight="27.0" prefWidth="260.0"
-               text="Detalle del Vehículo" styleClass="vehicle-title"/>
+            <!-- PANEL IZQUIERDO (AZUL) -->
+            <AnchorPane prefHeight="400.0" prefWidth="220" style="-fx-background-color: #388CDA;">
 
-        <Button fx:id="btnCerrar" layoutX="553.0" layoutY="10.0" onAction="#cerrar" text="Cerrar"
-                styleClass="btn-primary" />
+                <children>
 
-        <!-- Wrapper para imagen (importante para que se vean bordes/sombra) -->
-        <StackPane layoutX="20.0" layoutY="52.0" prefWidth="231.0" prefHeight="160.0" styleClass="img-car">
-            <children>
-                <ImageView fx:id="imgCarro" fitHeight="160.0" fitWidth="231.0" preserveRatio="true"/>
-            </children>
-        </StackPane>
+                    <Label fx:id="lblDetalle" layoutX="15" layoutY="15" styleClass="vehicle-title" text="Detalle del Vehículo" />
 
-        <!-- Labels info (puedes añadir styleClass si quieres más granularidad) -->
-        <Label fx:id="lblModelo" layoutX="280.0" layoutY="60.0" text="Modelo: " styleClass="vehicle-subtitle"/>
-        <Label fx:id="lblPlaca" layoutX="280.0" layoutY="97.0" text="Placa: " styleClass="vehicle-subtitle"/>
-        <Label fx:id="lblTipo" layoutX="455.0" layoutY="60.0" text="Tipo: " styleClass="vehicle-subtitle"/>
-        <Label fx:id="lblAnio" layoutX="455.0" layoutY="97.0" text="Año: " styleClass="vehicle-subtitle"/>
-        <Label fx:id="lblColor" layoutX="280.0" layoutY="132.0" text="Color: " styleClass="vehicle-subtitle"/>
-        <Label fx:id="lblKm" layoutX="455.0" layoutY="132.0" text="Kilometraje: " styleClass="vehicle-subtitle"/>
-        <Label fx:id="lblEstado" layoutX="280.0" layoutY="172.0" text="Estado: " styleClass="vehicle-subtitle"/>
-        <Label fx:id="lblFechaCreacion" layoutX="455.0" layoutY="172.0" text="Fecha de creación:" styleClass="vehicle-subtitle"/>
+                    <ImageView fx:id="imgCarro" fitHeight="160" fitWidth="190" layoutX="15" layoutY="60" preserveRatio="true" />
+                </children>
+
+            </AnchorPane>
+
+            <!-- PANEL DERECHO (INFO) -->
+            <AnchorPane prefHeight="400" prefWidth="248">
+
+                <children>
+
+                    <Button fx:id="btnCerrar" layoutX="165" layoutY="10" onAction="#cerrar" styleClass="btn-primary" text="Cerrar" />
+
+                    <Label fx:id="lblModelo" layoutX="15" layoutY="60" />
+
+                    <Label fx:id="lblPlaca" layoutX="15" layoutY="90" />
+
+                    <Label fx:id="lblColor" layoutX="15" layoutY="120" />
+
+                    <Label fx:id="lblEstado" layoutX="15" layoutY="150" />
+
+                    <Label fx:id="lblTipo" layoutX="15" layoutY="180" />
+
+                    <Label fx:id="lblAnio" layoutX="15" layoutY="210" />
+
+                    <Label fx:id="lblKm" layoutX="15" layoutY="240" />
+
+                    <Label fx:id="lblFechaCreacion" layoutX="15" layoutY="270" />
+
+                </children>
+
+            </AnchorPane>
+
+        </HBox>
+
     </children>
+
 </AnchorPane>

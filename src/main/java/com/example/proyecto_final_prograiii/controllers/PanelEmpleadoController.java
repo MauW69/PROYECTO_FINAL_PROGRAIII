@@ -206,7 +206,7 @@ public class PanelEmpleadoController {
      */
     private void abrirDetalleVehiculo(int vehiculoId, int alquilerId) {
         try {
-            URL url = getClass().getResource("/com/example/proyecto_final_prograiii/vehiculoDetallesLectura-view.fxml");
+            URL url = getClass().getResource("/com/example/proyecto_final_prograiii/vehiculoDetallesLectura.fxml");
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             Scene scene = new Scene(root);
@@ -219,6 +219,7 @@ public class PanelEmpleadoController {
             scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/DetalleVehiculos.css").toExternalForm());
             Stage stage = new Stage();
             stage.setScene(scene);
+            stage.sizeToScene();
             stage.setTitle("Detalle del Vehículo");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(tblHistorial.getScene().getWindow());
