@@ -9,101 +9,66 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelClienteController">
+<AnchorPane prefHeight="600.0" prefWidth="900.0" styleClass="root-panel"
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.proyecto_final_prograiii.controllers.PanelClienteController">
 
     <children>
-      <TableView fx:id="tblAlquileres" layoutX="10.0" layoutY="52.0" prefHeight="526.0" prefWidth="881.0" visible="false">
-        <columns>
-          <TableColumn fx:id="colModelo" prefWidth="176.0" text="VEHICULO" />
-          <TableColumn fx:id="colPlaca" prefWidth="183.0" text="PLACA" />
-            <TableColumn fx:id="inicio" prefWidth="211.0" text="FECHA INICIO" />
-            <TableColumn fx:id="fin" prefWidth="212.0" text="FECHA FINAL" />
-            <TableColumn fx:id="total" prefWidth="98.0" text="TOTAL" />
-        </columns>
-      </TableView>
-      <Button fx:id="misAlquileres" layoutX="557.0" layoutY="12.0" mnemonicParsing="false" onAction="#mostrarMisAlquileres" prefHeight="25.0" prefWidth="160.0" text="MIS ALQUILERES" />
+        <!-- Tabla de alquileres (oculta al inicio) -->
+        <TableView fx:id="tblAlquileres" layoutX="10.0" layoutY="52.0" prefHeight="520.0" prefWidth="880.0"
+                   visible="false" styleClass="table-alquileres" AnchorPane.leftAnchor="10.0"
+                   AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="52.0" AnchorPane.bottomAnchor="10.0">
+            <columns>
+                <TableColumn fx:id="colModelo" prefWidth="200.0" text="VEHICULO" />
+                <TableColumn fx:id="colPlaca" prefWidth="160.0" text="PLACA" />
+                <TableColumn fx:id="inicio" prefWidth="180.0" text="FECHA INICIO" />
+                <TableColumn fx:id="fin" prefWidth="180.0" text="FECHA FINAL" />
+                <TableColumn fx:id="total" prefWidth="120.0" text="TOTAL" />
+                <TableColumn fx:id="colDetalle" prefWidth="90.0" text="DETALLES" />
+            </columns>
 
-        <!-- TITULO / BIENVENIDA -->
-        <Label fx:id="lblBienvenida" layoutX="20.0" layoutY="14.0" style="-fx-font-size:18.0px; -fx-font-weight:bold;" text="Bienvenido/a — Vehículos disponibles" />
+        </TableView>
 
-        <!-- BOTÓN CERRAR SESIÓN -->
-        <Button fx:id="btnCerrarSesion" layoutX="731.0" layoutY="11.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="28.0" prefWidth="160.0" text="Cerrar sesión" />
+        <!-- BARRA SUPERIOR -->
+        <HBox layoutX="0.0" layoutY="0.0" prefHeight="56.0" prefWidth="900.0" styleClass="top-bar"
+              alignment="CENTER_LEFT" spacing="12.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets left="20.0" right="20.0" />
+            </padding>
+
+            <Label fx:id="lblBienvenida" styleClass="titulo-bienvenida" text="Bienvenido/a — Vehículos disponibles" HBox.hgrow="ALWAYS" />
+
+            <Button fx:id="btnVolver" mnemonicParsing="false" onAction="#volver" styleClass="btn-secondary" text="Volver" visible="false" managed="false" />
+
+            <Button fx:id="misAlquileres" mnemonicParsing="false" onAction="#mostrarMisAlquileres" styleClass="btn-primary" text="MIS ALQUILERES" />
+
+            <Button fx:id="btnCerrarSesion" mnemonicParsing="false" onAction="#cerrarSesion" styleClass="btn-logout" text="Cerrar sesión" />
+        </HBox>
 
         <!-- SCROLLER GENERAL -->
-        <ScrollPane fx:id="scroll" layoutX="10.0" layoutY="51.2" prefHeight="539.0" prefWidth="890.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="51.0">
+        <ScrollPane fx:id="scroll" layoutX="10.0" layoutY="60.0" prefHeight="530.0" prefWidth="880.0"
+                    styleClass="scroll-vehiculos" fitToWidth="true"
+                    AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="60.0">
 
             <content>
+                <!-- CONTENEDOR GRID 4x4 (FlowPane para que las cards fluyan y hagan wrap) -->
+                <FlowPane fx:id="cardsContainer"
+                          styleClass="cards-wrapper"
+                          hgap="24.0" vgap="24.0"
+                          prefWrapLength="880.0"
+                          alignment="TOP_CENTER">
+                    <padding>
+                        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+                    </padding>
 
-                <!-- CONTENEDOR DE LAS 5 CARDS -->
-                <HBox fx:id="cardsContainer" spacing="20.0" style="-fx-padding:20.0;">
-
-                    <!-- CARD 1 -->
-                    <VBox fx:id="card1" prefWidth="240.0" spacing="10.0" style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
-
-                        <!-- ESPACIO PARA IMAGEN -->
-                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
-
-                        <Label fx:id="lblCarro1Title" style="-fx-font-weight:bold; -fx-font-size:15.0px;" text="Modelo — Placa" />
-
-                        <Label fx:id="lblCarro1Info" style="-fx-font-size:12.0px;" text="Información" wrapText="true" />
-
-                    </VBox>
-
-
-                    <!-- CARD 2 -->
-                    <VBox fx:id="card2" prefWidth="240.0" spacing="10.0" style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
-
-                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
-
-                        <Label fx:id="lblCarro2Title" style="-fx-font-weight:bold; -fx-font-size:15.0px;" text="Modelo — Placa" />
-
-                        <Label fx:id="lblCarro2Info" style="-fx-font-size:12.0px;" text="Información" wrapText="true" />
-
-                    </VBox>
-
-
-                    <!-- CARD 3 -->
-                    <VBox fx:id="card3" prefWidth="240.0" spacing="10.0" style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
-
-                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
-
-                        <Label fx:id="lblCarro3Title" style="-fx-font-weight:bold; -fx-font-size:15.0px;" text="Modelo — Placa" />
-
-                        <Label fx:id="lblCarro3Info" style="-fx-font-size:12.0px;" text="Información" wrapText="true" />
-
-                    </VBox>
-
-
-                    <!-- CARD 4 -->
-                    <VBox fx:id="card4" prefWidth="240.0" spacing="10.0" style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
-
-                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
-
-                        <Label fx:id="lblCarro4Title" style="-fx-font-weight:bold; -fx-font-size:15.0px;" text="Modelo — Placa" />
-
-                        <Label fx:id="lblCarro4Info" style="-fx-font-size:12.0px;" text="Información" wrapText="true" />
-
-                    </VBox>
-
-
-                    <!-- CARD 5 -->
-                    <VBox fx:id="card5" prefWidth="240.0" spacing="10.0" style="-fx-background-color:#ffffff; -fx-border-color:#e6e6e6; -fx-border-radius:10.0; -fx-background-radius:10.0; -fx-padding:12.0;">
-
-                        <Region prefHeight="120.0" style="-fx-background-color:#f4f4f4; -fx-border-radius:8.0; -fx-background-radius:8.0;" />
-
-                        <Label fx:id="lblCarro5Title" style="-fx-font-weight:bold; -fx-font-size:15.0px;" text="Modelo — Placa" />
-
-                        <Label fx:id="lblCarro5Info" style="-fx-font-size:12.0px;" text="Información" wrapText="true" />
-
-                    </VBox>
-
-
-                </HBox>
+                    <!-- Las tarjetas las inserta dinámicamente el controlador -->
+                </FlowPane>
             </content>
 
         </ScrollPane>
-      <Button fx:id="btnVolver" layoutX="404.0" layoutY="12.0" mnemonicParsing="false" onAction="#volver" prefHeight="25.0" prefWidth="103.0" text="Volver" visible="false" />
     </children>
 
 </AnchorPane>

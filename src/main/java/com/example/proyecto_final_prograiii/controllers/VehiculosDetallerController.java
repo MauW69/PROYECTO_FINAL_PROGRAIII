@@ -13,9 +13,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Region;
 import javafx.util.Callback;
+import javafx.scene.layout.Region;
 
 import java.io.File;
 import java.net.URL;
@@ -38,9 +37,8 @@ public class VehiculosDetallerController {
     @FXML private Label lblEstado;
     @FXML private Label lblFechaCreacion;
 
-    //nuevo metodo de pago
-    @FXML
-    private ComboBox<String> cmbMetodoPagoCliente;
+    // nuevo método de pago
+    @FXML private ComboBox<String> cmbMetodoPagoCliente;
 
     @FXML private ImageView imgCarro;
     @FXML private Button btnCerrar;
@@ -54,8 +52,10 @@ public class VehiculosDetallerController {
     private int vehiculoId = 0;
     private int alquilerId;
 
+    // --- nuevo flag: modo solo lectura forzado (cuando abre PanelCliente para ver historial) ---
+    private boolean modoSoloLecturaCliente = false;
+
     // ------------------ Helpers UI ------------------
-    //cambios en el ajuste de de interfaz(para dejarlo mas limpio)
     private void ocultar(Node n) {
         if (n != null) {
             n.setVisible(false);
@@ -70,11 +70,41 @@ public class VehiculosDetallerController {
         }
     }
 
+    /**
+     * Setter público para forzar el modo "solo lectura cliente".
+     * Cuando se llama con true, la vista se ajusta para no permitir editar fechas ni pago.
+     */
+    public void setModoSoloLecturaCliente(boolean modo) {
+        this.modoSoloLecturaCliente = modo;
+        // si ya estamos inicializados, aplicar inmediatamente
+        ajustarInterfazPorRol();
+    }
+
+    /**
+     * Ajusta la interfaz según rol y también respeta el flag de modoSoloLecturaCliente.
+     */
     private void ajustarInterfazPorRol() {
+
+        // Si forzaron modo solo-lectura desde PanelCliente -> ocultamos controles editables
+        if (modoSoloLecturaCliente) {
+            ocultar(btnAlquilar);
+            ocultar(btnConfirmarRenta);
+            ocultar(cmbMetodoPagoCliente);
+
+            if (fechaInicio != null) {
+                fechaInicio.setDisable(true);
+                ocultar(fechaInicio);
+            }
+            if (fechaFin != null) {
+                fechaFin.setDisable(true);
+                ocultar(fechaFin);
+            }
+            return;
+        }
 
         Usuario usuario = Sesion.getUsuarioActual();
 
-        //si no hay usuario
+        // si no hay usuario
         if (usuario == null) {
             ocultar(btnAlquilar);
             ocultar(btnConfirmarRenta);
@@ -86,8 +116,8 @@ public class VehiculosDetallerController {
 
         switch (rol) {
 
-            case 3://cliente
-                //Cliente: solo reservar y metodo de pago visibles
+            case 3:// cliente
+                // Cliente: solo reservar y metodo de pago visibles
                 ocultar(btnConfirmarRenta);
                 mostrar(cmbMetodoPagoCliente);
 
@@ -95,8 +125,8 @@ public class VehiculosDetallerController {
                 if (fechaFin != null) fechaFin.setDisable(false);
                 break;
 
-            case 2: //empleado
-                //empleado: no muestra boton reservar ni metodo de pago
+            case 2: // empleado
+                // empleado: no muestra boton reservar ni metodo de pago
                 ocultar(btnAlquilar);
                 ocultar(cmbMetodoPagoCliente);
 
@@ -105,7 +135,7 @@ public class VehiculosDetallerController {
                 break;
 
             default:
-                //Cualquier otro rol
+                // Cualquier otro rol
                 ocultar(btnAlquilar);
                 ocultar(btnConfirmarRenta);
                 ocultar(cmbMetodoPagoCliente);
@@ -115,17 +145,18 @@ public class VehiculosDetallerController {
         }
     }
 
-    //inicializador
+    // inicializador
     public void initialize(){
-
         if (cmbMetodoPagoCliente != null) {
+            cmbMetodoPagoCliente.getItems().clear();
             cmbMetodoPagoCliente.getItems().addAll("Efectivo", "Tarjeta");
         }
 
+        // aplicar la interfaz según rol / flag (si el flag fue seteado antes de initialize, lo respetará)
         ajustarInterfazPorRol();
     }
 
-    //metodo que marca los dias en los que los vehiculos estan rentados
+    // metodo que marca los dias en los que los vehiculos estan rentados
     private void marcarFechasOcupadas(DatePicker picker, List<LocalDate[]> rangos) {
         if (picker == null || rangos == null) return;
 
@@ -166,7 +197,10 @@ public class VehiculosDetallerController {
         picker.setDayCellFactory(factory);
     }
 
-
+    /**
+     * Carga vehículo y alquiler (si aplica), marca fechas ocupadas y ajusta UI.
+     * Este método es llamado desde otros controllers (PanelEmpleado/PanelCliente).
+     */
     public void cargarVehiculo(int vehiculoId, int alquilerId) {
         this.vehiculoId = vehiculoId;
         this.alquilerId = alquilerId;
@@ -186,46 +220,32 @@ public class VehiculosDetallerController {
         AlquilerDAO aDao = new AlquilerDAO();
         Alquiler alquiler = null;
 
-        // ================================
-        // 1 SI VIENE ALQUILER DESDE HISTORIAL
-        // ================================
+        // 1) si viene alquiler desde historial
         if (alquilerId > 0) {
             alquiler = aDao.obtenerAlquilerPorId(alquilerId);
         }
 
-        // ================================
-        // 2 SI NO VIENE ALQUILER → BUSCAR ALQUILER ACTIVO
-        // ================================
+        // 2) si no viene alquiler -> buscar alquiler activo
         if (alquiler == null) {
             alquiler = aDao.obtenerAlquilerActivoPorVehiculo(vehiculoId);
         }
 
-        // ================================
-        // 3 Mostrar fecha inicio/fin en los DatePicker
-        // ================================
+        // 3) mostrar fecha inicio/fin en los DatePicker
         if (alquiler != null) {
-            System.out.println("→ Fecha que llega desde BD = " + alquiler.getFechaFin());
-
             if (fechaInicio != null) fechaInicio.setValue(alquiler.getFechaInicio());
             if (fechaFin != null && alquiler.getFechaFin() != null)
                 fechaFin.setValue(alquiler.getFechaFin());
         }
 
-        // ================================
-        // 4 Marcar dias ocupados en rojo
-        // ================================
+        // 4) marcar dias ocupados en rojo
         List<LocalDate[]> rangosOcupados = aDao.obtenerRangosOcupados(vehiculoId);
 
         if (fechaInicio != null) marcarFechasOcupadas(fechaInicio, rangosOcupados);
         if (fechaFin != null)    marcarFechasOcupadas(fechaFin, rangosOcupados);
 
-        // ================================
-        // 5 Controlar botón ALQUILAR según estado del vehículo
-        // ================================
+        // 5) controlar botón ALQUILAR según estado
         aplicarPoliticaAlquilerPorEstado();
     }
-
-
 
     private void llenarDatosEnVista() {
         lblModelo.setText("Modelo: " + safe(vehiculo.getModelo(), "N/A"));
@@ -287,51 +307,30 @@ public class VehiculosDetallerController {
         st.close();
     }
 
-    // Helper: comprueba si la tabla tiene la columna dada (case-insensitive)
-    private boolean hasColumn(Connection cn, String tableName, String columnName) throws SQLException {
-        DatabaseMetaData meta = cn.getMetaData();
-        try (ResultSet rs = meta.getColumns(null, null, tableName, columnName)) {
-            if (rs.next()) return true;
-        }
-        try (ResultSet rs2 = meta.getColumns(null, null, tableName, columnName.toLowerCase())) {
-            return rs2.next();
-        }
-    }
-
     // ------------------ NUEVAS REGLAS DE NEGOCIO ------------------
 
-    /**
-     * Determina si un vehículo con el estado dado puede alquilarse.
-     */
     private boolean esAlquilablePorEstado(String estado) {
         if (estado == null) return false;
         String s = estado.trim().toLowerCase();
-        // estados que NO permiten alquiler
         switch (s) {
             case "fuera de servicio":
             case "mantenimiento":
             case "no disponible":
             case "no_disponible":
             case "unavailable":
-            case "alquilado": // si quieres que cuando ya esté alquilado no se pueda reservar
+            case "alquilado":
                 return false;
             default:
-                return true; // p. ej. "disponible"
+                return true;
         }
     }
 
-    /**
-     * Aplica la política en la UI: habilitar/inhabilitar/ocultar botón de Alquilar
-     * y mostrar tooltip explicativo si corresponde.
-     */
     private void aplicarPoliticaAlquilerPorEstado() {
         if (btnAlquilar == null) return;
 
         String estadoVeh = vehiculo != null ? vehiculo.getEstado() : null;
         boolean alquilable = esAlquilablePorEstado(estadoVeh);
 
-        // Si el rol no es cliente, ajustarInterfazPorRol ya ocultó el botón; respetamos eso.
-        // Solo actuamos si el botón está visible/managed.
         if (!btnAlquilar.isVisible() || !btnAlquilar.isManaged()) return;
 
         btnAlquilar.setDisable(!alquilable);
@@ -339,16 +338,14 @@ public class VehiculosDetallerController {
         if (!alquilable) {
             Tooltip t = new Tooltip("Este vehículo no está disponible para alquiler por su estado: " + (estadoVeh == null ? "N/A" : estadoVeh));
             Tooltip.install(btnAlquilar, t);
-            // estilo visual de deshabilitado (opcional)
             btnAlquilar.setStyle("-fx-opacity: 0.6; -fx-cursor: default;");
         } else {
-            // limpiar tooltip y estilo
             Tooltip.uninstall(btnAlquilar, null);
             btnAlquilar.setStyle(null);
         }
     }
 
-    //metodo que registra el alquiler y el pago por parte de los clientes
+    // metodo que registra el alquiler y el pago por parte de los clientes
     @FXML
     public void Alquilar(ActionEvent event) {
         try {
@@ -358,7 +355,6 @@ public class VehiculosDetallerController {
                 return;
             }
 
-            // SEGURIDAD: comprobar estado actual antes de proceder
             if (!esAlquilablePorEstado(vehiculo.getEstado())) {
                 alerta("No disponible", "Este vehículo no está disponible para alquiler. Estado: " + vehiculo.getEstado(), Alert.AlertType.WARNING);
                 return;
@@ -389,10 +385,9 @@ public class VehiculosDetallerController {
                 return;
             }
 
-            // Validacion de traslape
             AlquilerDAO alquilerDAO = new AlquilerDAO();
 
-            // Por seguridad: comprobar también el estado actual en BD antes de insertar
+            // comprobar estado actual en BD antes de insertar
             try (Connection cn = ConexionDB.getConnection();
                  PreparedStatement psCheck = cn.prepareStatement("SELECT estado FROM vehiculos WHERE id = ?")) {
                 psCheck.setInt(1, vehiculo.getId());
@@ -410,7 +405,6 @@ public class VehiculosDetallerController {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                // no cortamos aquí necesariamente; pero por seguridad podrías abortar.
             }
 
             boolean hayTraslape = alquilerDAO.existeTraslape(vehiculo.getId(), inicio, fin);
@@ -422,7 +416,6 @@ public class VehiculosDetallerController {
             BigDecimal precioPorDia = vehiculo.getPrecioPorDia() != null ? vehiculo.getPrecioPorDia() : BigDecimal.ZERO;
             BigDecimal costoTotal = precioPorDia.multiply(BigDecimal.valueOf(dias));
 
-            // Construir objetos
             Alquiler alquiler = new Alquiler();
             alquiler.setVehiculoId(vehiculo.getId());
             alquiler.setClienteId(cliente.getId());
@@ -430,16 +423,14 @@ public class VehiculosDetallerController {
             alquiler.setFechaFin(fin);
             alquiler.setPrecioDiario(precioPorDia);
             alquiler.setCostoTotal(costoTotal);
-            alquiler.setEstado("ALQUILADO"); // directo
+            alquiler.setEstado("ALQUILADO");
             alquiler.setNotas("Pago: " + metodoPago);
 
             Pago pago = new Pago();
-            // pago.setId(...) // no hace falta
-            pago.setAlquilerId(0); // se reemplaza por el DAO al insertar
+            pago.setAlquilerId(0);
             pago.setMonto(costoTotal);
             pago.setMetodo(metodoPago);
 
-            // Confirmación al cliente (opcional)
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle("Confirmar alquiler");
             confirm.setHeaderText("Confirma tu alquiler");
@@ -453,18 +444,15 @@ public class VehiculosDetallerController {
                 return;
             }
 
-            // Llamada transaccional: inserta alquiler, inserta pago y marca vehículo ALQUILADO
             int nuevoAlquilerId = alquilerDAO.crearAlquilerConPago(alquiler, pago);
             if (nuevoAlquilerId <= 0) {
                 alerta("Error", "No se pudo crear el alquiler. Intenta nuevamente.", Alert.AlertType.ERROR);
                 return;
             }
 
-            // Actualizar UI local
             vehiculo.setEstado("ALQUILADO");
             lblEstado.setText("Estado: ALQUILADO");
 
-            // aplicar política para deshabilitar el botón ahora que está alquilado
             aplicarPoliticaAlquilerPorEstado();
 
             alerta("Alquiler completado", "El alquiler y pago han sido registrados correctamente.", Alert.AlertType.INFORMATION);

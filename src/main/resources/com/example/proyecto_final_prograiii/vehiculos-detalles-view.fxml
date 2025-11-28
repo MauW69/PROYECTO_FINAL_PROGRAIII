@@ -1,50 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
+<?import java.lang.String?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.ComboBox?>
 
-<AnchorPane prefHeight="355.0" prefWidth="641.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController">
+<AnchorPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController"
+            prefHeight="400.0" prefWidth="640.0"
+            styleClass="vehicle-card">
+
+    <!-- Referencia a la hoja CSS como lista -->
+    <stylesheets>
+        <String fx:value="@/com/example/proyecto_final_prograiii/css/DetalleVehiculos.css"/>
+    </stylesheets>
 
     <children>
-      <ImageView fitHeight="370.0" fitWidth="369.0" layoutX="272.0" layoutY="-6.0" opacity="0.09" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@images/b17bb0b8-72e9-40be-bfe6-f7a1246b26f9.jpg" />
-         </image>
-      </ImageView>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#388cda" height="370.0" layoutX="-1.0" layoutY="-6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="273.0" />
+        <ImageView fitHeight="370.0" fitWidth="369.0" layoutX="272.0" layoutY="-6.0"
+                   opacity="0.09" pickOnBounds="true" preserveRatio="true">
+            <image><Image url="@images/b17bb0b8-72e9-40be-bfe6-f7a1246b26f9.jpg"/></image>
+        </ImageView>
 
-        <!-- Título -->
-        <Label fx:id="lblDetalle" layoutX="6.0" layoutY="9.0" prefHeight="27.0" prefWidth="260.0" style="-fx-font-size:18px; -fx-font-weight:bold;" text="Detalle del Vehículo" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#388cda"
+                   height="370.0" layoutX="-1.0" layoutY="-6.0"
+                   strokeType="INSIDE" strokeWidth="0.0" width="273.0"/>
 
-        <!-- Botón cerrar -->
-        <Button fx:id="btnCerrar" layoutX="553.0" layoutY="10.0" onAction="#cerrar" text="Cerrar" />
+        <Label fx:id="lblDetalle" layoutX="6.0" layoutY="9.0" prefHeight="27.0" prefWidth="260.0"
+               text="Detalle del Vehículo" styleClass="vehicle-title"/>
 
-        <!-- Imagen -->
-        <ImageView fx:id="imgCarro" fitHeight="160" fitWidth="231.0" layoutX="20.0" layoutY="52.0" preserveRatio="true" />
+        <Button fx:id="btnCerrar" layoutX="553.0" layoutY="10.0" onAction="#cerrar" text="Cerrar"
+                styleClass="btn-primary" />
 
-        <!-- Labels de información -->
-        <Label fx:id="lblModelo" layoutX="280.0" layoutY="60.0" text="Modelo: " />
-        <Label fx:id="lblPlaca" layoutX="280.0" layoutY="97.0" text="Placa: " />
-        <Label fx:id="lblTipo" layoutX="455.0" layoutY="60.0" text="Tipo: " />
-        <Label fx:id="lblAnio" layoutX="455.0" layoutY="97.0" text="Año: " />
-        <Label fx:id="lblColor" layoutX="280.0" layoutY="132.0" text="Color: " />
-        <Label fx:id="lblKm" layoutX="455.0" layoutY="132.0" text="Kilometraje: " />
-        <Label fx:id="lblEstado" layoutX="280.0" layoutY="172.0" text="Estado: " />
-        <Label fx:id="lblFechaCreacion" layoutX="455.0" layoutY="172.0" text="Fecha de creación:" />
+        <!-- Wrapper para imagen (importante para que se vean bordes/sombra) -->
+        <StackPane layoutX="20.0" layoutY="52.0" prefWidth="231.0" prefHeight="160.0" styleClass="img-car">
+            <children>
+                <ImageView fx:id="imgCarro" fitHeight="160.0" fitWidth="231.0" preserveRatio="true"/>
+            </children>
+        </StackPane>
 
-        <!-- Botón Alquilar -->
-        <Button fx:id="btnAlquilar" layoutX="283.0" layoutY="268.0" onAction="#Alquilar" text="Alquilar" />
-      <DatePicker fx:id="fechaInicio" layoutX="20.0" layoutY="268.0" prefHeight="25.0" prefWidth="231.0" />
-      <DatePicker fx:id="fechaFin" layoutX="20.0" layoutY="325.0" prefHeight="25.0" prefWidth="231.0" />
-      <Label fx:id="inicio" layoutX="20.0" layoutY="240.0" text="INICIO RENTA" />
-      <Label fx:id="ender" layoutX="20.0" layoutY="300.0" text="FINAL RENTA" />
-      <ComboBox fx:id="cmbMetodoPagoCliente" layoutX="283.0" layoutY="228.0" prefWidth="150.0" />
-
+        <!-- Labels info (puedes añadir styleClass si quieres más granularidad) -->
+        <Label fx:id="lblModelo" layoutX="280.0" layoutY="60.0" text="Modelo: " styleClass="vehicle-subtitle"/>
+        <Label fx:id="lblPlaca" layoutX="280.0" layoutY="97.0" text="Placa: " styleClass="vehicle-subtitle"/>
+        <Label fx:id="lblTipo" layoutX="455.0" layoutY="60.0" text="Tipo: " styleClass="vehicle-subtitle"/>
+        <Label fx:id="lblAnio" layoutX="455.0" layoutY="97.0" text="Año: " styleClass="vehicle-subtitle"/>
+        <Label fx:id="lblColor" layoutX="280.0" layoutY="132.0" text="Color: " styleClass="vehicle-subtitle"/>
+        <Label fx:id="lblKm" layoutX="455.0" layoutY="132.0" text="Kilometraje: " styleClass="vehicle-subtitle"/>
+        <Label fx:id="lblEstado" layoutX="280.0" layoutY="172.0" text="Estado: " styleClass="vehicle-subtitle"/>
+        <Label fx:id="lblFechaCreacion" layoutX="455.0" layoutY="172.0" text="Fecha de creación:" styleClass="vehicle-subtitle"/>
     </children>
 </AnchorPane>

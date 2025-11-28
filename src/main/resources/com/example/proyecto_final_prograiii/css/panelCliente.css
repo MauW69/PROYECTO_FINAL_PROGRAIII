@@ -1,134 +1,292 @@
 /* ================================================================
-   CONTENEDOR DE TARJETAS
+   PANEL PRINCIPAL - FONDO ELEGANTE
    ================================================================ */
-#cardsContainer {
-    -fx-padding: 25px;
-    -fx-spacing: 28px;
+.root-panel {
+    -fx-background-color: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* ================================================================
+   BARRA SUPERIOR
+   ================================================================ */
+.top-bar {
+    -fx-background-color: linear-gradient(to right, #0f172a, #1e293b);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 8, 0.3, 0, 2);
+    -fx-padding: 10 16;
+}
+
+.titulo-bienvenida {
+    -fx-font-family: "Arial Black", "Arial", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* ================================================================
+   BOTONES SUPERIORES
+   ================================================================ */
+.btn-primary {
+    -fx-background-color: linear-gradient(to bottom, #3b82f6, #2563eb);
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-padding: 8 18;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.28), 6, 0.2, 0, 2);
+}
+
+.btn-primary:hover { -fx-background-color: linear-gradient(to bottom, #2563eb, #1d4ed8); }
+
+.btn-secondary {
+    -fx-background-color: linear-gradient(to bottom, #64748b, #475569);
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-padding: 8 18;
+    -fx-cursor: hand;
+}
+
+.btn-logout {
+    -fx-background-color: linear-gradient(to bottom, #dc2626, #b91c1c);
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-padding: 8 18;
+    -fx-cursor: hand;
+}
+
+/* ================================================================
+   SCROLLPANE
+   ================================================================ */
+.scroll-vehiculos {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 6;
+}
+
+.scroll-vehiculos > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Custom scroll bar thin + modern */
+.scroll-vehiculos .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10;
+}
+.scroll-vehiculos .thumb {
+    -fx-background-color: rgba(0,0,0,0.12);
+    -fx-background-radius: 10;
+    -fx-padding: 2;
+}
+.scroll-vehiculos .thumb:hover {
+    -fx-background-color: rgba(0,0,0,0.20);
+}
+
+/* ================================================================
+   CONTENEDOR DE CARDS (FlowPane - REJILLA)
+   ================================================================ */
+.cards-wrapper {
+    -fx-alignment: top_center;
+    -fx-hgap: 24;
+    -fx-vgap: 24;
+    -fx-padding: 20 20 30 20;
+    -fx-pref-width: 880;
+}
+
+/* ================================================================
+   TARJETAS DE VEHÍCULOS - DISEÑO ELEGANTE RENT-A-CAR
+   ================================================================ */
+.card-vehiculo {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e8eef4;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+    -fx-spacing: 8;
+    -fx-min-width: 200;
+    -fx-max-width: 210;
+    -fx-pref-width: 210;
+    -fx-min-height: 260;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0.12, 0, 6);
+    -fx-translate-z: 0;
+    -fx-alignment: top_center;
+}
+
+.card-vehiculo:hover {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.22), 30, 0.3, 0, 12);
+    -fx-translate-y: -6;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+/* IMAGEN */
+.card-image {
+    -fx-background-color: linear-gradient(135deg, #f6f9fb, #eef4f8);
+    -fx-background-radius: 10;
+    -fx-border-color: #d6e1ea;
+    -fx-border-width: 1;
+    -fx-padding: 6;
+    -fx-pref-width: 200;
+    -fx-pref-height: 120;
+    -fx-max-width: 200;
+    -fx-max-height: 120;
     -fx-alignment: center;
 }
 
-/* ================================================================
-   TARJETAS AZULES TIPO BOTÓN
-   ================================================================ */
-.card, #card1, #card2, #card3, #card4, #card5 {
-    -fx-background-color: linear-gradient(to bottom, #1d4ed8, #1e40af);
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-padding: 20;
-    -fx-spacing: 14;
-    -fx-min-width: 260;
-    -fx-max-width: 260;
-
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.30), 18, 0.25, 0, 5);
-    -fx-cursor: hand;
-    -fx-transition: 0.25s;
+/* Si tus cards contienen ImageView directamente */
+.card-vehiculo ImageView {
+    -fx-fit-width: 200;
+    -fx-fit-height: 120;
+    -fx-preserve-ratio: true;
+    -fx-smooth: true;
 }
 
-/* HOVER DE LAS CARDS */
-#card1:hover, #card2:hover, #card3:hover, #card4:hover, #card5:hover {
-    -fx-background-color: linear-gradient(to bottom, #2563eb, #1d4ed8);
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.40), 24, 0.30, 0, 7);
-    -fx-translate-y: -5;
-}
-
-/* ================================================================
-   IMAGEN DENTRO DE LA CARD
-   ================================================================ */
-.card-image,
-#card1 Region, #card2 Region, #card3 Region, #card4 Region, #card5 Region {
-    -fx-background-color: white;
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
-    -fx-padding: 5;
-
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 10, 0.18, 0, 3);
-}
-
-/* ================================================================
-   TIPOGRAFÍA (Arial Black)
-   ================================================================ */
-.card-title,
-#lblCarro1Title, #lblCarro2Title, #lblCarro3Title, #lblCarro4Title, #lblCarro5Title {
-    -fx-font-family: "Arial Black";
-    -fx-font-size: 17px;
-    -fx-text-fill: white;
-}
-
-.card-info,
-#lblCarro1Info, #lblCarro2Info, #lblCarro3Info, #lblCarro4Info, #lblCarro5Info {
-    -fx-font-family: "Arial Black";
-    -fx-font-size: 13px;
-    -fx-text-fill: #e3e8ff;
-}
-
-/* PRECIO EN DORADO */
-.precio {
-    -fx-font-family: "Arial Black";
+/* Tipografía */
+.card-title {
+    -fx-font-family: "Arial Black", "Arial", sans-serif;
     -fx-font-size: 14px;
-    -fx-text-fill: #FFD700;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+    -fx-padding: 6 0 2 0;
+    -fx-wrap-text: true;
+}
+
+.card-info {
+    -fx-font-family: "Arial", sans-serif;
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-padding: 0 0 8 0;
+}
+
+/* Precio */
+.precio {
+    -fx-font-family: "Arial Black", "Arial", sans-serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #b45309;
+}
+
+/* Botón ver */
+.btn-ver {
+    -fx-background-color: linear-gradient(to bottom, #3b82f6, #2563eb);
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.22), 6, 0.2, 0, 3);
 }
 
 /* ================================================================
-   BOTÓN VER (BLANCO CON TEXTO AZUL)
+   PLACEHOLDERS Y IDs
    ================================================================ */
-.btn-ver {
+.card-placeholder { -fx-background-color: transparent; -fx-min-width: 200; -fx-max-width: 200; }
+
+#card1, #card2, #card3, #card4, #card5 {
+    -fx-background-radius: 12;
+    -fx-border-color: #e8eef4;
+}
+
+/* ================================================================
+   TABLA DE ALQUILERES - ESTILO MODERNO
+   ================================================================ */
+.table-alquileres {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+    -fx-border-color: transparent;
+    -fx-padding: 8;
+}
+
+/* Card wrapper around table to give rounded container */
+.table-alquileres .table-view {
     -fx-background-color: white;
     -fx-background-radius: 12;
-    -fx-text-fill: #1d4ed8;
-    -fx-font-family: "Arial Black";
-    -fx-font-size: 14px;
-    -fx-padding: 7 18;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0.12, 0, 6);
+}
+
+/* Header background */
+.table-alquileres .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #f1f5f9, #eef2f7);
+    -fx-background-radius: 12 12 0 0;
+}
+
+/* Header labels */
+.table-alquileres .table-column .column-header,
+.table-alquileres .table-column .label {
+    -fx-font-family: "Arial Black", "Arial", sans-serif;
+    -fx-font-size: 12px;
+    -fx-text-fill: #0f172a;
+    -fx-padding: 8 12 8 12;
+}
+
+/* Header separators subtle */
+.table-alquileres .column-header-background .column-header .label {
+    -fx-text-alignment: CENTER_LEFT;
+}
+
+/* Rows */
+.table-alquileres .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 6 10;
+}
+
+/* Alternate row coloring */
+.table-alquileres .table-row-cell:odd {
+    -fx-background-color: rgba(240,246,252,0.6);
+}
+.table-alquileres .table-row-cell:even {
+    -fx-background-color: transparent;
+}
+
+/* Hover and selection */
+.table-alquileres .table-row-cell:hover {
+    -fx-background-color: rgba(59,130,246,0.06);
+}
+.table-alquileres .table-row-cell:selected {
+    -fx-background-color: linear-gradient(to bottom, rgba(59,130,246,0.18), rgba(59,130,246,0.12));
+}
+
+/* Cells */
+.table-alquileres .table-cell {
+    -fx-padding: 8 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #111827;
+}
+
+/* Right align "TOTAL" column if you give it an id later */
+.table-alquileres .table-cell:filled {
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Small subtle grid lines */
+.table-alquileres .table-row-cell {
     -fx-border-color: transparent;
-
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 8, 0.25, 0, 2);
 }
 
-.btn-ver:hover {
-    -fx-background-color: #f2f5ff;
-}
-
-.btn-ver:pressed {
-    -fx-background-color: #e0e7ff;
-}
+/* Table scrollbar styling */
+.table-alquileres .scroll-bar:vertical { -fx-pref-width: 10; }
+.table-alquileres .thumb { -fx-background-color: rgba(0,0,0,0.12); -fx-background-radius: 6; }
 
 /* ================================================================
-   BOTONES SUPERIORES (MIS ALQUILERES, CERRAR SESIÓN, VOLVER)
+   OTROS IDs (botones y labels específicos)
    ================================================================ */
-#btnCerrarSesion, #misAlquileres, #btnVolver {
-    -fx-background-color: linear-gradient(to bottom, #1d4ed8, #1e40af);
-    -fx-background-radius: 14;
-    -fx-text-fill: white;
-    -fx-padding: 8 20;
-    -fx-font-family: "Arial Black";
-    -fx-font-size: 12px;
+#btnCerrarSesion { -fx-background-radius: 8; }
+#misAlquileres { -fx-background-radius: 8; }
+#btnVolver { -fx-background-radius: 8; }
 
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 12, 0.30, 0, 3);
-}
-
-#btnCerrarSesion:hover, #misAlquileres:hover, #btnVolver:hover {
-    -fx-background-color: linear-gradient(to bottom, #2563eb, #1d4ed8);
-}
-
-#btnCerrarSesion:pressed, #misAlquileres:pressed, #btnVolver:pressed {
-    -fx-background-color: #1e3a8a;
-}
-
-/* ================================================================
-   TÍTULO PRINCIPAL
-   ================================================================ */
 #lblBienvenida {
-    -fx-font-family: "Arial Black";
-    -fx-font-size: 12px;
-    -fx-text-fill: #1d3d8f;
+    -fx-font-family: "Arial Black", "Arial", sans-serif;
+    -fx-font-size: 16px;
+    -fx-text-fill: white;
 }
 
-/* ================================================================
-   SCROLLPANE TRANSPARENTE
-   ================================================================ */
-.scroll-pane {
-    -fx-background-color: transparent;
-}
-
-.scroll-pane > .viewport {
-    -fx-background-color: transparent;
-}
+/* Alineación final del contenedor */
+#cardsContainer, .cards-wrapper { -fx-alignment: top_center; }
