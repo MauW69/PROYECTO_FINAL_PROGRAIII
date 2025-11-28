@@ -56,6 +56,9 @@ public class LoginController {
 
     //inicializador
     public void initialize(){
+        //oculto el boton de probar conexion
+        btnProbarConexion.setVisible(false);
+
         //clave para prueba despues de borra
         String contraPrueba = "12345";
         String clave = ClaveUtil.hashClave(contraPrueba);
@@ -120,7 +123,7 @@ public class LoginController {
         // =====================
         //se guarda la sesion
         Sesion.iniciarSesion(usuario);
-        //Si es cliente, cargar información adicional
+        //Si es cliente, cargar informacion adicional
         if (usuario.getRolId() == 3) { // Rol cliente
             ClienteDAO clienteDAO = new ClienteDAO();
             Cliente cliente = clienteDAO.obtenerPorUsuarioId(usuario.getId());
@@ -134,7 +137,7 @@ public class LoginController {
         }
         switch (usuario.getRolId()) {
             case 1:
-                abrirVista("paneladmin-view.fxml", "Panel Administrador","login.css");
+                abrirVista("paneladmin-view.fxml", "Panel Administrador","paneladmin.css");
                 break;
 
             case 2:

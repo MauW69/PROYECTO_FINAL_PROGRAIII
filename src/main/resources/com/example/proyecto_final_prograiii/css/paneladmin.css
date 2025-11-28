@@ -1,0 +1,172 @@
+/* ===============================
+   FUENTE GENERAL Y ROOT
+   =============================== */
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-background-color: #31487A; /* fondo oscuro */
+}
+
+/* ===============================
+   LABELS
+   =============================== */
+Label {
+    -fx-text-fill: white;        /* texto blanco para contraste */
+    -fx-font-size: 13px;
+}
+
+Label:hover {
+    -fx-text-fill: #dbeafe;      /* azul muy claro */
+}
+
+#lblBienvenida {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+Button {
+    -fx-background-color: linear-gradient(to bottom, #3b82f6, #2563eb);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;     /* bordes más suaves */
+    -fx-padding: 8 18;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 4, 0.2, 0, 2);
+}
+
+/* Hover general */
+Button:hover {
+    -fx-opacity: 0.90;
+    -fx-translate-y: -1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 8, 0.2, 0, 3);
+}
+
+/* Click */
+Button:pressed {
+    -fx-opacity: 0.75;
+    -fx-translate-y: 1;
+}
+
+/* Botón cerrar sesión */
+#btnCerrarSesion {
+    -fx-background-color: linear-gradient(to bottom, #ef4444, #b91c1c);
+}
+
+#btnCerrarSesion:hover {
+    -fx-background-color: linear-gradient(to bottom, #dc2626, #991b1b);
+}
+
+/* ===============================
+   TEXTFIELD & PASSWORDFIELD
+   =============================== */
+TextField, PasswordField {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: #d1d5db;
+    -fx-padding: 8 10;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+/* Hover */
+TextField:hover, PasswordField:hover {
+    -fx-border-color: #9ca3af;
+}
+
+/* Focused */
+TextField:focused, PasswordField:focused {
+    -fx-border-color: #60A5FA;
+    -fx-effect: dropshadow(gaussian, rgba(96,165,250,0.45), 8, 0.25, 0, 3);
+}
+
+/* ===============================
+   TABPANE
+   ==========================
+  */
+TabPane {
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+}
+
+.tab-header-area {
+    -fx-background-color: transparent;
+}
+
+.tab {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-background-radius: 10 10 0 0;
+    -fx-text-fill: #1f2937; /* OSCURO */
+    -fx-font-weight: bold;
+    -fx-padding: 6 12;
+}
+
+/* Hover */
+.tab:hover {
+    -fx-background-color: rgba(255,255,255,0.22);
+}
+
+/* Seleccion */
+.tab:selected {
+    -fx-background-color: #3B82F6;
+    -fx-text-fill: #1f2937; /* OSCURO */
+}
+
+.tab .tab-label {
+    -fx-text-fill: #1f2937 !important;
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: #1f2937 !important;
+}
+/* ===============================
+   TABLEVIEW
+   =============================== */
+TableView {
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1.2;
+    -fx-padding: 6;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #1E293B;   /* fondo oscuro */
+}
+
+.table-view .column-header,
+.table-view .label {
+    -fx-text-fill: #1f2937;           /* texto blanco */
+    -fx-font-weight: bold;
+}
+
+/* Filas alternadas */
+.table-row-cell:odd {
+    -fx-background-color: #F9FAFB;
+}
+
+.table-row-cell:even {
+    -fx-background-color: #FFFFFF;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #DBEAFE;
+    -fx-cursor: hand;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #bfdbfe;
+}
+
+/* Celdas */
+.table-cell {
+    -fx-padding: 6 10;
+    -fx-text-fill: #1f2937;
+    -fx-border-color: transparent;
+}
