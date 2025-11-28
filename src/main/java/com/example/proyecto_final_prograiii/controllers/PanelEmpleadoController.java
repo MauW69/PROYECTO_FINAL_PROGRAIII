@@ -206,7 +206,7 @@ public class PanelEmpleadoController {
      */
     private void abrirDetalleVehiculo(int vehiculoId, int alquilerId) {
         try {
-            URL url = getClass().getResource("/com/example/proyecto_final_prograiii/vehiculoDetallesLectura.fxml");
+            URL url = getClass().getResource("/com/example/proyecto_final_prograiii/vehiculoDetallesLectura-view.fxml");
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             Scene scene = new Scene(root);

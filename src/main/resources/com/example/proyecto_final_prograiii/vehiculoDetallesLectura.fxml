@@ -11,8 +11,7 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController"
             prefHeight="400.0" prefWidth="600.0"
-            styleClass="vehicle-card"
-            stylesheets="@/com/example/proyecto_final_prograiii/css/DetalleVehiculos.css">
+            styleClass="vehicle-card">
 
     <children>
         <ImageView fitHeight="370.0" fitWidth="369.0" layoutX="272.0" layoutY="-6.0"
