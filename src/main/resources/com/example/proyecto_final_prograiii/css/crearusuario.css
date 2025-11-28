@@ -1,39 +1,77 @@
-
+/* Fondo real – aplicalo a tu AnchorPane también si es necesario */
 .root {
-    -fx-background-color: #ECECEC;
+    -fx-background-color: linear-gradient(to bottom, #1f2937, #31487A); /* azul elegante oscuro */
+    -fx-font-family: "Arial Black"; /* TODA LA PANTALLA Arial Black */
 }
+
+/* Si usas un AnchorPane específico */
+#rootPane {
+    -fx-background-color: linear-gradient(to bottom, #1f2937, #31487A);
+    -fx-font-family: "Arial Black";
+}
+
+/* Título principal */
 #crearlbl {
     -fx-font-size: 20pt;
     -fx-font-family: "Arial Black";
     -fx-text-fill: white;
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
     -fx-alignment: center;
 }
+
+/* Labels */
 .label {
-    -fx-font-size: 10pt;
-    -fx-font-family: "Arial";
-    -fx-text-fill: #333333;
-    -fx-background-color: white;
-    -fx-background-radius: 6px;
-    -fx-padding: 3 8;
-    -fx-border-color: #D0D0D0;
-    -fx-border-radius: 6px;
-}
-#btnRegistrarCliente {
-    -fx-background-color: linear-gradient(to bottom, #6EA8FF, #447CE0);
+    -fx-font-size: 12pt;
+    -fx-font-family: "Arial Black";
     -fx-text-fill: white;
+}
 
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 10px;
+/* Inputs oscuros */
+.text-field, .password-field, .combo-box {
+    -fx-background-color: #0f1a2b; /* azul oscuro */
+    -fx-background-radius: 10;
+    -fx-border-color: #4E8EA2;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-text-fill: white;
+    -fx-font-family: "Arial Black";  /* AGREGADO */
+    -fx-font-size: 11pt;
+}
 
+/* Placeholder text (MUY IMPORTANTE para que no quede gris feo) */
+.text-field .text,
+.password-field .text,
+.combo-box .text {
+    -fx-font-family: "Arial Black";
+    -fx-text-fill: white;
+}
+
+/* Prompt text (texto gris dentro del campo antes de escribir) */
+.text-field:focused .prompt-text,
+.password-field:focused .prompt-text,
+.combo-box:focused .prompt-text {
+    -fx-font-family: "Arial Black";
+    -fx-text-fill: #b4c5e4;
+}
+
+/* Enfocando inputs */
+.text-field:focused, .password-field:focused, .combo-box:focused {
+    -fx-border-color: #2563eb;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.35), 10, 0.35, 0, 3);
+}
+
+/* Botón registrar */
+#btnRegistrarCliente {
+    -fx-background-color: linear-gradient(to bottom, #4E8EA2, #2563EB);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-size: 12pt;
+    -fx-font-family: "Arial Black";
+    -fx-text-fill: white;
     -fx-padding: 10 20;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.3, 0, 3);
 }
+
 #btnRegistrarCliente:hover {
-    -fx-background-color: linear-gradient(to bottom, #7FB3FF, #5189EB);
-}
-#btnRegistrarCliente:pressed {
-    -fx-background-color: linear-gradient(to bottom, #447CE0, #305BB3);
+    -fx-background-color: linear-gradient(to bottom, #2563EB, #1D4ED8);
 }

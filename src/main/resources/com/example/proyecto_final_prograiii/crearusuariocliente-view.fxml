@@ -13,6 +13,7 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="340.0" prefWidth="595.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.CrearUsuarioClienteController">
    <children>
@@ -34,7 +35,7 @@
             </LinearGradient>
          </fill>
       </Rectangle>
-      <Rectangle height="304.0" layoutX="-8.0" layoutY="36.0" smooth="false" strokeType="INSIDE" strokeWidth="0.0" width="615.0">
+      <Rectangle height="404.0" layoutX="-8.0" layoutY="36.0" smooth="false" strokeType="INSIDE" strokeWidth="0.0" width="615.0">
          <stroke>
             <LinearGradient endX="0.7298578199052133" endY="0.042654028436018954" startX="0.7298578199052133" startY="0.9241706161137441">
                <stops>
@@ -68,7 +69,7 @@
             </LinearGradient>
          </fill>
       </Rectangle>
-      <Rectangle height="74.0" layoutX="-40.0" layoutY="266.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="647.0">
+      <Rectangle height="74.0" layoutX="-40.0" layoutY="366.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="647.0">
          <fill>
             <LinearGradient endX="0.033175355450236976" endY="0.08056872037914693" startX="0.033175355450236976" startY="0.8341232227488151">
                <stops>
@@ -85,25 +86,24 @@
                </stops>
             </LinearGradient>
          </fill></Rectangle>
-      <Label fx:id="crearlbl" layoutX="129.0" prefHeight="41.0" prefWidth="349.0" text="CREA TU CUENTA" />
-      <Label layoutX="93.0" layoutY="42.0" text="Nombre" />
-      <TextField fx:id="txtNombre" layoutX="91.0" layoutY="68.0" />
-      <Label layoutX="372.0" layoutY="42.0" text="Apellido" />
-      <TextField fx:id="txtApellido" layoutX="370.0" layoutY="68.0" />
-       <Spinner fx:id="spEdad" layoutX="91.0" layoutY="124.0" />
-      <Label layoutX="91.0" layoutY="99.0" text="Edad" />
-      <Label layoutX="370.0" layoutY="99.0" text="Telefono" />
-       <TextField fx:id="txtTelefono" layoutX="370.0" layoutY="124.0" />
-       <TextField fx:id="txtCorreo" layoutX="91.0" layoutY="181.0" />
-      <Label layoutX="90.0" layoutY="209.0" text="Direccion" />
-      <TextField fx:id="txtDireccion" layoutX="90.0" layoutY="229.0" />
-      <Label layoutX="91.0" layoutY="155.0" text="Correo electronico" />
-      <Label layoutX="370.0" layoutY="209.0" text="Clave" />
-      <Label layoutX="370.0" layoutY="155.0" text="Nombre de usuario" />
-      <TextField fx:id="txtNombreUsuario" layoutX="370.0" layoutY="181.0" />
-      <PasswordField fx:id="txtClave" layoutX="370.0" layoutY="229.0" />
-      <Button fx:id="btnRegistrarCliente" layoutX="246.0" layoutY="272.0" mnemonicParsing="false" onAction="#RegistrarCliente" text="Registrarse" />
-      <Circle layoutX="70.0" layoutY="218.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+      <Label layoutX="95.0" layoutY="57.0" text="Nombre" />
+      <TextField fx:id="txtNombre" layoutX="91.0" layoutY="81.0" />
+      <Label layoutX="371.0" layoutY="51.0" text="Apellido" />
+      <TextField fx:id="txtApellido" layoutX="370.0" layoutY="81.0" />
+       <Spinner fx:id="spEdad" layoutX="91.0" layoutY="137.0" />
+      <Label layoutX="91.0" layoutY="115.0" text="Edad" />
+      <Label layoutX="370.0" layoutY="115.0" text="Telefono" />
+       <TextField fx:id="txtTelefono" layoutX="370.0" layoutY="137.0" />
+       <TextField fx:id="txtCorreo" layoutX="91.0" layoutY="212.0" />
+      <Label layoutX="92.0" layoutY="261.0" text="Direccion" />
+      <TextField fx:id="txtDireccion" layoutX="91.0" layoutY="287.0" />
+      <Label layoutX="92.0" layoutY="185.0" text="Correo electronico" />
+      <Label layoutX="372.0" layoutY="261.0" text="Clave" />
+      <Label layoutX="372.0" layoutY="185.0" text="Nombre de usuario" />
+      <TextField fx:id="txtNombreUsuario" layoutX="370.0" layoutY="207.0" />
+      <PasswordField fx:id="txtClave" layoutX="370.0" layoutY="287.0" />
+      <Button fx:id="btnRegistrarCliente" layoutX="219.0" layoutY="374.0" mnemonicParsing="false" onAction="#RegistrarCliente" prefHeight="42.0" prefWidth="150.0" text="Registrarse" />
+      <Circle layoutX="70.0" layoutY="270.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
          <fill>
             <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
                <stops>
@@ -121,7 +121,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle layoutX="357.0" layoutY="218.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+      <Circle layoutX="357.0" layoutY="270.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
          <fill>
             <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
                <stops>
@@ -139,7 +139,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle layoutX="70.0" layoutY="164.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+      <Circle layoutX="70.0" layoutY="194.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
          <fill>
             <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
                <stops>
@@ -157,7 +157,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle layoutX="357.0" layoutY="164.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+      <Circle layoutX="357.0" layoutY="194.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
          <fill>
             <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
                <stops>
@@ -175,7 +175,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle layoutX="70.0" layoutY="108.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+      <Circle layoutX="70.0" layoutY="124.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
          <fill>
             <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
                <stops>
@@ -193,7 +193,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle layoutX="357.0" layoutY="108.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+      <Circle layoutX="363.0" layoutY="130.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
          <fill>
             <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
                <stops>
@@ -211,7 +211,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle layoutX="70.0" layoutY="50.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+      <Circle layoutX="70.0" layoutY="66.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
          <fill>
             <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
                <stops>
@@ -229,7 +229,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle layoutX="357.0" layoutY="50.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+      <Circle layoutX="357.0" layoutY="60.0" radius="6.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
          <fill>
             <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
                <stops>
@@ -247,6 +247,11 @@
             </RadialGradient>
          </fill>
       </Circle>
+      <Label layoutX="235.0" layoutY="14.0" text="CREAR CUENTA" textAlignment="JUSTIFY">
+         <font>
+            <Font size="17.0" />
+         </font>
+      </Label>
    </children>
    <cursor>
       <Cursor fx:constant="DEFAULT" />

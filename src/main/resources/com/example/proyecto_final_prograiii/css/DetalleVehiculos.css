@@ -2,7 +2,7 @@
    PANEL PRINCIPAL (Tarjeta completa)
    ============================================================ */
 .vehicle-card {
-    -fx-background-color: linear-gradient(to bottom, #2b2b2b, #1f1f1f);
+    -fx-background-color: #31487A; /* fondo oscuro */
     -fx-background-radius: 10;
     -fx-font-family: "Segoe UI", "Arial", sans-serif;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.40), 18, 0.28, 0, 6);
@@ -12,7 +12,7 @@
    PANEL IZQUIERDO OSCURO (Imagen)
    ============================================================ */
 .vehicle-card > .HBox > AnchorPane {
-    -fx-background-color: linear-gradient(to bottom, #3a3a3a, #2d2d2d);
+    -fx-background-color: #31487A; /* fondo oscuro */
     -fx-background-radius: 10 0 0 10;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0.22, 0, 4);
 }
@@ -33,7 +33,7 @@
    PANEL DERECHO (Info)
    ============================================================ */
 .vehicle-card > .HBox > AnchorPane:nth-child(2) {
-    -fx-background-color: #2a2a2a;
+    -fx-background-color: #31487A; /* fondo oscuro */
     -fx-background-radius: 0 10 10 0;
 }
 

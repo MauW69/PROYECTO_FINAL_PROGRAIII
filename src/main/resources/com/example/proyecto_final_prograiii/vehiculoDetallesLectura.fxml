@@ -8,6 +8,7 @@
 
 <AnchorPane prefHeight="318.0" prefWidth="468.0" styleClass="vehicle-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.VehiculosDetallerController">
 
+
     <children>
 
         <!-- CONTENEDOR PRINCIPAL -->

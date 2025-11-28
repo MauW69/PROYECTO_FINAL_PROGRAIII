@@ -2,7 +2,7 @@
    PANEL PRINCIPAL - FONDO ELEGANTE
    ================================================================ */
 .root-panel {
-    -fx-background-color: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+    -fx-background-color: #31487A; /* fondo oscuro */
     -fx-font-family: "Segoe UI", "Arial", sans-serif;
 }
 
@@ -71,7 +71,6 @@
     -fx-background-color: transparent;
 }
 
-/* Custom scroll bar thin + modern */
 .scroll-vehiculos .scroll-bar:vertical {
     -fx-background-color: transparent;
     -fx-pref-width: 10;
@@ -97,11 +96,12 @@
 }
 
 /* ================================================================
-   TARJETAS DE VEHÍCULOS - DISEÑO ELEGANTE RENT-A-CAR
+   TARJETAS DE VEHÍCULOS - CAMBIOS SOLICITADOS
    ================================================================ */
 .card-vehiculo {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
+    -fx-background-color: #4E8EA2;
+    -fx-background-radius: 15px;     /* MÁS REDONDEADO */
+    -fx-border-radius: 15px;         /* IMPORTANTE */
     -fx-border-color: #e8eef4;
     -fx-border-width: 1;
     -fx-padding: 12;
@@ -122,6 +122,8 @@
     -fx-translate-y: -6;
     -fx-scale-x: 1.03;
     -fx-scale-y: 1.03;
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
 }
 
 /* IMAGEN */
@@ -146,20 +148,20 @@
     -fx-smooth: true;
 }
 
-/* Tipografía */
+/* Tipografía === LETRAS EN BLANCO === */
 .card-title {
     -fx-font-family: "Arial Black", "Arial", sans-serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-text-fill: #0f172a;
+    -fx-text-fill: white;
     -fx-padding: 6 0 2 0;
     -fx-wrap-text: true;
 }
 
 .card-info {
-    -fx-font-family: "Arial", sans-serif;
+    -fx-font-family: "Arial Black", sans-serif;
     -fx-font-size: 12px;
-    -fx-text-fill: #64748b;
+    -fx-text-fill: white;    /* CAMBIADO */
     -fx-padding: 0 0 8 0;
 }
 
@@ -168,7 +170,7 @@
     -fx-font-family: "Arial Black", "Arial", sans-serif;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-text-fill: #b45309;
+    -fx-text-fill: #ffd369;  /* COLOR ORO */
 }
 
 /* Botón ver */
@@ -203,7 +205,6 @@
     -fx-padding: 8;
 }
 
-/* Card wrapper around table to give rounded container */
 .table-alquileres .table-view {
     -fx-background-color: white;
     -fx-background-radius: 12;
@@ -212,75 +213,29 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0.12, 0, 6);
 }
 
-/* Header background */
 .table-alquileres .column-header-background {
     -fx-background-color: linear-gradient(to bottom, #f1f5f9, #eef2f7);
     -fx-background-radius: 12 12 0 0;
 }
 
-/* Header labels */
 .table-alquileres .table-column .column-header,
 .table-alquileres .table-column .label {
     -fx-font-family: "Arial Black", "Arial", sans-serif;
     -fx-font-size: 12px;
-    -fx-text-fill: #0f172a;
+    -fx-text-fill:white;
     -fx-padding: 8 12 8 12;
 }
 
-/* Header separators subtle */
-.table-alquileres .column-header-background .column-header .label {
-    -fx-text-alignment: CENTER_LEFT;
-}
-
-/* Rows */
-.table-alquileres .table-row-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 6 10;
-}
-
-/* Alternate row coloring */
-.table-alquileres .table-row-cell:odd {
-    -fx-background-color: rgba(240,246,252,0.6);
-}
-.table-alquileres .table-row-cell:even {
-    -fx-background-color: transparent;
-}
-
-/* Hover and selection */
-.table-alquileres .table-row-cell:hover {
-    -fx-background-color: rgba(59,130,246,0.06);
-}
-.table-alquileres .table-row-cell:selected {
-    -fx-background-color: linear-gradient(to bottom, rgba(59,130,246,0.18), rgba(59,130,246,0.12));
-}
-
-/* Cells */
 .table-alquileres .table-cell {
     -fx-padding: 8 12;
     -fx-font-size: 13px;
     -fx-text-fill: #111827;
 }
 
-/* Right align "TOTAL" column if you give it an id later */
-.table-alquileres .table-cell:filled {
-    -fx-alignment: CENTER_LEFT;
-}
-
-/* Small subtle grid lines */
-.table-alquileres .table-row-cell {
-    -fx-border-color: transparent;
-}
-
-/* Table scrollbar styling */
-.table-alquileres .scroll-bar:vertical { -fx-pref-width: 10; }
-.table-alquileres .thumb { -fx-background-color: rgba(0,0,0,0.12); -fx-background-radius: 6; }
-
 /* ================================================================
-   OTROS IDs (botones y labels específicos)
+   OTROS IDs
    ================================================================ */
-#btnCerrarSesion { -fx-background-radius: 8; }
-#misAlquileres { -fx-background-radius: 8; }
-#btnVolver { -fx-background-radius: 8; }
+#btnCerrarSesion, #misAlquileres, #btnVolver { -fx-background-radius: 8; }
 
 #lblBienvenida {
     -fx-font-family: "Arial Black", "Arial", sans-serif;
@@ -288,5 +243,4 @@
     -fx-text-fill: white;
 }
 
-/* Alineación final del contenedor */
 #cardsContainer, .cards-wrapper { -fx-alignment: top_center; }
