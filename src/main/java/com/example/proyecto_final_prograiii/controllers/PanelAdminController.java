@@ -616,9 +616,10 @@ public class PanelAdminController {
         try {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
-
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/example/proyecto_final_prograiii/css/login.css").toExternalForm());
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
             stage.setTitle("Login");
             stage.show();
         } catch (IOException e) {

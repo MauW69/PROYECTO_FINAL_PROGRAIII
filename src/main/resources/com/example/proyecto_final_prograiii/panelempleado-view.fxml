@@ -10,11 +10,11 @@
 
 <AnchorPane prefHeight="535.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelEmpleadoController">
     <children>
-        <Label fx:id="lblBienvenida" layoutX="444.0" layoutY="15.0" text="BIENVENIDO" />
+        <Label fx:id="lblBienvenida" layoutX="316.0" layoutY="17.0" text="BIENVENIDO" />
         <Button fx:id="btnCerrarSesion" layoutX="14.0" layoutY="13.0" mnemonicParsing="false" onAction="#cerrarOnAction" prefHeight="17.0" prefWidth="166.0" text="CERRAR SESION" />
-        <Button fx:id="agregarBtn" layoutX="189.0" layoutY="77.0" mnemonicParsing="false" onAction="#agregarOnAction" prefHeight="25.0" prefWidth="140.0" text="AGREGAR VEHICULO" />
+        <Button fx:id="agregarBtn" layoutX="65.0" layoutY="79.0" mnemonicParsing="false" onAction="#agregarOnAction" prefHeight="25.0" prefWidth="225.0" text="AGREGAR VEHICULO" />
         <!-- NUEVO: boton para abrir la gestion/edicion de vehiculos -->
-        <Button fx:id="btnGestionar" layoutX="379.0" layoutY="76.0" mnemonicParsing="false" onAction="#gestionarOnAction" prefHeight="26.0" prefWidth="181.0" text="GESTIONAR VEHÍCULOS" />
+        <Button fx:id="btnGestionar" layoutX="316.0" layoutY="78.0" mnemonicParsing="false" onAction="#gestionarOnAction" prefHeight="26.0" prefWidth="271.0" text="GESTIONAR VEHÍCULOS" />
       <TabPane layoutX="36.0" layoutY="120.0" prefHeight="374.0" prefWidth="885.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab text="HISTORIAL">
@@ -85,6 +85,6 @@
             </Tab>
         </tabs>
       </TabPane>
-      <Button fx:id="btnCalendario" layoutX="612.0" layoutY="77.0" mnemonicParsing="false" onAction="#AbrirCalendario" prefHeight="26.0" prefWidth="140.0" text="CALENDARIO" />
+      <Button fx:id="btnCalendario" layoutX="632.0" layoutY="78.0" mnemonicParsing="false" onAction="#AbrirCalendario" prefHeight="26.0" prefWidth="225.0" text="CALENDARIO" />
     </children>
 </AnchorPane>

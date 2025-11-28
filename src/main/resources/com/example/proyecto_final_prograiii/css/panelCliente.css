@@ -2,8 +2,8 @@
    PANEL PRINCIPAL - FONDO ELEGANTE
    ================================================================ */
 .root-panel {
-    -fx-background-color: #31487A; /* fondo oscuro */
-    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: #1e293b;
+        -fx-font-family: "Arial Black", "Arial", sans-serif;
 }
 
 /* ================================================================
@@ -99,7 +99,7 @@
    TARJETAS DE VEHÍCULOS - CAMBIOS SOLICITADOS
    ================================================================ */
 .card-vehiculo {
-    -fx-background-color: #4E8EA2;
+    -fx-background-color: #3C4759;
     -fx-background-radius: 15px;     /* MÁS REDONDEADO */
     -fx-border-radius: 15px;         /* IMPORTANTE */
     -fx-border-color: #e8eef4;

@@ -12,11 +12,11 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="598.0" prefWidth="1476.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelAdminController">
+<AnchorPane prefHeight="520.0" prefWidth="1380.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto_final_prograiii.controllers.PanelAdminController">
     <children>
         <Label fx:id="lblBienvenida" layoutX="38.0" layoutY="14.0" text="Bienvenida" />
         <!-- Botón Cerrar sesión -->
-        <Button fx:id="btnCerrarSesion" layoutX="827.0" layoutY="18.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="26.0" prefWidth="134.0" text="Cerrar sesion" />
+        <Button fx:id="btnCerrarSesion" layoutX="623.0" layoutY="18.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="26.0" prefWidth="134.0" text="Cerrar sesion" />
         <TabPane layoutX="7.0" layoutY="61.0" prefHeight="462.0" prefWidth="1366.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab text="Empleados">
@@ -34,7 +34,7 @@
                                     </columns>
                                 </TableView>
                                 <Accordion layoutX="14.0" layoutY="50.0" />
-                                <Label layoutX="579.0" layoutY="5.0" text="Tabla de empleados" />
+                                <Label layoutX="630.0" layoutY="6.0" text="Tabla de empleados" />
                                 <Label layoutX="35.0" layoutY="54.0" text="Nombre de Usuario" />
                                 <Label layoutX="97.0" layoutY="100.0" text="Clave" />
                                 <Label layoutX="55.0" layoutY="156.0" text="Confirmar Clave" />

@@ -141,7 +141,7 @@ public class LoginController {
                 break;
 
             case 2:
-                abrirVista("panelempleado-view.fxml", "Panel de Empleado","login.css");
+                abrirVista("panelempleado-view.fxml", "Panel de Empleado","panelEmpleado.css");
                 break;
 
             case 3:
